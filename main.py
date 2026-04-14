@@ -6,7 +6,9 @@ import traceback
 import uuid
 from datetime import datetime
 
+from analysis.anomaly import detect_anomalies
 from config import settings
+from notifications.telegram import TelegramNotifier
 from scrapers.base import BaseScraper
 from scrapers.trendyol import TrendyolScraper
 from storage.database import connect, init_schema, save_snapshot, start_run, finish_run
@@ -105,9 +107,35 @@ def run_pipeline(
     }
 
 
+def _combine_stats(all_stats: list[dict]) -> dict:
+    """Birden çok kategorinin istatistiklerini tek özete indir."""
+    if not all_stats:
+        return {
+            "status": "failed", "products_saved": 0, "duration_seconds": 0,
+            "error_message": "Hiç kategori çalıştırılmadı",
+        }
+    saved = sum(s["products_saved"] for s in all_stats)
+    duration = sum(s["duration_seconds"] for s in all_stats)
+    any_failed = any(s["status"] == "failed" for s in all_stats)
+    if any_failed and saved == 0:
+        status = "failed"
+    elif any_failed:
+        status = "partial"
+    else:
+        status = "success"
+    error = next((s["error_message"] for s in all_stats if s["error_message"]), None)
+    return {
+        "status": status,
+        "products_saved": saved,
+        "duration_seconds": duration,
+        "error_message": error,
+    }
+
+
 def main() -> int:
     """CLI giriş noktası. Default kategori listesini çalıştırır."""
     overall_status = 0
+    all_stats = []
     for cat in _DEFAULT_CATEGORIES:
         scraper = TrendyolScraper()
         stats = run_pipeline(
@@ -116,8 +144,24 @@ def main() -> int:
             category_name=cat["name"],
             max_products=settings.scraper_max_products,
         )
+        all_stats.append(stats)
         if stats["status"] == "failed":
             overall_status = 1
+
+    try:
+        conn = connect(settings.database_path)
+        init_schema(conn)
+        anomalies = detect_anomalies(conn, threshold_percent=settings.telegram_threshold)
+        combined_stats = _combine_stats(all_stats)
+        notifier = TelegramNotifier(
+            bot_token=settings.telegram_bot_token,
+            chat_id=settings.telegram_chat_id,
+            enabled=settings.telegram_enabled,
+        )
+        notifier.notify_run(combined_stats, anomalies)
+    except Exception as e:
+        log.warning(f"Telegram bildirimi başarısız: {e}")
+
     return overall_status
 
 
