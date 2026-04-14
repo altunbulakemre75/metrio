@@ -8,6 +8,13 @@ from storage.models import ProductSnapshot
 _MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 
 
+def _adapt_datetime(dt: datetime) -> str:
+    return dt.isoformat(sep=" ", timespec="seconds")
+
+
+sqlite3.register_adapter(datetime, _adapt_datetime)
+
+
 def connect(db_path: str) -> sqlite3.Connection:
     """SQLite bağlantısı açar, gerekirse veritabanı dosyasını oluşturur."""
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
