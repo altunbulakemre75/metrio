@@ -21,8 +21,8 @@ def test_parse_full_card():
     assert snap.price == 149.90
     assert snap.original_price == 199.90
     assert abs(snap.discount_rate - 0.25) < 0.01
-    assert snap.seller_name == "NiveaResmiMagaza"
-    assert snap.seller_rating == 9.2
+    assert snap.seller_name is None  # listeleme sayfasında yok
+    assert snap.seller_rating == 4.6  # .average-rating
     assert snap.image_url.startswith("https://cdn.dsmcdn.com/")
     assert snap.product_url.startswith("https://www.trendyol.com/")
     assert snap.in_stock is True
@@ -44,7 +44,7 @@ def test_parse_out_of_stock_card():
     assert snap.in_stock is False
 
 
-def test_parse_card_without_data_id_returns_none():
-    html = '<div class="p-card-wrppr"></div>'
+def test_parse_card_without_id_returns_none():
+    html = '<a class="product-card"></a>'
     snap = parse_product_card(html, category="kozmetik", captured_at=datetime.now())
     assert snap is None

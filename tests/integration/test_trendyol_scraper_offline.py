@@ -24,20 +24,16 @@ def test_extract_cards_respects_max_products_limit():
 
 def test_extract_cards_skips_unparseable():
     html = """
-    <div class="prdct-cntnr-wrppr">
-      <div class="p-card-wrppr" data-id="111">
-        <a class="p-card-chldrn-cntnr" href="/u-p-111">
-          <span class="prdct-desc-cntnr-name">Iyi Urun</span>
-          <div class="prc-box-dscntd">99,90 TL</div>
-        </a>
-      </div>
-      <div class="p-card-wrppr"><!-- data-id eksik --></div>
-      <div class="p-card-wrppr" data-id="333">
-        <a class="p-card-chldrn-cntnr" href="/u-p-333">
-          <span class="prdct-desc-cntnr-name">Diger Urun</span>
-          <div class="prc-box-dscntd">149,50 TL</div>
-        </a>
-      </div>
+    <div class="search-result-products">
+      <a class="product-card" id="111" href="/u-p-111">
+        <span class="product-name">Iyi Urun</span>
+        <div class="price-section">99,90 TL</div>
+      </a>
+      <a class="product-card"><!-- id eksik --></a>
+      <a class="product-card" id="333" href="/u-p-333">
+        <span class="product-name">Diger Urun</span>
+        <div class="price-section">149,50 TL</div>
+      </a>
     </div>
     """
     snaps = extract_cards_from_page(html, category="kozmetik", captured_at=datetime(2026, 4, 14))

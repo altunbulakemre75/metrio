@@ -13,7 +13,7 @@ from utils.retry import retry
 
 _PRICE_PATTERN = re.compile(r"[\d.,]+")
 _BASE_URL = "https://www.trendyol.com"
-_CARD_SELECTOR = ".p-card-wrppr"
+_CARD_SELECTOR = "a.product-card"
 
 log = get_logger("trendyol")
 
@@ -59,33 +59,43 @@ def parse_product_card(
 ) -> ProductSnapshot | None:
     """Tek bir ürün kartı HTML'ini ProductSnapshot'a çevirir.
 
-    Selector şeması Trendyol'a özel. Site değişirse burası güncellenmeli.
+    Selector şeması Trendyol'a özel (2026 yapısı). Site değişirse burası güncellenmeli.
     Parse edilemeyen kartlar için None döner (üst katmana atlama sinyali).
+    Not: Listeleme sayfasında satıcı adı görünmez → seller_name None kalır.
     """
     soup = BeautifulSoup(html, "lxml")
-    wrapper = soup.select_one(".p-card-wrppr")
-    if wrapper is None:
+    card = soup.select_one("a.product-card")
+    if card is None:
         return None
 
-    product_id = wrapper.get("data-id")
+    product_id = card.get("id")
     if not product_id:
         return None
 
-    name_el = wrapper.select_one(".prdct-desc-cntnr-name")
-    brand_el = wrapper.select_one(".prdct-desc-cntnr-ttl")
-    link_el = wrapper.select_one("a.p-card-chldrn-cntnr")
-    img_el = wrapper.select_one("img.p-card-img")
+    name_el = card.select_one(".product-name")
+    brand_el = card.select_one(".product-brand")
+    img_el = card.select_one("img[data-testid='image-img']") or card.select_one("img.image")
 
-    price_el = wrapper.select_one(".prc-box-dscntd")
-    original_price_el = wrapper.select_one(".prc-box-orgnl")
+    # Fiyat: discounted (price-value) veya single (price-section)
+    price_el = (
+        card.select_one("[data-testid='price-value']")
+        or card.select_one("[data-testid='price-section']")
+        or card.select_one(".price-value")
+        or card.select_one(".price-section")
+    )
+    original_price_el = card.select_one(".strikethrough-price")
 
-    seller_name_el = wrapper.select_one(".merchant-name")
-    seller_rating_el = wrapper.select_one(".merchant-rating")
+    rating_el = card.select_one(".average-rating")
 
-    out_of_stock_el = wrapper.select_one(".stmp")
+    # Stok: "sold-out" class veya Tükendi damgası
+    card_classes = card.get("class", [])
     in_stock = True
-    if out_of_stock_el and "tükendi" in out_of_stock_el.get_text(strip=True).lower():
+    if "sold-out" in card_classes:
         in_stock = False
+    else:
+        sold_out_stamp = card.select_one(".sold-out-stamp") or card.select_one(".stamp")
+        if sold_out_stamp and "tükendi" in sold_out_stamp.get_text(strip=True).lower():
+            in_stock = False
 
     if name_el is None or price_el is None:
         return None
@@ -98,27 +108,34 @@ def parse_product_card(
     discount_rate = parse_discount_rate(original_price, price)
 
     rating = None
-    if seller_rating_el:
+    if rating_el:
         try:
-            rating = float(seller_rating_el.get_text(strip=True).replace(",", "."))
+            rating = float(rating_el.get_text(strip=True).replace(",", "."))
         except ValueError:
             rating = None
 
-    href = link_el.get("href", "") if link_el else ""
+    href = card.get("href", "")
     product_url = href if href.startswith("http") else f"{_BASE_URL}{href}"
+
+    # Brand image/icon temizliği — "resmi satıcı rozeti" <img> alt metin çıkıntısını engelle
+    brand_text = None
+    if brand_el:
+        brand_text = brand_el.get_text(strip=True)
+        # Alt metinde ikon açıklaması kalabilir (örn. "Resmi satıcı rozeti")
+        # Gerçek marka adı ilk satır olduğu için .get_text() yeterli
 
     return ProductSnapshot(
         platform="trendyol",
         platform_product_id=product_id,
         name=name_el.get_text(strip=True),
-        brand=brand_el.get_text(strip=True) if brand_el else None,
+        brand=brand_text,
         category=category,
         product_url=product_url,
         image_url=img_el.get("src") if img_el else None,
         price=price,
         original_price=original_price,
         discount_rate=discount_rate,
-        seller_name=seller_name_el.get_text(strip=True) if seller_name_el else None,
+        seller_name=None,  # Listeleme sayfasında yok
         seller_rating=rating,
         in_stock=in_stock,
         captured_at=captured_at,
