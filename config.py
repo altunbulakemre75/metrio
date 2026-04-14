@@ -18,6 +18,8 @@ class Settings(BaseSettings):
 
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
+    telegram_threshold: float = Field(default=0.20, gt=0, lt=1)
+    telegram_enabled: bool = False
 
 
 settings = Settings()
