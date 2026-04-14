@@ -162,7 +162,7 @@ def extract_cards_from_page(
 
         snap = parse_product_card(str(card), category=category, captured_at=captured_at)
         if snap is None:
-            log.warning(f"Kart parse edilemedi (data-id={card.get('data-id')}), atlandı")
+            log.warning(f"Kart parse edilemedi (id={card.get('id')}), atlandı")
             continue
         snapshots.append(snap)
 
