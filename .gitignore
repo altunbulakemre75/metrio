@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Environment
+.env
+
+# Data & Logs
+data/*.db
+data/*.db-journal
+logs/*.log
+logs/*.log.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Playwright
+playwright-report/
+test-results/
