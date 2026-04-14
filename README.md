@@ -64,10 +64,34 @@ Uygulama planı: [docs/superpowers/plans/2026-04-14-fiyat-radari-hafta1.md](docs
 - [x] Log yapılandırılmış, günlük rotasyon
 - [x] GitHub'a yüklenebilir durumda, commit'ler odaklı
 
-## Sonraki Adımlar (Hafta 2)
+## Dashboard (Hafta 2)
 
-- `analysis/` modülleri (fiyat değişim tespiti, anomali)
-- Streamlit `dashboard/` sayfası
-- HTML/PDF rapor üretimi
-- Telegram bildirim sistemi
-- İkinci kategori (elektronik) ile sistemin çoklu kategoride testi
+### Çalıştırma
+```bash
+source .venv/Scripts/activate
+streamlit run dashboard/app.py
+```
+Tarayıcıda `http://localhost:8501` açılır.
+
+### Sayfalar
+- **📊 Özet** — Genel durum, günlük yorum, son hareketler/anomaliler
+- **🎯 Fırsatlar** — En büyük fiyat hareketleri, filtre + CSV indir
+- **🚨 Anomaliler** — Normalden sapan fiyatlar, eşik ayarlanabilir
+- **📈 Trendler** — Marka/kategori zaman serisi
+- **🔍 Ürün Detay** — Arama + tek ürün fiyat geçmişi
+
+### Demo Verisi
+Gerçek veri biriktirilene kadar demo için:
+```bash
+python scripts/seed_demo_history.py --days 30 --anomalies 3
+```
+Mevcut ürünlere 30 gün sentetik geçmiş ekler (3 üründe kasıtlı anomali).
+
+## Sonraki Adımlar (Hafta 3+)
+
+- Telegram bildirim sistemi (anomali alarmları)
+- PDF rapor üretimi (müşteriye gönderilebilir)
+- Claude API ile gerçek AI yorumları
+- Multi-tenant (birden fazla müşteri)
+- Hepsiburada / Amazon scraper'ları
+- İkinci kategori (elektronik) testi
