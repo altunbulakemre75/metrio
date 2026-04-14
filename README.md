@@ -87,9 +87,38 @@ python scripts/seed_demo_history.py --days 30 --anomalies 3
 ```
 Mevcut ürünlere 30 gün sentetik geçmiş ekler (3 üründe kasıtlı anomali).
 
-## Sonraki Adımlar (Hafta 3+)
+## Telegram Bildirimleri (Hafta 3)
 
-- Telegram bildirim sistemi (anomali alarmları)
+Pipeline çalıştığında günlük özet + anomali alarmları telefonuna düşer.
+
+### Kurulum
+
+1. Telegram'da `@BotFather` ile sohbet başlat → `/newbot` → adım adım bot oluştur.
+2. Verilen token'ı `.env` dosyasına ekle:
+   ```
+   TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
+   ```
+3. Kendi oluşturduğun bota bir "merhaba" mesajı gönder.
+4. Chat ID'yi bul:
+   ```bash
+   python scripts/setup_telegram.py
+   ```
+5. Çıkan ID'yi `.env`'ye ekle ve aktif et:
+   ```
+   TELEGRAM_CHAT_ID=987654321
+   TELEGRAM_ENABLED=true
+   TELEGRAM_THRESHOLD=0.20
+   ```
+6. `python main.py` çalıştır → telefonda mesaj gelmeli.
+
+### Mesaj çeşitleri
+
+- **Günlük özet** — her çalıştırmada 1 mesaj (kaç ürün, kaç anomali, süre)
+- **Anomali alarmı** — eşiği aşan her ürün için 1 mesaj (max 10)
+- **Gruplu özet** — 10'dan fazla anomali varsa tek mesajda özet
+
+## Sonraki Adımlar (Hafta 4+)
+
 - PDF rapor üretimi (müşteriye gönderilebilir)
 - Claude API ile gerçek AI yorumları
 - Multi-tenant (birden fazla müşteri)
