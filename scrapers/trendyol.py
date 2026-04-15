@@ -211,18 +211,39 @@ class TrendyolScraper(BaseScraper):
         context = browser.new_context(user_agent=settings.scraper_user_agent)
         page = context.new_page()
         try:
-            html = self._load_page(page, category_url)
             captured_at = datetime.now()
-            snapshots = extract_cards_from_page(
-                html,
-                category=self._infer_category_from_url(category_url),
-                captured_at=captured_at,
-                max_products=max_products,
-            )
-            log.info(f"{len(snapshots)} ürün çekildi")
-            return snapshots
+            category = self._infer_category_from_url(category_url)
+            all_snaps: list[ProductSnapshot] = []
+            seen_ids: set[str] = set()
+
+            for page_num in range(1, 26):  # max 25 sayfa
+                if len(all_snaps) >= max_products:
+                    break
+                url = self._paginated_url(category_url, page_num)
+                html = self._load_page(page, url)
+                snapshots = extract_cards_from_page(
+                    html, category=category, captured_at=captured_at,
+                    max_products=max_products - len(all_snaps),
+                )
+                new_snaps = [s for s in snapshots if s.platform_product_id not in seen_ids]
+                if not new_snaps:
+                    log.info(f"Sayfa {page_num} boş, duruldu")
+                    break
+                for s in new_snaps:
+                    seen_ids.add(s.platform_product_id)
+                all_snaps.extend(new_snaps)
+                log.info(f"Sayfa {page_num}: {len(new_snaps)} yeni (toplam {len(all_snaps)})")
+
+            log.info(f"Toplam {len(all_snaps)} ürün çekildi")
+            return all_snaps
         finally:
             context.close()
+
+    def _paginated_url(self, base_url: str, page_num: int) -> str:
+        if page_num == 1:
+            return base_url
+        separator = "&" if "?" in base_url else "?"
+        return f"{base_url}{separator}pi={page_num}"
 
     def _infer_category_from_url(self, url: str) -> str:
         """URL'den kategori adını çıkar. Örn: .../kozmetik-x-c89 -> 'kozmetik'."""
