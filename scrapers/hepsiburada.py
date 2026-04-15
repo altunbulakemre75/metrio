@@ -7,8 +7,10 @@ from config import settings
 from scrapers.base import BaseScraper
 from scrapers.trendyol import parse_price_text, parse_discount_rate
 from storage.models import ProductSnapshot
+from utils.fingerprint import get_fingerprint
 from utils.logger import get_logger
-from utils.rate_limiter import rate_limit
+from utils.proxy_pool import ProxyPool
+from utils.rate_limiter import rate_limit, jitter_delay
 from utils.retry import retry
 
 _BASE_URL = "https://www.hepsiburada.com"
@@ -126,6 +128,7 @@ class HepsiburadaScraper(BaseScraper):
     def __init__(self):
         self._playwright = None
         self._browser: Browser | None = None
+        self._proxy_pool = ProxyPool(settings.proxy_list, settings.proxy_enabled)
 
     def _ensure_browser(self) -> Browser:
         if self._browser is None:
@@ -135,7 +138,7 @@ class HepsiburadaScraper(BaseScraper):
             )
         return self._browser
 
-    @rate_limit(calls_per_second=settings.scraper_requests_per_second)
+    @jitter_delay(settings.scraper_min_delay, settings.scraper_max_delay)
     @retry(max_attempts=3, backoff_base=2, exceptions=(Exception,))
     def _load_page(self, page: Page, url: str) -> str:
         log.info(f"Sayfa yükleniyor: {url}")
@@ -159,7 +162,16 @@ class HepsiburadaScraper(BaseScraper):
         max_products: int = 500,
     ) -> list[ProductSnapshot]:
         browser = self._ensure_browser()
-        context = browser.new_context(user_agent=settings.scraper_user_agent)
+        fp = get_fingerprint()
+        ctx_args = {
+            "user_agent": fp["user_agent"],
+            "viewport": fp["viewport"],
+            "locale": fp["locale"],
+        }
+        proxy = self._proxy_pool.pick()
+        if proxy:
+            ctx_args["proxy"] = proxy
+        context = browser.new_context(**ctx_args)
         page = context.new_page()
         try:
             html = self._load_page(page, category_url)
