@@ -10,9 +10,10 @@ from dashboard.app import get_conn
 from analysis.price_changes import top_movers
 from dashboard.components.charts import top_discounts_bar
 from dashboard.components.exports import csv_download_button
+from dashboard.utils.ui import apply_custom_styles
 
 
-st.set_page_config(page_title="Fırsatlar | Metrio", page_icon="🎯", layout="wide")
+apply_custom_styles(page_title="Fırsatlar | Metrio", page_icon="🎯")
 
 st.title("🎯 Fırsatlar — Fiyat Hareketleri")
 

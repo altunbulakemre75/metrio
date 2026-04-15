@@ -13,9 +13,11 @@ from analysis.price_changes import top_movers
 from analysis.anomaly import detect_anomalies
 from analysis.commentary import generate_daily_summary
 from dashboard.components.cards import summary_row
+from dashboard.utils.ui import apply_custom_styles
 
 
-st.set_page_config(page_title="Metrio", page_icon="📊", layout="wide")
+apply_custom_styles(page_title="Metrio Dash", page_icon="📈")
+
 
 
 @st.cache_resource
