@@ -21,5 +21,13 @@ class Settings(BaseSettings):
     telegram_threshold: float = Field(default=0.20, gt=0, lt=1)
     telegram_enabled: bool = False
 
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    email_from: str = ""
+    email_recipients: str = ""
+    email_enabled: bool = False
+
 
 settings = Settings()

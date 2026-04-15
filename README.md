@@ -135,7 +135,42 @@ python scripts/generate_report.py --days 7
 - Marka trendi — zaman serisi grafik
 - Tam ürün listesi
 
-## Sonraki Adımlar (Hafta 5+)
+## E-posta Otomasyonu (Hafta 5)
+
+Haftalık PDF raporunu otomatik mail olarak gönder.
+
+### Kurulum
+
+Gmail için **App Password** gerekli (normal şifre SMTP'de çalışmaz):
+
+1. [Google Hesabı → Güvenlik → 2FA](https://myaccount.google.com/security) aktifleştir.
+2. "App passwords" sayfasında yeni bir şifre üret (16 hane).
+3. `.env` dosyasına ekle:
+   ```
+   SMTP_USER=senin@gmail.com
+   SMTP_PASSWORD=abcd efgh ijkl mnop
+   EMAIL_FROM=senin@gmail.com
+   EMAIL_RECIPIENTS=musteri1@firma.com,musteri2@firma.com
+   EMAIL_ENABLED=true
+   ```
+4. Test et:
+   ```bash
+   python scripts/send_weekly_email.py
+   ```
+
+### Otomatik haftalık gönderim (Windows)
+
+1. `run_weekly_email.bat` bu dizinde hazır.
+2. Task Scheduler: Yeni Task → Trigger "Weekly", Pazartesi 09:00.
+3. Action → `run_weekly_email.bat`.
+
+### Diğer SMTP sağlayıcıları
+
+- Outlook: `SMTP_HOST=smtp-mail.outlook.com`, `SMTP_PORT=587`.
+- Yandex: `SMTP_HOST=smtp.yandex.com`, `SMTP_PORT=587`.
+- Kendi sunucunuz varsa istediğiniz host/port.
+
+## Sonraki Adımlar (Hafta 6+)
 - Claude API ile gerçek AI yorumları
 - Multi-tenant (birden fazla müşteri)
 - Hepsiburada / Amazon scraper'ları
