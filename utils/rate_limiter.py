@@ -1,4 +1,5 @@
 import functools
+import random
 import time
 from typing import Callable
 
@@ -25,5 +26,19 @@ def rate_limit(calls_per_second: float):
             last_call[0] = time.monotonic()
             return func(*args, **kwargs)
 
+        return wrapper
+    return decorator
+
+
+def jitter_delay(min_seconds: float, max_seconds: float):
+    """Her çağrıdan önce uniform(min, max) saniye bekler."""
+    if min_seconds < 0 or max_seconds < min_seconds:
+        raise ValueError("geçersiz jitter aralığı")
+
+    def decorator(func: Callable):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            time.sleep(random.uniform(min_seconds, max_seconds))
+            return func(*args, **kwargs)
         return wrapper
     return decorator
