@@ -118,3 +118,75 @@ def extract_cards_from_page(
         snapshots.append(snap)
 
     return snapshots
+
+
+class HepsiburadaScraper(BaseScraper):
+    """Playwright ile Hepsiburada kategori sayfalarını çeker."""
+
+    def __init__(self):
+        self._playwright = None
+        self._browser: Browser | None = None
+
+    def _ensure_browser(self) -> Browser:
+        if self._browser is None:
+            self._playwright = sync_playwright().start()
+            self._browser = self._playwright.chromium.launch(
+                headless=settings.scraper_headless,
+            )
+        return self._browser
+
+    @rate_limit(calls_per_second=settings.scraper_requests_per_second)
+    @retry(max_attempts=3, backoff_base=2, exceptions=(Exception,))
+    def _load_page(self, page: Page, url: str) -> str:
+        log.info(f"Sayfa yükleniyor: {url}")
+        page.goto(url, wait_until="networkidle", timeout=45000)
+        self._scroll_to_load(page)
+        return page.content()
+
+    def _scroll_to_load(self, page: Page, max_scrolls: int = 10) -> None:
+        """Infinite scroll sayfasında aşağı in, daha fazla ürün yüklet."""
+        for _ in range(max_scrolls):
+            previous_height = page.evaluate("document.body.scrollHeight")
+            page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            page.wait_for_timeout(1000)
+            new_height = page.evaluate("document.body.scrollHeight")
+            if new_height == previous_height:
+                break
+
+    def fetch_category(
+        self,
+        category_url: str,
+        max_products: int = 500,
+    ) -> list[ProductSnapshot]:
+        browser = self._ensure_browser()
+        context = browser.new_context(user_agent=settings.scraper_user_agent)
+        page = context.new_page()
+        try:
+            html = self._load_page(page, category_url)
+            captured_at = datetime.now()
+            snapshots = extract_cards_from_page(
+                html,
+                category=self._infer_category_from_url(category_url),
+                captured_at=captured_at,
+                max_products=max_products,
+            )
+            log.info(f"{len(snapshots)} ürün çekildi")
+            return snapshots
+        finally:
+            context.close()
+
+    def _infer_category_from_url(self, url: str) -> str:
+        url_lower = url.lower()
+        known = ["kozmetik", "elektronik", "giyim", "ev-yasam", "kitap"]
+        for k in known:
+            if k in url_lower:
+                return k
+        return "unknown"
+
+    def close(self) -> None:
+        if self._browser:
+            self._browser.close()
+            self._browser = None
+        if self._playwright:
+            self._playwright.stop()
+            self._playwright = None
