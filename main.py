@@ -26,18 +26,18 @@ _DEFAULT_CATEGORIES = [
     },
     {
         "platform": "trendyol",
-        "name": "elektronik",
-        "url": "https://www.trendyol.com/elektronik-x-c1",
+        "name": "cep-telefonu",
+        "url": "https://www.trendyol.com/cep-telefonu-x-c103498",
     },
     {
-        "platform": "hepsiburada",
-        "name": "kozmetik",
-        "url": "https://www.hepsiburada.com/kozmetik-c-14003",
+        "platform": "trendyol",
+        "name": "parfum",
+        "url": "https://www.trendyol.com/parfum-x-c105",
     },
     {
-        "platform": "hepsiburada",
-        "name": "elektronik",
-        "url": "https://www.hepsiburada.com/elektronik-c-14002",
+        "platform": "trendyol",
+        "name": "vitamin",
+        "url": "https://www.trendyol.com/vitamin-ve-takviye-gida-x-c108713",
     },
 ]
 

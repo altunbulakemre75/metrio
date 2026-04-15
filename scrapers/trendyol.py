@@ -227,7 +227,10 @@ class TrendyolScraper(BaseScraper):
     def _infer_category_from_url(self, url: str) -> str:
         """URL'den kategori adını çıkar. Örn: .../kozmetik-x-c89 -> 'kozmetik'."""
         url_lower = url.lower()
-        known = ["kozmetik", "elektronik", "giyim", "ev-yasam", "kitap"]
+        known = [
+            "kozmetik", "elektronik", "giyim", "ev-yasam", "kitap",
+            "cep-telefonu", "parfum", "makyaj", "cilt-bakimi", "vitamin",
+        ]
         for k in known:
             if k in url_lower:
                 return k
