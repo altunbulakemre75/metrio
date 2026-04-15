@@ -1,10 +1,22 @@
 """Metrio — Günlük scraping pipeline'ı."""
 
+import argparse
+import json
+import os
 import sys
 import time
 import traceback
 import uuid
 from datetime import datetime
+from pathlib import Path
+
+# --config argümanı varsa, import'tan ÖNCE METRIO_ENV_FILE'ı set et.
+# Böylece config.py ilk yüklendiğinde doğru .env'i okur.
+_pre_parser = argparse.ArgumentParser(add_help=False)
+_pre_parser.add_argument("--config", help="Alternatif .env dosyası (müşteriye özel)")
+_pre_args, _ = _pre_parser.parse_known_args()
+if _pre_args.config:
+    os.environ["METRIO_ENV_FILE"] = _pre_args.config
 
 from analysis.anomaly import detect_anomalies
 from config import settings
@@ -155,11 +167,25 @@ def _combine_stats(all_stats: list[dict]) -> dict:
     }
 
 
+def _load_categories() -> list[dict]:
+    """settings.categories_file varsa JSON'dan yükle, yoksa hardcoded default'u kullan."""
+    path = (settings.categories_file or "").strip()
+    if path and Path(path).is_file():
+        try:
+            data = json.loads(Path(path).read_text(encoding="utf-8"))
+            if isinstance(data, list) and data:
+                return data
+            log.warning(f"categories_file bos veya gecersiz, default kullanilacak: {path}")
+        except Exception as e:
+            log.warning(f"categories_file okunamadi ({path}): {e} — default kullanilacak")
+    return _DEFAULT_CATEGORIES
+
+
 def main() -> int:
     """CLI giriş noktası. Default kategori listesini çalıştırır."""
     overall_status = 0
     all_stats = []
-    for cat in _DEFAULT_CATEGORIES:
+    for cat in _load_categories():
         scraper = _make_scraper(cat["platform"])
         stats = run_pipeline(
             scraper=scraper,

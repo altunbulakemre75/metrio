@@ -7,10 +7,13 @@ venv/
 
 # Environment
 .env
+config/customers/*/.env
+config/customers/*/meta.json
 
 # Data & Logs
 data/*.db
 data/*.db-journal
+data/*/
 logs/*.log
 logs/*.log.*
 bot_state.json
