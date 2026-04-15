@@ -117,9 +117,25 @@ Pipeline çalıştığında günlük özet + anomali alarmları telefonuna düş
 - **Anomali alarmı** — eşiği aşan her ürün için 1 mesaj (max 10)
 - **Gruplu özet** — 10'dan fazla anomali varsa tek mesajda özet
 
-## Sonraki Adımlar (Hafta 4+)
+## Haftalık PDF Raporu (Hafta 4)
 
-- PDF rapor üretimi (müşteriye gönderilebilir)
+Müşteriye mail ile gönderilebilecek profesyonel rapor üret:
+
+```bash
+python scripts/generate_report.py --days 7
+```
+
+Çıktı: `reports/fiyat_radari_YYYY-MM-DD.pdf` (5-6 sayfa).
+
+İçerik:
+- Kapak — dönem, tarih
+- Özet — kaç ürün, kaç marka, kaç anomali, top 3 fırsat
+- En büyük fiyat hareketleri — top 10 tablo
+- Anomaliler — %20+ sapma tablosu
+- Marka trendi — zaman serisi grafik
+- Tam ürün listesi
+
+## Sonraki Adımlar (Hafta 5+)
 - Claude API ile gerçek AI yorumları
 - Multi-tenant (birden fazla müşteri)
 - Hepsiburada / Amazon scraper'ları

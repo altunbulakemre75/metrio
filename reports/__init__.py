@@ -1,0 +1,1 @@
+"""Haftalık PDF rapor paketi."""
