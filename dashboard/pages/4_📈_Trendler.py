@@ -11,7 +11,7 @@ from analysis.trends import brand_trend, category_trend
 from dashboard.components.charts import trend_line
 
 
-st.set_page_config(page_title="Trendler | Fiyat Radarı", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Trendler | Metrio", page_icon="📈", layout="wide")
 
 st.title("📈 Trendler — Zaman İçinde Fiyat Eğilimi")
 

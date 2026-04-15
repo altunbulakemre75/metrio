@@ -1,4 +1,4 @@
-# Fiyat Radarı — Hafta 4: Haftalık PDF Raporu
+# Metrio — Hafta 4: Haftalık PDF Raporu
 
 **Tarih:** 2026-04-15
 **Durum:** Onaylandı, implementasyona hazır
@@ -12,7 +12,7 @@ Tek komut ile PDF üretilir:
 python scripts/generate_report.py --days 7
 ```
 
-Çıktı: `reports/fiyat_radari_2026-04-15.pdf` (5-6 sayfa).
+Çıktı: `reports/metrio_2026-04-15.pdf` (5-6 sayfa).
 
 ## Kapsam dışı (YAGNI)
 
@@ -23,7 +23,7 @@ python scripts/generate_report.py --days 7
 
 ## İçerik (sayfalar)
 
-1. **Kapak** — başlık "Fiyat Radarı — Haftalık Rapor", dönem tarihi, üretim tarihi.
+1. **Kapak** — başlık "Metrio — Haftalık Rapor", dönem tarihi, üretim tarihi.
 2. **Özet** — toplam ürün sayısı, izlenen marka sayısı, toplam anomali, top 3 fırsat.
 3. **En Büyük Fiyat Hareketleri** — top 10 tablo (marka, ürün, eski/yeni fiyat, değişim %, URL).
 4. **Anomaliler** — %20+ sapma tablosu (marka, ürün, güncel, ortalama, sapma %, güven).
@@ -79,14 +79,14 @@ python scripts/generate_report.py --days 7 [--output reports/] [--category kozme
 - `--output` (path, default `reports/`) — çıktı dizini (yoksa oluşturulur)
 - `--category` (str, opsiyonel) — şimdilik sadece metadata olarak kullanılır (tek kategori var)
 
-Çıktı dosya adı: `fiyat_radari_{YYYY-MM-DD}.pdf` (çalıştırılan günün tarihi).
+Çıktı dosya adı: `metrio_{YYYY-MM-DD}.pdf` (çalıştırılan günün tarihi).
 
 ## Stil
 
 - Ana renk: `#E85D04` (dashboard ile uyum).
 - Başlık fontu: Helvetica-Bold 18pt.
 - Tablo: ReportLab Table + TableStyle, zebra-striped.
-- Sayfa altına footer: "Fiyat Radarı · {tarih}".
+- Sayfa altına footer: "Metrio · {tarih}".
 - A4 dikey, 15mm marjin.
 
 ## Hata yönetimi
@@ -118,7 +118,7 @@ README'ye eklenir:
 
 1. Bağımlılıklar yüklü (`pip install -r requirements.txt` yeterli, yeni kütüphaneler eklendi).
 2. `python scripts/generate_report.py --days 7` çalıştır.
-3. `reports/fiyat_radari_2026-04-15.pdf` aç.
+3. `reports/metrio_2026-04-15.pdf` aç.
 
 ## Bağımlılıklar
 
@@ -132,7 +132,7 @@ Not: `matplotlib` zaten dolaylı olarak pandas ile bir sürüme gelebilir, ama d
 
 ## Kabul kriterleri
 
-- [ ] `python scripts/generate_report.py --days 7` `reports/fiyat_radari_YYYY-MM-DD.pdf` üretir.
+- [ ] `python scripts/generate_report.py --days 7` `reports/metrio_YYYY-MM-DD.pdf` üretir.
 - [ ] PDF 5-6 sayfa, kapak + özet + movers + anomaliler + trend + liste içerir.
 - [ ] Tüm unit+integration testler geçer.
 - [ ] Boş veri durumunda bile PDF üretilir (sayfalar "veri yok" ile doldurulur).

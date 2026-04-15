@@ -37,7 +37,7 @@ def main() -> int:
         return 0
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        pdf_path = Path(tmpdir) / f"fiyat_radari_{datetime.now():%Y-%m-%d}.pdf"
+        pdf_path = Path(tmpdir) / f"metrio_{datetime.now():%Y-%m-%d}.pdf"
         try:
             build_weekly_report(conn, output_path=pdf_path, days=7)
         except Exception as e:

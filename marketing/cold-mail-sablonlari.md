@@ -33,7 +33,7 @@
 >
 > Trendyol'da {Marka Adı}'nın {kategori} kategorisindeki ürünlerini inceledim. {İzlenimler: "100+ ürünle güçlü bir portföy", "geçen hafta X ürünü indirime aldınız" vb.}
 >
-> Emre Altunbulak, Fiyat Radarı adında bir rakip fiyat istihbaratı sistemi geliştirdim. Kısaca ne yapıyor:
+> Emre Altunbulak, Metrio adında bir rakip fiyat istihbaratı sistemi geliştirdim. Kısaca ne yapıyor:
 >
 > - Her gece rakiplerinizin tüm ürünlerini tarıyor (Trendyol, yakında Hepsiburada)
 > - Fiyat, stok, indirim değişimlerini zaman serisi olarak kaydediyor

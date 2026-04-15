@@ -1,4 +1,4 @@
-# Fiyat Radarı
+# Metrio
 
 E-ticaret fiyat istihbaratı sistemi. Trendyol'dan (ve ilerleyen zamanda Hepsiburada, Amazon gibi platformlardan) rakip fiyat takibi yapar.
 
@@ -19,7 +19,7 @@ python main.py
 ```
 
 Çıktı:
-- `data/fiyat_radari.db` — SQLite veritabanı (products, price_snapshots, run_stats)
+- `data/metrio.db` — SQLite veritabanı (products, price_snapshots, run_stats)
 - `logs/scraper.log` — günlük rotasyonlu log dosyası
 
 ## Test
@@ -35,7 +35,7 @@ pytest tests/integration      # Sadece integration testler
 
 1. `run_daily.bat` dosyası bu dizinde hazır.
 2. Windows Task Scheduler aç: `Win + R` → `taskschd.msc`
-3. **Create Basic Task** → İsim: "Fiyat Radarı Günlük Çekim"
+3. **Create Basic Task** → İsim: "Metrio Günlük Çekim"
 4. **Trigger:** Daily, saat 03:00
 5. **Action:** Start a program → `run_daily.bat` dosyasını seç
 6. "Run whether user is logged on or not" işaretle
@@ -125,7 +125,7 @@ Müşteriye mail ile gönderilebilecek profesyonel rapor üret:
 python scripts/generate_report.py --days 7
 ```
 
-Çıktı: `reports/fiyat_radari_YYYY-MM-DD.pdf` (5-6 sayfa).
+Çıktı: `reports/metrio_YYYY-MM-DD.pdf` (5-6 sayfa).
 
 İçerik:
 - Kapak — dönem, tarih

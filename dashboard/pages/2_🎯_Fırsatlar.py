@@ -12,7 +12,7 @@ from dashboard.components.charts import top_discounts_bar
 from dashboard.components.exports import csv_download_button
 
 
-st.set_page_config(page_title="Fırsatlar | Fiyat Radarı", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="Fırsatlar | Metrio", page_icon="🎯", layout="wide")
 
 st.title("🎯 Fırsatlar — Fiyat Hareketleri")
 

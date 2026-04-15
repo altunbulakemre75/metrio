@@ -26,7 +26,7 @@ def main() -> int:
         print(f"❌ Veritabanı açılamadı: {e}")
         return 1
 
-    filename = f"fiyat_radari_{datetime.now():%Y-%m-%d}.pdf"
+    filename = f"metrio_{datetime.now():%Y-%m-%d}.pdf"
     output_path = args.output / filename
 
     try:

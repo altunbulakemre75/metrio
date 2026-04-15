@@ -1,4 +1,4 @@
-"""Fiyat Radarı — Günlük scraping pipeline'ı."""
+"""Metrio — Günlük scraping pipeline'ı."""
 
 import sys
 import time

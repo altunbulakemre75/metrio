@@ -12,7 +12,7 @@ from dashboard.components.charts import price_history_line
 from dashboard.components.exports import csv_download_button
 
 
-st.set_page_config(page_title="Ürün Detay | Fiyat Radarı", page_icon="🔍", layout="wide")
+st.set_page_config(page_title="Ürün Detay | Metrio", page_icon="🔍", layout="wide")
 
 st.title("🔍 Ürün Detay & Arama")
 

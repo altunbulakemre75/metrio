@@ -40,10 +40,10 @@ def test_body_with_data():
     text = format_email_body(conn, days=7)
     assert "3 ürün takip edildi" in text
     assert "PDF ekinde" in text
-    assert "Fiyat Radarı" in text
+    assert "Metrio" in text
 
 
 def test_default_subject_contains_date():
     subject = default_subject()
-    assert "Fiyat Radarı" in subject
+    assert "Metrio" in subject
     assert datetime.now().strftime("%Y-%m-%d") in subject

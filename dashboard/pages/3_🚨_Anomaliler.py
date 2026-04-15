@@ -11,7 +11,7 @@ from analysis.anomaly import detect_anomalies
 from dashboard.components.exports import csv_download_button
 
 
-st.set_page_config(page_title="Anomaliler | Fiyat Radarı", page_icon="🚨", layout="wide")
+st.set_page_config(page_title="Anomaliler | Metrio", page_icon="🚨", layout="wide")
 
 st.title("🚨 Anomaliler — Normalden Sapanlar")
 st.caption("Son 30 günün ortalama fiyatından eşiği aşan sapmalar")

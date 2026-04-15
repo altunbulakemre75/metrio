@@ -1,4 +1,4 @@
-# Fiyat Radarı — Hafta 2 Tasarım Dokümanı
+# Metrio — Hafta 2 Tasarım Dokümanı
 
 **Tarih:** 2026-04-15
 **Faz:** Hafta 2 — Analiz Modülleri + Streamlit Dashboard
@@ -62,7 +62,7 @@ dashboard/
 │   ├── filters.py           Kategori/marka/tarih filtreleri
 │   └── exports.py           CSV indirme butonu
 └── .streamlit/
-    └── config.toml          Tema (Fiyat Radarı markası)
+    └── config.toml          Tema (Metrio markası)
 
 scripts/
 └── seed_demo_history.py     Sentetik 30-gün geçmişi üretir

@@ -1,4 +1,4 @@
-# Fiyat Radarı — Hafta 3: Telegram Bildirimleri Implementation Plan
+# Metrio — Hafta 3: Telegram Bildirimleri Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -164,14 +164,14 @@ Expected: FAIL `ModuleNotFoundError: No module named 'notifications.formatter'`
 def format_daily_summary(stats: dict, anomaly_count: int, date_str: str) -> str:
     if stats["status"] == "success" or stats["status"] == "partial":
         return (
-            f"📊 Fiyat Radarı — {date_str}\n"
+            f"📊 Metrio — {date_str}\n"
             f"━━━━━━━━━━━━━━━━━━\n"
             f"✅ {stats['products_saved']} ürün tarandı\n"
             f"🎯 {anomaly_count} anomali tespit edildi\n"
             f"⏱ Süre: {stats['duration_seconds']}s"
         )
     return (
-        f"⚠️ Fiyat Radarı — {date_str}\n"
+        f"⚠️ Metrio — {date_str}\n"
         f"━━━━━━━━━━━━━━━━━━\n"
         f"❌ Pipeline başarısız\n"
         f"Hata: {stats.get('error_message') or 'bilinmiyor'}"

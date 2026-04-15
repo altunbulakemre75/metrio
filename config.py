@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     app_env: Literal["development", "production"] = "development"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
-    database_path: str = "data/fiyat_radari.db"
+    database_path: str = "data/metrio.db"
 
     scraper_max_products: int = Field(default=500, gt=0)
     scraper_headless: bool = True

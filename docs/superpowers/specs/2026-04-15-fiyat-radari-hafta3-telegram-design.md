@@ -1,4 +1,4 @@
-# Fiyat Radarı — Hafta 3: Telegram Bildirimleri
+# Metrio — Hafta 3: Telegram Bildirimleri
 
 **Tarih:** 2026-04-15
 **Durum:** Onaylandı, implementasyona hazır
@@ -96,7 +96,7 @@ Telegram Bot API: saniyede ~30 mesaj, gruba saniyede ~20. Bizim hiç bu sınıra
 ### Günlük özet
 
 ```
-📊 Fiyat Radarı — 2026-04-15
+📊 Metrio — 2026-04-15
 ━━━━━━━━━━━━━━━━━━
 ✅ 25 ürün tarandı
 🎯 3 anomali tespit edildi
@@ -105,7 +105,7 @@ Telegram Bot API: saniyede ~30 mesaj, gruba saniyede ~20. Bizim hiç bu sınıra
 
 `status == "failed"` ise:
 ```
-⚠️ Fiyat Radarı — 2026-04-15
+⚠️ Metrio — 2026-04-15
 ━━━━━━━━━━━━━━━━━━
 ❌ Pipeline başarısız
 Hata: {error_message}

@@ -37,7 +37,7 @@ def format_email_body(conn, days: int = 7) -> str:
             lines.append(f"- En büyük fırsat: {brand} {m.name[:50]} {pct:+.0f}%")
         lines.append("")
 
-    lines.extend(["Detaylar PDF ekinde.", "", "— Fiyat Radarı"])
+    lines.extend(["Detaylar PDF ekinde.", "", "— Metrio"])
     return "\n".join(lines)
 
 
@@ -100,4 +100,4 @@ class EmailSender:
 
 
 def default_subject() -> str:
-    return f"Fiyat Radarı — Haftalık Rapor ({datetime.now():%Y-%m-%d})"
+    return f"Metrio — Haftalık Rapor ({datetime.now():%Y-%m-%d})"

@@ -53,7 +53,7 @@ def _table_or_empty(header: list, rows: list, empty_msg: str) -> list:
 def build_cover(date_from: str, date_to: str) -> list:
     return [
         Spacer(1, 60 * mm),
-        Paragraph("Fiyat Radarı — Haftalık Rapor", _title_style),
+        Paragraph("Metrio — Haftalık Rapor", _title_style),
         Spacer(1, 10 * mm),
         Paragraph(f"Dönem: {date_from} — {date_to}", _body),
         Paragraph(f"Üretildi: {datetime.now():%Y-%m-%d %H:%M}", _body),

@@ -1,4 +1,4 @@
-# Fiyat Radarı — Hafta 2 Implementation Plan
+# Metrio — Hafta 2 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -1108,12 +1108,12 @@ runOnSave = true
 import streamlit as st
 
 st.set_page_config(
-    page_title="Fiyat Radarı",
+    page_title="Metrio",
     page_icon="📊",
     layout="wide",
 )
 
-st.title("📊 Fiyat Radarı")
+st.title("📊 Metrio")
 st.write("Yükleniyor...")
 ```
 
@@ -1286,7 +1286,7 @@ from analysis.commentary import generate_daily_summary
 from dashboard.components.cards import summary_row
 
 
-st.set_page_config(page_title="Fiyat Radarı", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Metrio", page_icon="📊", layout="wide")
 
 
 @st.cache_resource
@@ -1332,7 +1332,7 @@ def _load_overview():
 
 
 def main():
-    st.title("📊 Fiyat Radarı")
+    st.title("📊 Metrio")
     st.caption("E-ticaret fiyat istihbaratı — kozmetik kategorisi")
 
     data = _load_overview()
@@ -1422,7 +1422,7 @@ from dashboard.components.charts import top_discounts_bar
 from dashboard.components.exports import csv_download_button
 
 
-st.set_page_config(page_title="Fırsatlar | Fiyat Radarı", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="Fırsatlar | Metrio", page_icon="🎯", layout="wide")
 
 st.title("🎯 Fırsatlar — Fiyat Hareketleri")
 
@@ -1504,7 +1504,7 @@ from analysis.anomaly import detect_anomalies
 from dashboard.components.exports import csv_download_button
 
 
-st.set_page_config(page_title="Anomaliler | Fiyat Radarı", page_icon="🚨", layout="wide")
+st.set_page_config(page_title="Anomaliler | Metrio", page_icon="🚨", layout="wide")
 
 st.title("🚨 Anomaliler — Normalden Sapanlar")
 st.caption("Son 30 günün ortalama fiyatından eşiği aşan sapmalar")
@@ -1591,7 +1591,7 @@ from analysis.trends import brand_trend, category_trend
 from dashboard.components.charts import trend_line
 
 
-st.set_page_config(page_title="Trendler | Fiyat Radarı", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Trendler | Metrio", page_icon="📈", layout="wide")
 
 st.title("📈 Trendler — Zaman İçinde Fiyat Eğilimi")
 
@@ -1657,7 +1657,7 @@ from dashboard.components.charts import price_history_line
 from dashboard.components.exports import csv_download_button
 
 
-st.set_page_config(page_title="Ürün Detay | Fiyat Radarı", page_icon="🔍", layout="wide")
+st.set_page_config(page_title="Ürün Detay | Metrio", page_icon="🔍", layout="wide")
 
 st.title("🔍 Ürün Detay & Arama")
 

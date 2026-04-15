@@ -1,4 +1,4 @@
-# Fiyat Radarı — Hafta 5: E-posta Otomasyonu
+# Metrio — Hafta 5: E-posta Otomasyonu
 
 **Tarih:** 2026-04-15
 **Durum:** Onaylandı.
@@ -60,7 +60,7 @@ EMAIL_ENABLED=false
 ### Mail şablonu (plain text)
 
 ```
-Konu: Fiyat Radarı — Haftalık Rapor (2026-04-15)
+Konu: Metrio — Haftalık Rapor (2026-04-15)
 
 Merhaba,
 
@@ -73,7 +73,7 @@ Bu hafta:
 
 Detaylar PDF ekinde.
 
-— Fiyat Radarı
+— Metrio
 ```
 
 ## Testler

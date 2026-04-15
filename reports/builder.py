@@ -21,7 +21,7 @@ def _footer(canvas, doc):
     canvas.saveState()
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(HexColor("#888888"))
-    canvas.drawString(15 * mm, 10 * mm, f"Fiyat Radarı · {datetime.now():%Y-%m-%d}")
+    canvas.drawString(15 * mm, 10 * mm, f"Metrio · {datetime.now():%Y-%m-%d}")
     canvas.drawRightString(A4[0] - 15 * mm, 10 * mm, f"Sayfa {doc.page}")
     canvas.restoreState()
 
@@ -41,7 +41,7 @@ def build_weekly_report(conn, output_path: Path, days: int = 7) -> Path:
         rightMargin=15 * mm,
         topMargin=15 * mm,
         bottomMargin=20 * mm,
-        title="Fiyat Radarı — Haftalık Rapor",
+        title="Metrio — Haftalık Rapor",
     )
 
     story = []

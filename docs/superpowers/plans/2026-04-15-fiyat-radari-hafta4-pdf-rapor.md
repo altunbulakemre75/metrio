@@ -1,4 +1,4 @@
-# Fiyat Radarı — Hafta 4: Haftalık PDF Raporu Implementation Plan
+# Metrio — Hafta 4: Haftalık PDF Raporu Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -134,7 +134,7 @@
   def build_cover(date_from: str, date_to: str) -> list:
       return [
           Spacer(1, 60 * mm),
-          Paragraph("Fiyat Radarı", _title_style),
+          Paragraph("Metrio", _title_style),
           Paragraph("Haftalık Rapor", _h2_style),
           Spacer(1, 10 * mm),
           Paragraph(f"Dönem: {date_from} — {date_to}", _body),
@@ -328,7 +328,7 @@ def _footer(canvas, doc):
     canvas.saveState()
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(HexColor("#888888"))
-    canvas.drawString(15 * mm, 10 * mm, f"Fiyat Radarı · {datetime.now():%Y-%m-%d}")
+    canvas.drawString(15 * mm, 10 * mm, f"Metrio · {datetime.now():%Y-%m-%d}")
     canvas.drawRightString(A4[0] - 15 * mm, 10 * mm, f"Sayfa {doc.page}")
     canvas.restoreState()
 
@@ -346,7 +346,7 @@ def build_weekly_report(conn, output_path: Path, days: int = 7) -> Path:
         pagesize=A4,
         leftMargin=15 * mm, rightMargin=15 * mm,
         topMargin=15 * mm, bottomMargin=20 * mm,
-        title="Fiyat Radarı — Haftalık Rapor",
+        title="Metrio — Haftalık Rapor",
     )
 
     story = []
@@ -405,7 +405,7 @@ def main() -> int:
         print(f"❌ Veritabanı açılamadı: {e}")
         return 1
 
-    filename = f"fiyat_radari_{datetime.now():%Y-%m-%d}.pdf"
+    filename = f"metrio_{datetime.now():%Y-%m-%d}.pdf"
     output_path = args.output / filename
 
     try:
@@ -434,7 +434,7 @@ if __name__ == "__main__":
   python scripts/generate_report.py --days 7
   ```
 
-  Çıktı: `reports/fiyat_radari_YYYY-MM-DD.pdf`
+  Çıktı: `reports/metrio_YYYY-MM-DD.pdf`
 
   İçerik: kapak, özet, en büyük hareketler, anomaliler, marka trendi grafiği, tam ürün listesi.
   ```

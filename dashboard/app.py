@@ -15,7 +15,7 @@ from analysis.commentary import generate_daily_summary
 from dashboard.components.cards import summary_row
 
 
-st.set_page_config(page_title="Fiyat Radarı", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Metrio", page_icon="📊", layout="wide")
 
 
 @st.cache_resource
@@ -61,7 +61,7 @@ def _load_overview():
 
 
 def main():
-    st.title("📊 Fiyat Radarı")
+    st.title("📊 Metrio")
     st.caption("E-ticaret fiyat istihbaratı — kozmetik kategorisi")
 
     try:

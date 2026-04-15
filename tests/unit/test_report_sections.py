@@ -29,7 +29,7 @@ def _flatten_text(flowables) -> str:
 def test_cover_has_title():
     items = build_cover(date_from="2026-04-01", date_to="2026-04-07")
     assert len(items) >= 5
-    assert "Haftalık" in _flatten_text(items) or "Fiyat Radarı" in _flatten_text(items)
+    assert "Haftalık" in _flatten_text(items) or "Metrio" in _flatten_text(items)
 
 
 def test_summary_empty_db_returns_flowables():

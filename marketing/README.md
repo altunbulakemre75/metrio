@@ -12,7 +12,7 @@
 
 ### Hafta 1 (bu hafta)
 - [ ] Landing page'i GitHub Pages'e yayınla (`site/` klasörü)
-- [ ] LinkedIn profilini güncelle (başlık: "Fiyat Radarı — Rakip Fiyat İstihbaratı Kuruyorum")
+- [ ] LinkedIn profilini güncelle (başlık: "Metrio — Rakip Fiyat İstihbaratı Kuruyorum")
 - [ ] 10 hedef müşteri listesi çıkar
 - [ ] Post 1'i Salı 09:00'da paylaş
 - [ ] 5 cold DM/mail at (Şablon 1 ve 2)
