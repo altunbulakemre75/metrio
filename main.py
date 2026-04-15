@@ -10,6 +10,7 @@ from analysis.anomaly import detect_anomalies
 from config import settings
 from notifications.telegram import TelegramNotifier
 from scrapers.base import BaseScraper
+from scrapers.hepsiburada import HepsiburadaScraper
 from scrapers.trendyol import TrendyolScraper
 from storage.database import connect, init_schema, save_snapshot, start_run, finish_run
 from utils.logger import get_logger
@@ -23,7 +24,28 @@ _DEFAULT_CATEGORIES = [
         "name": "kozmetik",
         "url": "https://www.trendyol.com/kozmetik-x-c89",
     },
+    {
+        "platform": "trendyol",
+        "name": "elektronik",
+        "url": "https://www.trendyol.com/elektronik-x-c1",
+    },
+    {
+        "platform": "hepsiburada",
+        "name": "kozmetik",
+        "url": "https://www.hepsiburada.com/kozmetik-c-14003",
+    },
+    {
+        "platform": "hepsiburada",
+        "name": "elektronik",
+        "url": "https://www.hepsiburada.com/elektronik-c-14002",
+    },
 ]
+
+
+def _make_scraper(platform: str) -> BaseScraper:
+    if platform == "hepsiburada":
+        return HepsiburadaScraper()
+    return TrendyolScraper()
 
 
 def run_pipeline(
@@ -31,6 +53,7 @@ def run_pipeline(
     category_url: str,
     category_name: str,
     max_products: int = 500,
+    platform: str = "trendyol",
 ) -> dict:
     """Tek bir kategori için uçtan uca çalışır. run_stats sözlüğü döner."""
     run_id = f"{datetime.now():%Y%m%d_%H%M%S}_{uuid.uuid4().hex[:6]}"
@@ -38,7 +61,7 @@ def run_pipeline(
     conn = connect(settings.database_path)
     init_schema(conn)
 
-    start_run(conn, run_id=run_id, platform="trendyol", category=category_name, started_at=started_at)
+    start_run(conn, run_id=run_id, platform=platform, category=category_name, started_at=started_at)
 
     products_found = 0
     products_saved = 0
@@ -137,12 +160,13 @@ def main() -> int:
     overall_status = 0
     all_stats = []
     for cat in _DEFAULT_CATEGORIES:
-        scraper = TrendyolScraper()
+        scraper = _make_scraper(cat["platform"])
         stats = run_pipeline(
             scraper=scraper,
             category_url=cat["url"],
             category_name=cat["name"],
             max_products=settings.scraper_max_products,
+            platform=cat["platform"],
         )
         all_stats.append(stats)
         if stats["status"] == "failed":
