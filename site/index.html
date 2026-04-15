@@ -4,265 +4,415 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metrio — Rakip Fiyat İstihbaratı</title>
-<meta name="description" content="E-ticaret satıcıları için otomatik rakip fiyat takibi. Trendyol, Hepsiburada ve Amazon'da fiyat hareketleri saat başı Telegram'a, haftalık rapor mail kutunuza düşer.">
+<meta name="description" content="E-ticaret satıcıları için otomatik rakip fiyat takibi. Gece taramalı, Telegram'dan anında alarm, haftalık PDF raporu.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<header class="nav-wrap">
-  <nav>
-    <div class="logo"><span class="logo-mark"></span><span class="logo-word">Metrio</span></div>
-    <div class="nav-links">
-      <a href="#nasil">Nasıl Çalışır</a>
-      <a href="#ozellikler">Özellikler</a>
-      <a href="#fiyat">Fiyat</a>
-      <a href="#iletisim" class="btn btn-primary" style="padding:8px 16px;font-size:13px">Demo İste</a>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
+      }
+    }
+  }
+</script>
+
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  .glass {
+    background: rgba(24, 24, 27, 0.55);
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .glass-strong {
+    background: rgba(24, 24, 27, 0.75);
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .hero-glow {
+    background:
+      radial-gradient(700px 400px at 25% 10%, rgba(16, 185, 129, 0.10), transparent 60%),
+      radial-gradient(600px 380px at 80% 30%, rgba(16, 185, 129, 0.06), transparent 60%);
+  }
+  .card-glow {
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.4), 0 20px 60px -20px rgba(16, 185, 129, 0.15);
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+</style>
+</head>
+
+<body class="bg-zinc-950 text-zinc-100 font-sans antialiased">
+
+<!-- Navbar -->
+<header class="fixed top-0 left-0 right-0 z-50 glass">
+  <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+        <i data-lucide="activity" class="w-4 h-4 text-zinc-950 stroke-[2.5]"></i>
+      </div>
+      <span class="text-lg font-semibold tracking-tight">Metrio</span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
+      <a href="#ozellikler" class="hover:text-white transition">Özellikler</a>
+      <a href="#fiyat" class="hover:text-white transition">Fiyat</a>
+      <a href="#iletisim" class="hover:text-white transition">İletişim</a>
     </div>
+
+    <a href="#iletisim" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-sm font-semibold transition shadow-lg shadow-emerald-500/20">
+      Demo İste
+      <i data-lucide="arrow-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+    </a>
   </nav>
 </header>
 
-<section class="hero">
-  <div class="hero-inner">
-    <div class="tag"><span class="dot"></span>Otomatik tarama · Türkiye</div>
-    <h1>Rakip fiyatları <em><span class="grad">siz uyurken</span></em> takip edilir.</h1>
-    <p class="hero-sub">Her gece Trendyol, Hepsiburada ve Amazon'daki rakip ürünleri otomatik olarak tarar, fiyat anomalilerini Telegram'a düşürür, haftalık raporu mail kutunuza gönderir.</p>
-    <div class="hero-cta">
-      <a href="#iletisim" class="btn btn-primary btn-lg">Ücretsiz Demo İste
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-      </a>
-      <a href="#nasil" class="btn btn-ghost btn-lg">Nasıl Çalışır</a>
-    </div>
-    <div class="hero-note">
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Kurulum 24 saat</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>İlk 3 müşteriye özel fiyat</span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>İptal garantisi</span>
-    </div>
-  </div>
+<!-- Hero -->
+<section class="relative pt-32 pb-28 overflow-hidden">
+  <div class="absolute inset-0 hero-glow pointer-events-none"></div>
+  <div class="absolute inset-0 grid-bg opacity-40 pointer-events-none" style="mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);"></div>
 
-  <div class="preview">
-    <div class="preview-frame">
-      <div class="preview-bar"><span></span><span></span><span></span></div>
-      <div class="preview-body">
-        <div class="preview-head">
-          <div>Ürün</div><div>Marka</div><div>Fiyat</div><div>Değişim</div>
+  <div class="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+
+    <!-- LEFT: Copy -->
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs text-zinc-300 mb-8">
+        <span class="relative flex w-2 h-2">
+          <span class="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+          <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-500"></span>
+        </span>
+        Otomatik tarama · Türkiye
+      </div>
+
+      <h1 class="text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-6">
+        Rakip fiyatları
+        <span class="block text-zinc-500">siz uyurken</span>
+        takip edilir.
+      </h1>
+
+      <p class="text-lg text-zinc-400 leading-relaxed max-w-xl mb-10">
+        Her gece Trendyol, Hepsiburada ve Amazon'daki rakip ürünleri otomatik tarar. %20+ fiyat hareketini Telegram'a alarm olarak düşürür. Haftalık PDF raporu Pazartesi sabah mail kutunuzda.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <a href="#iletisim" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold transition shadow-xl shadow-emerald-500/25">
+          Ücretsiz Demo İste
+          <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2.5]"></i>
+        </a>
+        <a href="#ozellikler" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass hover:bg-zinc-800/60 text-zinc-100 font-medium transition">
+          Nasıl çalışır
+        </a>
+      </div>
+
+      <div class="flex flex-wrap gap-6 mt-10 text-xs text-zinc-500">
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>Kurulum 24 saat</span>
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>İlk 3 müşteriye özel fiyat</span>
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>Taahhütsüz iptal</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Dashboard Mockup -->
+    <div class="relative">
+      <div class="absolute -inset-4 bg-gradient-to-br from-emerald-500/10 via-transparent to-emerald-500/5 rounded-3xl blur-2xl"></div>
+
+      <div class="relative glass-strong rounded-2xl p-5 shadow-2xl">
+        <!-- Window chrome -->
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
+          </div>
+          <span class="text-[10px] font-medium text-zinc-500 font-mono">metrio.app/dashboard</span>
         </div>
-        <div class="preview-row">
-          <div class="name">Hyaluronic Asit Serum 30ml</div>
-          <div>L'Oréal</div>
-          <div>127,90 TL</div>
-          <div class="down">−32%</div>
+
+        <!-- Stats row -->
+        <div class="grid grid-cols-3 gap-3 mb-5">
+          <div class="rounded-lg bg-zinc-900/60 border border-white/5 px-3 py-2.5">
+            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Ürün</div>
+            <div class="text-xl font-bold mt-0.5">2.438</div>
+          </div>
+          <div class="rounded-lg bg-zinc-900/60 border border-white/5 px-3 py-2.5">
+            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Anomali</div>
+            <div class="text-xl font-bold mt-0.5 text-emerald-400">17</div>
+          </div>
+          <div class="rounded-lg bg-zinc-900/60 border border-white/5 px-3 py-2.5">
+            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Platform</div>
+            <div class="text-xl font-bold mt-0.5">3</div>
+          </div>
         </div>
-        <div class="preview-row">
-          <div class="name">Vitamin C Parlatıcı Serum</div>
-          <div>The Ordinary</div>
-          <div>189,50 TL</div>
-          <div class="up">+8%</div>
+
+        <!-- Table header -->
+        <div class="grid grid-cols-[1fr_auto_auto] gap-4 text-[10px] text-zinc-500 uppercase tracking-wider pb-2 border-b border-white/5">
+          <span>Ürün</span>
+          <span class="text-right">Fiyat</span>
+          <span class="text-right">Değişim</span>
         </div>
-        <div class="preview-row">
-          <div class="name">iPhone 15 128GB Siyah</div>
-          <div>Apple</div>
-          <div>44.999 TL</div>
-          <div class="flat">0%</div>
+
+        <!-- Rows -->
+        <div class="divide-y divide-white/5 text-sm">
+          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
+            <div>
+              <div class="font-medium text-zinc-100">Hyaluronic Asit Serum</div>
+              <div class="text-[11px] text-zinc-500">L'Oréal</div>
+            </div>
+            <div class="text-right text-zinc-300 font-mono">127,90 ₺</div>
+            <div class="text-right">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 text-xs font-semibold">
+                <i data-lucide="trending-down" class="w-3 h-3"></i>-32%
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
+            <div>
+              <div class="font-medium text-zinc-100">iPhone 15 128GB</div>
+              <div class="text-[11px] text-zinc-500">Apple</div>
+            </div>
+            <div class="text-right text-zinc-300 font-mono">44.999 ₺</div>
+            <div class="text-right">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-700/40 text-zinc-400 text-xs font-semibold">0%</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
+            <div>
+              <div class="font-medium text-zinc-100">Fit Me Fondöten</div>
+              <div class="text-[11px] text-zinc-500">Maybelline</div>
+            </div>
+            <div class="text-right text-zinc-300 font-mono">249,00 ₺</div>
+            <div class="text-right">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+                <i data-lucide="trending-up" class="w-3 h-3"></i>+12%
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
+            <div>
+              <div class="font-medium text-zinc-100">Niacinamide Serum</div>
+              <div class="text-[11px] text-zinc-500">The Ordinary</div>
+            </div>
+            <div class="text-right text-zinc-300 font-mono">79,00 ₺</div>
+            <div class="text-right">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 text-xs font-semibold">
+                <i data-lucide="trending-down" class="w-3 h-3"></i>-21%
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
+            <div>
+              <div class="font-medium text-zinc-100">Vitamin C Parlatıcı</div>
+              <div class="text-[11px] text-zinc-500">The Ordinary</div>
+            </div>
+            <div class="text-right text-zinc-300 font-mono">189,50 ₺</div>
+            <div class="text-right">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+                <i data-lucide="trending-up" class="w-3 h-3"></i>+8%
+              </span>
+            </div>
+          </div>
         </div>
-        <div class="preview-row">
-          <div class="name">Niacinamide + Zinc 30ml</div>
-          <div>The Ordinary</div>
-          <div>79,00 TL</div>
-          <div class="down">−21%</div>
-        </div>
-        <div class="preview-row">
-          <div class="name">Maybelline Fit Me Fondöten</div>
-          <div>Maybelline</div>
-          <div>249,00 TL</div>
-          <div class="up">+12%</div>
+
+        <!-- Live indicator -->
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-white/5 text-[11px]">
+          <span class="inline-flex items-center gap-1.5 text-zinc-500">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Canlı · 2 dk önce güncellendi
+          </span>
+          <span class="text-zinc-500 font-mono">03:00 otomatik</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="problem">
-  <div class="container">
-    <div class="section-head">
-      <span class="section-label">Problem</span>
-      <h2>Tanıdık <em>geliyor</em> mu?</h2>
-      <p class="section-sub">E-ticarette rakip fiyatlarını manuel izlemek bir tam zamanlı iş. Üstelik eksik.</p>
+<!-- Features -->
+<section id="ozellikler" class="py-28 border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="max-w-2xl mb-16">
+      <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">Özellikler</div>
+      <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">Pazarlama değil, <span class="text-zinc-500">mühendislik</span>.</h2>
+      <p class="text-lg text-zinc-400">Her detay bir müşteri sorusuna cevap olarak yazıldı. Test edilmiş, çalışıyor.</p>
     </div>
-    <div class="problem-grid">
-      <div class="problem-card">
-        <div class="ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
+          <i data-lucide="line-chart" class="w-5 h-5"></i>
         </div>
-        <h3>Saatler eriyor</h3>
-        <p>Her sabah rakiplerin ürünlerini tek tek açıp Excel'e not düşmek 45 dakika+ yer.</p>
+        <h3 class="font-semibold mb-1.5">Canlı Dashboard</h3>
+        <p class="text-sm text-zinc-400 leading-relaxed">Tüm ürünler, fiyat geçmişi, marka trendleri tek web arayüzünde.</p>
       </div>
-      <div class="problem-card">
-        <div class="ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+
+      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
+          <i data-lucide="message-square" class="w-5 h-5"></i>
         </div>
-        <h3>Geç haber veriyorsunuz</h3>
-        <p>Rakip fiyat indirdiğinde 2 gün sonra fark ediyorsunuz — satış zaten başkasına gitti.</p>
+        <h3 class="font-semibold mb-1.5">Telegram Bot</h3>
+        <p class="text-sm text-zinc-400 leading-relaxed">Anomali alarmları + <span class="font-mono text-zinc-300">/durum</span>, <span class="font-mono text-zinc-300">/trend</span>, <span class="font-mono text-zinc-300">/fiyat</span> komutları.</p>
       </div>
-      <div class="problem-card">
-        <div class="ico">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+
+      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
+          <i data-lucide="file-text" class="w-5 h-5"></i>
         </div>
-        <h3>Veri kayboluyor</h3>
-        <p>Screenshot klasörü birikiyor ama hangi markada ne oluyor net değil. Trend görünmüyor.</p>
+        <h3 class="font-semibold mb-1.5">Haftalık PDF</h3>
+        <p class="text-sm text-zinc-400 leading-relaxed">Her Pazartesi 09:00'da profesyonel rapor mail kutunuzda.</p>
+      </div>
+
+      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-semibold mb-1.5">Ürün Arama</h3>
+        <p class="text-sm text-zinc-400 leading-relaxed">90 günlük fiyat grafiğini saniyede görün. Telegram'dan da sorgulayın.</p>
+      </div>
+
+      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
+          <i data-lucide="download" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-semibold mb-1.5">CSV Dışa Aktarım</h3>
+        <p class="text-sm text-zinc-400 leading-relaxed">Her tablo tek tıkla Excel uyumlu CSV. Kendi analizinizi yapın.</p>
+      </div>
+
+      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
+          <i data-lucide="grid-3x3" class="w-5 h-5"></i>
+        </div>
+        <h3 class="font-semibold mb-1.5">Çoklu Platform</h3>
+        <p class="text-sm text-zinc-400 leading-relaxed">Trendyol aktif. Hepsiburada ve Amazon talebe göre eklenir.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section id="nasil" class="how">
-  <div class="container">
-    <div class="section-head">
-      <span class="section-label">Nasıl Çalışır</span>
-      <h2>Üç adımda kurulum, sonra <em>otomatik</em>.</h2>
-      <p class="section-sub">Kurulumu biz yaparız. Siz sadece dashboard'u kullanır, alarmları takip edersiniz.</p>
+<!-- Pricing -->
+<section id="fiyat" class="py-28 border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="max-w-2xl mx-auto text-center mb-16">
+      <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">Fiyatlandırma</div>
+      <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">Basit, adil, <span class="text-zinc-500">taahhütsüz</span>.</h2>
+      <p class="text-lg text-zinc-400">İlk 3 müşteriye özel indirimli fiyat. Kurulum bize ait, siz sadece kullanın.</p>
     </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">Adım 01</div>
-        <h3>Rakipleri belirtin</h3>
-        <p>Hangi kategoride hangi markaları izleyeceğimizi söyleyin. Biz URL'leri ve ürün listelerini hazırlarız.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">Adım 02</div>
-        <h3>Otomatik tarama başlar</h3>
-        <p>Her gece 03:00'te sistem rakip ürünleri tarar. Fiyat, stok, indirim oranını veritabanına kaydeder.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">Adım 03</div>
-        <h3>Anomali → bildirim</h3>
-        <p>%20+ fiyat hareketinde Telegram'a anında alarm. Pazartesi sabahı PDF raporu mail kutunuzda.</p>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section id="ozellikler" class="features">
-  <div class="container">
-    <div class="section-head">
-      <span class="section-label">Özellikler</span>
-      <h2>Pazarlama değil, <em>mühendislik</em>.</h2>
-      <p class="section-sub">Her detay bir müşteri sorusuna cevap olarak yazıldı. Test edilmiş, çalışıyor.</p>
-    </div>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg></div>
-        <h3>Canlı Dashboard</h3>
-        <p>Tüm ürünler, fiyat geçmişi, marka trendleri, anomaliler tek web arayüzünde.</p>
-      </div>
-      <div class="feature-card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
-        <h3>Telegram Alarmları</h3>
-        <p>Eşiği aşan her hareket telefonunuza düşer. Ayrıca /durum, /trend, /fiyat komutları.</p>
-      </div>
-      <div class="feature-card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-        <h3>Haftalık PDF Raporu</h3>
-        <p>Her Pazartesi 09:00'da profesyonel rapor mail kutunuzda. Yönetim kuruluna gönderin.</p>
-      </div>
-      <div class="feature-card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <h3>Ürün Arama</h3>
-        <p>Herhangi bir ürünün 90 günlük fiyat grafiğini saniyede görün. Telegram'dan da sorgulayın.</p>
-      </div>
-      <div class="feature-card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
-        <h3>CSV Dışa Aktarım</h3>
-        <p>Her tablo tek tıkla Excel uyumlu CSV'ye dönüşür. Kendi analizinizi yapın.</p>
-      </div>
-      <div class="feature-card">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-        <h3>Çoklu Platform</h3>
-        <p>Trendyol aktif. Hepsiburada ve Amazon talebe göre eklenir (proxy altyapı hazır).</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="fiyat" class="pricing">
-  <div class="container">
-    <div class="section-head">
-      <span class="section-label">Fiyatlandırma</span>
-      <h2>Basit, adil, <em>taahhütsüz</em>.</h2>
-      <p class="section-sub">İlk 3 müşteriye özel indirimli fiyat. Kurulum bize ait, siz sadece kullanın.</p>
-    </div>
-    <div class="price-grid">
-      <div class="price-card">
-        <h3>Başlangıç</h3>
-        <div class="price">₺1.500<span class="per">/ay</span></div>
-        <p class="price-desc">Tek platform, tek kategori.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>1 platform (Trendyol)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Max 500 ürün izleme</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Günlük otomatik tarama</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Dashboard erişimi</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Haftalık PDF raporu</li>
+    <div class="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+      <!-- Başlangıç -->
+      <div class="glass rounded-2xl p-8 flex flex-col">
+        <div class="text-xs text-zinc-500 font-semibold tracking-wider uppercase mb-2">Başlangıç</div>
+        <div class="flex items-baseline gap-1 mb-2">
+          <span class="text-4xl font-bold tracking-tight">₺1.500</span>
+          <span class="text-zinc-500 text-sm">/ay</span>
+        </div>
+        <p class="text-sm text-zinc-400 mb-8">Tek platform, tek kategori.</p>
+        <ul class="space-y-3 text-sm mb-8 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>1 platform (Trendyol)</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Max 500 ürün izleme</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Günlük otomatik tarama</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Dashboard erişimi</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Haftalık PDF raporu</li>
         </ul>
-        <a href="#iletisim" class="btn btn-ghost">Başla</a>
+        <a href="#iletisim" class="block w-full text-center py-2.5 rounded-lg border border-white/10 hover:bg-zinc-800/60 text-sm font-semibold transition">Başla</a>
       </div>
-      <div class="price-card popular">
-        <span class="badge">En Popüler</span>
-        <h3>Pro</h3>
-        <div class="price">₺3.500<span class="per">/ay</span></div>
-        <p class="price-desc">Çoklu platform, Telegram bot.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>2 platform</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>3 kategori (max 2.000 ürün)</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Telegram alarmları + bot</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Haftalık PDF raporu</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Özel ürün listesi desteği</li>
+
+      <!-- Pro (POPULAR) -->
+      <div class="relative glass-strong rounded-2xl p-8 flex flex-col card-glow">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-bold tracking-wider uppercase">
+          En Popüler
+        </div>
+        <div class="text-xs text-emerald-400 font-semibold tracking-wider uppercase mb-2">Pro</div>
+        <div class="flex items-baseline gap-1 mb-2">
+          <span class="text-4xl font-bold tracking-tight">₺3.500</span>
+          <span class="text-zinc-500 text-sm">/ay</span>
+        </div>
+        <p class="text-sm text-zinc-400 mb-8">Çoklu platform, Telegram bot.</p>
+        <ul class="space-y-3 text-sm mb-8 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>2 platform</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>3 kategori (max 2.000 ürün)</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Telegram alarmları + bot</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Haftalık PDF raporu</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Özel ürün listesi desteği</li>
         </ul>
-        <a href="#iletisim" class="btn btn-primary">İletişime Geç</a>
+        <a href="#iletisim" class="block w-full text-center py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-sm font-semibold transition shadow-lg shadow-emerald-500/20">İletişime Geç</a>
       </div>
-      <div class="price-card">
-        <h3>Kurumsal</h3>
-        <div class="price">Özel<span class="per">fiyat</span></div>
-        <p class="price-desc">Sınırsız, ihtiyaca özel.</p>
-        <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Sınırsız platform & ürün</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Saatlik tarama sıklığı</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>REST API erişimi</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Özel raporlar + SLA</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Öncelikli destek</li>
+
+      <!-- Kurumsal -->
+      <div class="glass rounded-2xl p-8 flex flex-col">
+        <div class="text-xs text-zinc-500 font-semibold tracking-wider uppercase mb-2">Kurumsal</div>
+        <div class="flex items-baseline gap-1 mb-2">
+          <span class="text-4xl font-bold tracking-tight">Özel</span>
+          <span class="text-zinc-500 text-sm">fiyat</span>
+        </div>
+        <p class="text-sm text-zinc-400 mb-8">Sınırsız, ihtiyaca özel.</p>
+        <ul class="space-y-3 text-sm mb-8 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Sınırsız platform & ürün</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Saatlik tarama sıklığı</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>REST API erişimi</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Özel raporlar + SLA</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Öncelikli destek</li>
         </ul>
-        <a href="#iletisim" class="btn btn-ghost">Görüşelim</a>
+        <a href="#iletisim" class="block w-full text-center py-2.5 rounded-lg border border-white/10 hover:bg-zinc-800/60 text-sm font-semibold transition">Görüşelim</a>
       </div>
     </div>
   </div>
 </section>
 
-<section id="iletisim" class="contact">
-  <div class="contact-inner container">
-    <span class="section-label">İletişim</span>
-    <h2>15 dakikalık <em>demo</em>.</h2>
-    <p>Mail atın veya WhatsApp'tan yazın, 24 saat içinde canlı demo ayarlayalım.</p>
-    <div class="contact-options">
-      <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" class="btn btn-primary btn-lg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+<!-- Contact -->
+<section id="iletisim" class="py-28 border-t border-white/5 relative overflow-hidden">
+  <div class="absolute inset-0 hero-glow pointer-events-none"></div>
+  <div class="relative max-w-2xl mx-auto px-6 text-center">
+    <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">İletişim</div>
+    <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">15 dakikalık <span class="text-zinc-500">demo</span>.</h2>
+    <p class="text-lg text-zinc-400 mb-10">Mail atın veya WhatsApp'tan yazın, 24 saat içinde canlı demo ayarlayalım.</p>
+    <div class="flex flex-wrap justify-center gap-3 mb-6">
+      <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold transition shadow-xl shadow-emerald-500/25">
+        <i data-lucide="mail" class="w-4 h-4"></i>
         Mail At
       </a>
-      <a href="https://wa.me/" class="btn btn-ghost btn-lg">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <a href="https://wa.me/" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass hover:bg-zinc-800/60 text-zinc-100 font-medium transition">
+        <i data-lucide="message-circle" class="w-4 h-4"></i>
         WhatsApp
       </a>
     </div>
-    <p class="contact-note">ealtunbulak8@gmail.com</p>
+    <p class="text-xs text-zinc-600 font-mono">ealtunbulak8@gmail.com</p>
   </div>
 </section>
 
-<footer>
-  <div class="container">
-    <div>© 2026 Metrio · Emre Altunbulak</div>
-    <div>Made in Türkiye</div>
+<!-- Footer -->
+<footer class="border-t border-white/5 py-10">
+  <div class="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-sm">
+    <div class="flex items-center gap-2.5">
+      <div class="w-6 h-6 rounded-md bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
+        <i data-lucide="activity" class="w-3 h-3 text-zinc-950 stroke-[2.5]"></i>
+      </div>
+      <span class="text-zinc-400">© 2026 Metrio · Emre Altunbulak</span>
+    </div>
+    <div class="text-zinc-600">Made in Türkiye</div>
   </div>
 </footer>
+
+<script>
+  lucide.createIcons();
+</script>
 
 </body>
 </html>
