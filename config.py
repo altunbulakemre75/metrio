@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     scraper_headless: bool = True
     scraper_user_agent: str
     scraper_requests_per_second: float = Field(default=1.0, gt=0)
+    scraper_min_delay: float = Field(default=1.0, gt=0)
+    scraper_max_delay: float = Field(default=3.0, gt=0)
+    proxy_enabled: bool = False
+    proxy_list: str = ""
 
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
