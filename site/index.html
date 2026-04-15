@@ -4,53 +4,114 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metrio — Rakip Fiyat İstihbaratı</title>
-<meta name="description" content="E-ticaret satıcıları için otomatik rakip fiyat takibi. Trendyol, Hepsiburada ve Amazon'da fiyat hareketleri saat başı mail ve Telegram'a düşer.">
+<meta name="description" content="E-ticaret satıcıları için otomatik rakip fiyat takibi. Trendyol, Hepsiburada ve Amazon'da fiyat hareketleri saat başı Telegram'a, haftalık rapor mail kutunuza düşer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<!-- SEO & OpenGraph -->
-<meta property="og:title" content="Metrio — Rakip Fiyat İstihbaratı">
-<meta property="og:description" content="Rakipleriniz uyurken takipte kalın. Otomatik anomali tespiti ve haftalık raporlar.">
 </head>
 <body>
 
-<nav>
-  <div class="logo"><span>🎯</span> Metrio</div>
-  <div class="nav-links">
-    <a href="#iletisim" class="btn btn-primary">Demo İste</a>
-  </div>
-</nav>
-
-<header class="hero">
-  <div class="container lowercase-headings">
-    <h1>Rakiplerinizin fiyatlarını<br><span class="highlight">siz uyurken</span> takip ediyoruz.</h1>
-    <p class="subtitle">Trendyol, Hepsiburada ve Amazon'daki rakiplerinizin fiyat hareketleri otomatik tespit edilir, anomaliler Telegram'a düşer, haftalık raporunuz mail kutunuza gelir.</p>
-    <div class="cta">
-      <a href="#iletisim" class="btn btn-primary btn-lg">Ücretsiz Demo İste</a>
-      <a href="#nasil" class="btn btn-secondary btn-lg">Nasıl Çalışır?</a>
+<header class="nav-wrap">
+  <nav>
+    <div class="logo"><span class="logo-dot"></span>Metrio</div>
+    <div class="nav-links">
+      <a href="#nasil">Nasıl Çalışır</a>
+      <a href="#ozellikler">Özellikler</a>
+      <a href="#fiyat">Fiyat</a>
+      <a href="#iletisim" class="btn btn-primary" style="padding:8px 16px;font-size:13px">Demo İste</a>
     </div>
-    <div class="hero-visual">
-      <img id="hero-img" src="metrio_hero_dashboard_1776267697717.png" alt="Metrio Dashboard Görünümü">
-    </div>
-  </div>
+  </nav>
 </header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="tag"><span class="dot"></span>Otomatik tarama · Türkiye</div>
+    <h1>Rakip fiyatları <span class="grad">siz uyurken</span> takip edilir.</h1>
+    <p class="hero-sub">Her gece Trendyol, Hepsiburada ve Amazon'daki rakip ürünleri otomatik olarak tarar, fiyat anomalilerini Telegram'a düşürür, haftalık raporu mail kutunuza gönderir.</p>
+    <div class="hero-cta">
+      <a href="#iletisim" class="btn btn-primary btn-lg">Ücretsiz Demo İste
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#nasil" class="btn btn-ghost btn-lg">Nasıl Çalışır</a>
+    </div>
+    <div class="hero-note">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Kurulum 24 saat</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>İlk 3 müşteriye özel fiyat</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>İptal garantisi</span>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="preview-frame">
+      <div class="preview-bar"><span></span><span></span><span></span></div>
+      <div class="preview-body">
+        <div class="preview-head">
+          <div>Ürün</div><div>Marka</div><div>Fiyat</div><div>Değişim</div>
+        </div>
+        <div class="preview-row">
+          <div class="name">Hyaluronic Asit Serum 30ml</div>
+          <div>L'Oréal</div>
+          <div>127,90 TL</div>
+          <div class="down">−32%</div>
+        </div>
+        <div class="preview-row">
+          <div class="name">Vitamin C Parlatıcı Serum</div>
+          <div>The Ordinary</div>
+          <div>189,50 TL</div>
+          <div class="up">+8%</div>
+        </div>
+        <div class="preview-row">
+          <div class="name">iPhone 15 128GB Siyah</div>
+          <div>Apple</div>
+          <div>44.999 TL</div>
+          <div class="flat">0%</div>
+        </div>
+        <div class="preview-row">
+          <div class="name">Niacinamide + Zinc 30ml</div>
+          <div>The Ordinary</div>
+          <div>79,00 TL</div>
+          <div class="down">−21%</div>
+        </div>
+        <div class="preview-row">
+          <div class="name">Maybelline Fit Me Fondöten</div>
+          <div>Maybelline</div>
+          <div>249,00 TL</div>
+          <div class="up">+12%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="problem">
   <div class="container">
-    <h2>Tanıdık gelen dertler mi?</h2>
-    <div class="card-grid">
-      <div class="card">
-        <span class="icon">😴</span>
-        <h3>Elle takip ediyorsunuz</h3>
-        <p>Her sabah rakiplerin ürünlerine tek tek bakıp Excel'e not düşmek saatlerinizden çalar.</p>
+    <div class="section-head">
+      <span class="section-label">Problem</span>
+      <h2>Tanıdık geliyor mu?</h2>
+      <p class="section-sub">E-ticarette rakip fiyatlarını manuel izlemek bir tam zamanlı iş. Üstelik eksik.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Saatler eriyor</h3>
+        <p>Her sabah rakiplerin ürünlerini tek tek açıp Excel'e not düşmek 45 dakika+ yer.</p>
       </div>
-      <div class="card">
-        <span class="icon">🐌</span>
-        <h3>Geç haberiniz oluyor</h3>
-        <p>Rakip fiyat indirdiğinde 2 gün sonra fark ediyorsunuz, çoktan siparişleri kaçırdınız.</p>
+      <div class="problem-card">
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+        </div>
+        <h3>Geç haber veriyorsunuz</h3>
+        <p>Rakip fiyat indirdiğinde 2 gün sonra fark ediyorsunuz — satış zaten başkasına gitti.</p>
       </div>
-      <div class="card">
-        <span class="icon">📊</span>
-        <h3>Veriyi yorumlayamıyorsunuz</h3>
-        <p>Ekran görüntüleri birikiyor ama hangi markanın nereye gittiğini görmek imkansız.</p>
+      <div class="problem-card">
+        <div class="ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+        </div>
+        <h3>Veri kayboluyor</h3>
+        <p>Screenshot klasörü birikiyor ama hangi markada ne oluyor net değil. Trend görünmüyor.</p>
       </div>
     </div>
   </div>
@@ -58,39 +119,68 @@
 
 <section id="nasil" class="how">
   <div class="container">
-    <h2>3 Adımda Otomasyon</h2>
-    <div class="card-grid">
-      <div class="card">
-        <h3>1. Kategori Seçin</h3>
-        <p>Hangi kategoride hangi rakipleri izleyeceğinizi belirleyin. Gerisini biz halledelim.</p>
+    <div class="section-head">
+      <span class="section-label">Nasıl Çalışır</span>
+      <h2>Üç adımda kurulum, sonra otomatik.</h2>
+      <p class="section-sub">Kurulumu biz yaparız. Siz sadece dashboard'u kullanır, alarmları takip edersiniz.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">Adım 01</div>
+        <h3>Rakipleri belirtin</h3>
+        <p>Hangi kategoride hangi markaları izleyeceğimizi söyleyin. Biz URL'leri ve ürün listelerini hazırlarız.</p>
       </div>
-      <div class="card">
-        <h3>2. Gece Taraması</h3>
-        <p>Her gece 03:00'te sistem tüm verileri toplar ve normalize ederek veritabanına kaydeder.</p>
+      <div class="step">
+        <div class="step-num">Adım 02</div>
+        <h3>Otomatik tarama başlar</h3>
+        <p>Her gece 03:00'te sistem rakip ürünleri tarar. Fiyat, stok, indirim oranını veritabanına kaydeder.</p>
       </div>
-      <div class="card">
-        <h3>3. Anında Rapor</h3>
-        <p>%20+ sapmalar Telegram'a, haftalık derinlemesine analizler mail kutunuza düşer.</p>
+      <div class="step">
+        <div class="step-num">Adım 03</div>
+        <h3>Anomali → bildirim</h3>
+        <p>%20+ fiyat hareketinde Telegram'a anında alarm. Pazartesi sabahı PDF raporu mail kutunuzda.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="features">
+<section id="ozellikler" class="features">
   <div class="container">
-    <h2>Premium Özellikler</h2>
-    <div class="card-grid">
-      <div class="card">
-        <h3>📈 Canlı Dashboard</h3>
-        <p>Tüm ürünler, fiyat geçmişi ve marka trendleri tek bir yüksek teknoloji arayüzünde.</p>
+    <div class="section-head">
+      <span class="section-label">Özellikler</span>
+      <h2>Pazarlama değil, mühendislik.</h2>
+      <p class="section-sub">Her detay bir müşteri sorusuna cevap olarak yazıldı. Test edilmiş, çalışıyor.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg></div>
+        <h3>Canlı Dashboard</h3>
+        <p>Tüm ürünler, fiyat geçmişi, marka trendleri, anomaliler tek web arayüzünde.</p>
       </div>
-      <div class="card">
-        <h3>🚨 Telegram Alarmları</h3>
-        <p>Fiyat hareketleri saniyeler içinde telefonunuza düşer. Fırsatları asla kaçırmayın.</p>
+      <div class="feature-card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+        <h3>Telegram Alarmları</h3>
+        <p>Eşiği aşan her hareket telefonunuza düşer. Ayrıca /durum, /trend, /fiyat komutları.</p>
       </div>
-      <div class="card">
-        <h3>📄 PDF Raporları</h3>
-        <p>Profesyonel, grafiklerle dolu haftalık raporlar sistem tarafından otomatik üretilir.</p>
+      <div class="feature-card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h3>Haftalık PDF Raporu</h3>
+        <p>Her Pazartesi 09:00'da profesyonel rapor mail kutunuzda. Yönetim kuruluna gönderin.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <h3>Ürün Arama</h3>
+        <p>Herhangi bir ürünün 90 günlük fiyat grafiğini saniyede görün. Telegram'dan da sorgulayın.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <h3>CSV Dışa Aktarım</h3>
+        <p>Her tablo tek tıkla Excel uyumlu CSV'ye dönüşür. Kendi analizinizi yapın.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+        <h3>Çoklu Platform</h3>
+        <p>Trendyol aktif. Hepsiburada ve Amazon talebe göre eklenir (proxy altyapı hazır).</p>
       </div>
     </div>
   </div>
@@ -98,59 +188,79 @@
 
 <section id="fiyat" class="pricing">
   <div class="container">
-    <h2>Net Fiyatlandırma</h2>
+    <div class="section-head">
+      <span class="section-label">Fiyatlandırma</span>
+      <h2>Basit, adil, taahhütsüz.</h2>
+      <p class="section-sub">İlk 3 müşteriye özel indirimli fiyat. Kurulum bize ait, siz sadece kullanın.</p>
+    </div>
     <div class="price-grid">
       <div class="price-card">
         <h3>Başlangıç</h3>
-        <div class="price">₺1.500<span>/ay</span></div>
+        <div class="price">₺1.500<span class="per">/ay</span></div>
+        <p class="price-desc">Tek platform, tek kategori.</p>
         <ul>
-          <li>1 platform (Trendyol)</li>
-          <li>1 kategori (500 ürün)</li>
-          <li>Günlük tarama</li>
-          <li>Haftalık PDF raporu</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>1 platform (Trendyol)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Max 500 ürün izleme</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Günlük otomatik tarama</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Dashboard erişimi</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Haftalık PDF raporu</li>
         </ul>
-        <a href="#iletisim" class="btn btn-secondary">Başla</a>
+        <a href="#iletisim" class="btn btn-ghost">Başla</a>
       </div>
       <div class="price-card popular">
+        <span class="badge">En Popüler</span>
         <h3>Pro</h3>
-        <div class="price">₺3.500<span>/ay</span></div>
+        <div class="price">₺3.500<span class="per">/ay</span></div>
+        <p class="price-desc">Çoklu platform, Telegram bot.</p>
         <ul>
-          <li>2 platform</li>
-          <li>3 kategori (2.000 ürün)</li>
-          <li>Telegram + Dashboard</li>
-          <li>Özel destek hattı</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>2 platform</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>3 kategori (max 2.000 ürün)</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Telegram alarmları + bot</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Haftalık PDF raporu</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Özel ürün listesi desteği</li>
         </ul>
-        <a href="#iletisim" class="btn btn-primary">Hemen Geç</a>
+        <a href="#iletisim" class="btn btn-primary">İletişime Geç</a>
       </div>
       <div class="price-card">
         <h3>Kurumsal</h3>
-        <div class="price">Özel</div>
+        <div class="price">Özel<span class="per">fiyat</span></div>
+        <p class="price-desc">Sınırsız, ihtiyaca özel.</p>
         <ul>
-          <li>Sınırsız platform</li>
-          <li>Saatlik tarama</li>
-          <li>API erişimi</li>
-          <li>Özelleştirilmiş raporlar</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Sınırsız platform & ürün</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Saatlik tarama sıklığı</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>REST API erişimi</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Özel raporlar + SLA</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>Öncelikli destek</li>
         </ul>
-        <a href="#iletisim" class="btn btn-secondary">Projeyi Görüşelim</a>
+        <a href="#iletisim" class="btn btn-ghost">Görüşelim</a>
       </div>
     </div>
   </div>
 </section>
 
 <section id="iletisim" class="contact">
-  <div class="container">
-    <h2>Yarını Bekletmeyin</h2>
-    <p>15 dakikalık canlı demo ile sistemin gücünü görün. İşinizi büyütmeye bugün başlayın.</p>
+  <div class="contact-inner container">
+    <span class="section-label">İletişim</span>
+    <h2>15 dakikalık demo.</h2>
+    <p>Mail atın veya WhatsApp'tan yazın, 24 saat içinde canlı demo ayarlayalım.</p>
     <div class="contact-options">
-      <a href="mailto:ealtunbulak8@gmail.com" class="btn btn-primary btn-lg">📧 Mail ile İrtibat</a>
-      <a href="https://wa.me/" class="btn btn-secondary btn-lg">💬 WhatsApp Hattı</a>
+      <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" class="btn btn-primary btn-lg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Mail At
+      </a>
+      <a href="https://wa.me/" class="btn btn-ghost btn-lg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        WhatsApp
+      </a>
     </div>
+    <p class="contact-note">ealtunbulak8@gmail.com</p>
   </div>
 </section>
 
 <footer>
   <div class="container">
-    <p>© 2026 Metrio · Premium Rakip İstihbarat Çözümleri</p>
+    <div>© 2026 Metrio · Emre Altunbulak</div>
+    <div>Made in Türkiye</div>
   </div>
 </footer>
 
