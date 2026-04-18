@@ -5,641 +5,1243 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metrio — Rakip Fiyat İstihbaratı</title>
 <meta name="description" content="E-ticaret satıcıları için otomatik rakip fiyat takibi. Gece taramalı, Telegram'dan anında alarm, haftalık PDF raporu.">
-<meta name="keywords" content="fiyat takibi, rakip analiz, e-ticaret, trendyol, hepsiburada, amazon, otomasyon, SaaS, türkiye">
-<meta name="author" content="Emre Altunbulak">
-<meta name="theme-color" content="#0A0A0B">
-<link rel="canonical" href="https://altunbulakemre75.github.io/metrio/">
-
-<!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310B981'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' font-weight='400' fill='%230A0A0B' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
-
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://altunbulakemre75.github.io/metrio/">
-<meta property="og:title" content="Metrio — Rakip Fiyat İstihbaratı">
-<meta property="og:description" content="Rakip fiyatları siz uyurken takip edilir. Trendyol, Hepsiburada ve Amazon için otomatik tarama, Telegram alarmları, haftalık PDF raporu.">
-<meta property="og:locale" content="tr_TR">
-<meta property="og:site_name" content="Metrio">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Metrio — Rakip Fiyat İstihbaratı">
-<meta name="twitter:description" content="Rakip fiyatları siz uyurken takip edilir. Trendyol, Hepsiburada, Amazon için otomatik tarama + Telegram alarmları.">
-
-<!-- Schema.org -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "Metrio",
-  "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Web",
-  "description": "E-ticaret satıcıları için otomatik rakip fiyat izleme SaaS'ı. Trendyol, Hepsiburada ve Amazon platformlarında fiyat anomalilerini tespit eder, Telegram'dan anında alarm gönderir.",
-  "offers": [
-    {"@type": "Offer", "name": "Başlangıç", "price": "1500", "priceCurrency": "TRY", "priceSpecification": {"@type": "UnitPriceSpecification", "billingDuration": "P1M"}},
-    {"@type": "Offer", "name": "Pro", "price": "3500", "priceCurrency": "TRY", "priceSpecification": {"@type": "UnitPriceSpecification", "billingDuration": "P1M"}}
-  ],
-  "inLanguage": "tr",
-  "url": "https://altunbulakemre75.github.io/metrio/",
-  "author": {"@type": "Person", "name": "Emre Altunbulak"}
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {"@type": "Question", "name": "Rakip siteler scraping'i engellemez mi?", "acceptedAnswer": {"@type": "Answer", "text": "Trendyol için Playwright + rotasyonlu fingerprint kullanıyoruz. Hepsiburada ve Amazon için residential proxy altyapımız hazır, Pro+ paketlerde otomatik devreye giriyor."}},
-    {"@type": "Question", "name": "Verilerim nerede tutuluyor, güvende mi?", "acceptedAnswer": {"@type": "Answer", "text": "Her müşteriye izole bir SQLite veritabanı atanıyor. Şifreli yedekleme günlük, dashboard erişimi yalnızca size özel URL + şifreyle."}},
-    {"@type": "Question", "name": "İptal edersem ne olur, veri kaybolur mu?", "acceptedAnswer": {"@type": "Answer", "text": "İstediğiniz an taahhütsüz iptal. İptal sonrası 30 gün veri arşivi tutulur, CSV olarak indirebilirsiniz."}},
-    {"@type": "Question", "name": "Hangi kategoriler destekleniyor?", "acceptedAnswer": {"@type": "Answer", "text": "Kozmetik, parfüm, vitamin/takviye, cep telefonu aktif. İstediğiniz kategoriyi 24 saat içinde ekleyebiliriz."}},
-    {"@type": "Question", "name": "Demo süreci nasıl işliyor?", "acceptedAnswer": {"@type": "Answer", "text": "15 dakikalık görüntülü görüşme. Sizin kategorinizden örnek ürünlerle canlı gösterim yaparız."}}
-  ]
-}
-</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-      }
-    }
-  }
-</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap" rel="stylesheet">
 
 <style>
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    font-feature-settings: 'cv11', 'ss01';
-  }
-  .glass {
-    background: rgba(24, 24, 27, 0.55);
-    backdrop-filter: saturate(180%) blur(18px);
-    -webkit-backdrop-filter: saturate(180%) blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-  }
-  .glass-strong {
-    background: rgba(24, 24, 27, 0.75);
-    backdrop-filter: saturate(180%) blur(24px);
-    -webkit-backdrop-filter: saturate(180%) blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .hero-glow {
-    background:
-      radial-gradient(700px 400px at 25% 10%, rgba(16, 185, 129, 0.10), transparent 60%),
-      radial-gradient(600px 380px at 80% 30%, rgba(16, 185, 129, 0.06), transparent 60%);
-  }
-  .card-glow {
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.4), 0 20px 60px -20px rgba(16, 185, 129, 0.15);
-  }
-  .grid-bg {
-    background-image:
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface-2: #18181b;
+  --border: rgba(255,255,255,0.07);
+  --text: #f4f4f5;
+  --text-muted: #71717a;
+  --text-subtle: #3f3f46;
+  --accent: #10b981;
+  --accent-hover: #34d399;
+  --accent-dim: rgba(16,185,129,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── Layout ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.container--narrow { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+/* ── Nav ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background: rgba(10,10,11,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.logo-icon {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon svg { width: 14px; height: 14px; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--text); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover { background: var(--surface-2); }
+
+/* ── Hero ── */
+.hero {
+  padding: 140px 0 80px;
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+}
+
+.badge-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+  50% { box-shadow: 0 0 0 5px rgba(16,185,129,0.05); }
+}
+
+.hero h1 {
+  font-size: clamp(38px, 6vw, 64px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin-bottom: 20px;
+}
+
+.hero h1 .muted { color: var(--text-muted); font-weight: 300; }
+
+.hero p {
+  font-size: 17px;
+  color: var(--text-muted);
+  max-width: 540px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 56px;
+}
+
+.btn-primary-lg {
+  padding: 13px 28px;
+  font-size: 15px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .2s;
+}
+.btn-primary-lg:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+.btn-ghost-lg {
+  padding: 13px 28px;
+  font-size: 15px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .2s;
+}
+.btn-ghost-lg:hover { background: var(--surface); }
+
+.trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+
+.trust-row span { display: flex; align-items: center; gap: 5px; }
+.trust-row .check { color: var(--accent); }
+
+/* ── Dashboard Mockup ── */
+.mockup-wrap {
+  margin-top: 64px;
+  position: relative;
+}
+
+.mockup-glow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(ellipse at 50% 60%, rgba(16,185,129,0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.mockup {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.mockup-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.mockup-dots { display: flex; gap: 6px; }
+.mockup-dots span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.mockup-url {
+  font-size: 11px;
+  color: var(--text-subtle);
+  font-family: monospace;
+}
+
+.mockup-body { padding: 24px; }
+
+.mockup-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-chip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.stat-chip .label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin-bottom: 6px;
+}
+
+.stat-chip .value {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.stat-chip .value.accent { color: var(--accent); }
+
+.mockup-table { width: 100%; border-collapse: collapse; }
+
+.mockup-table thead th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  text-align: left;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mockup-table thead th.right { text-align: right; }
+
+.mockup-table tbody tr { border-bottom: 1px solid var(--border); }
+.mockup-table tbody tr:last-child { border-bottom: none; }
+
+.mockup-table tbody td {
+  padding: 12px 0;
+  font-size: 13px;
+}
+
+.mockup-table tbody td.right { text-align: right; }
+
+.product-name { font-weight: 500; margin-bottom: 2px; }
+.product-brand { font-size: 11px; color: var(--text-subtle); }
+.price { font-family: monospace; color: var(--text-muted); }
+
+.badge-change {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  float: right;
+}
+.badge-down { background: rgba(239,68,68,0.12); color: #f87171; }
+.badge-up { background: rgba(16,185,129,0.12); color: var(--accent); }
+.badge-flat { background: var(--surface-2); color: var(--text-muted); }
+
+.mockup-footer {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-subtle);
+}
+
+.live-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 5px;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Stats ── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.stats-row .stat {
+  padding: 32px 0;
+  text-align: center;
+  background: var(--bg);
+}
+
+.stats-row .stat .num {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+.stats-row .stat .num.accent { color: var(--accent); }
+
+.stats-row .stat .desc {
+  font-size: 12px;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Section common ── */
+section { padding: 100px 0; border-top: 1px solid var(--border); }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  margin-bottom: 16px;
+}
+
+.section-title .muted { color: var(--text-muted); font-weight: 300; }
+
+.section-desc {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+/* ── How it works ── */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-top: 48px; }
+.step {
+  background: var(--bg);
+  padding: 40px 32px;
+}
+
+.step-num {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--text-subtle);
+  margin-bottom: 20px;
+}
+
+.step-icon {
+  width: 40px; height: 40px;
+  background: var(--accent-dim);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.step-icon svg { width: 18px; height: 18px; color: var(--accent); }
+
+.step h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+.step p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+
+/* ── Features ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  margin-top: 48px;
+}
+
+.feature {
+  background: var(--bg);
+  padding: 32px;
+  transition: background .2s;
+}
+.feature:hover { background: var(--surface); }
+
+.feature-icon {
+  width: 36px; height: 36px;
+  background: var(--accent-dim);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.feature-icon svg { width: 16px; height: 16px; color: var(--accent); }
+
+.feature h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.feature p { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+/* ── Pricing ── */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 48px;
+}
+
+.plan {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.plan.featured {
+  border-color: rgba(16,185,129,0.35);
+  background: rgba(16,185,129,0.04);
+  position: relative;
+}
+
+.plan-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.plan-tier {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-subtle);
+  margin-bottom: 16px;
+}
+
+.plan.featured .plan-tier { color: var(--accent); }
+
+.plan-price {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.plan-price span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+
+.plan-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.plan-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-bottom: 28px;
+  flex: 1;
+}
+
+.plan-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.plan-features li .check { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
+.plan-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 11px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all .2s;
+}
+
+.plan-btn-outline {
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.plan-btn-outline:hover { background: var(--surface-2); }
+
+.plan-btn-solid {
+  background: var(--accent);
+  color: #000;
+}
+.plan-btn-solid:hover { background: var(--accent-hover); }
+
+/* ── FAQ ── */
+.faq-list { margin-top: 48px; display: flex; flex-direction: column; gap: 2px; }
+
+details.faq {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+details.faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+  transition: background .2s;
+}
+
+details.faq summary:hover { background: var(--surface-2); }
+details.faq summary::-webkit-details-marker { display: none; }
+
+.faq-arrow {
+  width: 18px; height: 18px;
+  color: var(--text-subtle);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+
+details.faq[open] .faq-arrow { transform: rotate(180deg); }
+
+details.faq .faq-body {
+  padding: 0 22px 18px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+/* ── Founder / Beta ── */
+.founder-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.founder-note p {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.75;
+}
+
+.founder-sign {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.founder-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #000;
+  font-size: 15px;
+}
+
+.founder-sign-name { font-size: 14px; font-weight: 600; }
+.founder-sign-role { font-size: 12px; color: var(--text-subtle); }
+
+.beta-card {
+  background: linear-gradient(180deg, var(--accent-dim), var(--surface));
+  border: 1px solid rgba(16,185,129,0.25);
+  border-radius: 14px;
+  padding: 32px;
+  position: relative;
+}
+
+.beta-card .tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(16,185,129,0.12);
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 16px;
+}
+
+.beta-card h3 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+}
+
+.beta-card p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.beta-benefits {
+  list-style: none;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.beta-benefits li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.beta-benefits svg {
+  width: 16px; height: 16px;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.beta-card .plan-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ── Contact ── */
+.contact-section {
+  text-align: center;
+}
+
+.contact-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.contact-email {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-family: monospace;
+}
+
+/* ── Footer ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-copy { font-size: 13px; color: var(--text-subtle); display: flex; align-items: center; gap: 8px; }
+.footer-right { font-size: 13px; color: var(--text-subtle); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero { padding: 110px 0 60px; }
+  .hero-actions { flex-direction: column; }
+  .trust-row { flex-direction: column; gap: 10px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .steps { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .mockup-stats { display: none; }
+  .founder-grid { grid-template-columns: 1fr; gap: 32px; }
+}
 </style>
 </head>
+<body>
 
-<body class="bg-zinc-950 text-zinc-100 font-sans antialiased">
-
-<!-- Navbar -->
-<header class="fixed top-0 left-0 right-0 z-50 glass">
-  <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="#" class="flex items-center gap-2.5" aria-label="Metrio ana sayfa">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-        <i data-lucide="activity" class="w-4 h-4 text-zinc-950 stroke-[2.5]" aria-hidden="true"></i>
+<!-- Nav -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
       </div>
-      <span class="text-lg font-semibold tracking-tight">Metrio</span>
+      Metrio
     </a>
 
-    <div class="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-      <a href="#nasil" class="hover:text-white transition">Nasıl Çalışır</a>
-      <a href="#ozellikler" class="hover:text-white transition">Özellikler</a>
-      <a href="#fiyat" class="hover:text-white transition">Fiyat</a>
-      <a href="#faq" class="hover:text-white transition">SSS</a>
-    </div>
+    <ul class="nav-links">
+      <li><a href="#nasil">Nasıl Çalışır</a></li>
+      <li><a href="#ozellikler">Özellikler</a></li>
+      <li><a href="#fiyat">Fiyat</a></li>
+      <li><a href="#faq">SSS</a></li>
+    </ul>
 
-    <div class="flex items-center gap-2">
-      <a href="#iletisim" class="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-sm font-semibold transition shadow-lg shadow-emerald-500/20">
-        Demo İste
-        <i data-lucide="arrow-right" class="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true"></i>
-      </a>
-      <button id="menu-toggle" class="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-zinc-300 hover:bg-zinc-800/60 transition" aria-label="Menüyü aç" aria-expanded="false" aria-controls="mobile-menu">
-        <i data-lucide="menu" class="w-5 h-5" aria-hidden="true"></i>
-      </button>
-    </div>
-  </nav>
-
-  <!-- Mobile menu -->
-  <div id="mobile-menu" class="md:hidden hidden border-t border-white/5 bg-zinc-950/95 backdrop-blur-lg">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-1 text-zinc-300">
-      <a href="#nasil" class="py-3 px-2 rounded-lg hover:bg-zinc-800/60 transition">Nasıl Çalışır</a>
-      <a href="#ozellikler" class="py-3 px-2 rounded-lg hover:bg-zinc-800/60 transition">Özellikler</a>
-      <a href="#fiyat" class="py-3 px-2 rounded-lg hover:bg-zinc-800/60 transition">Fiyat</a>
-      <a href="#faq" class="py-3 px-2 rounded-lg hover:bg-zinc-800/60 transition">SSS</a>
-      <a href="#iletisim" class="mt-2 inline-flex items-center justify-center gap-1.5 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold transition">
-        Demo İste
-        <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2.5]" aria-hidden="true"></i>
-      </a>
-    </div>
+    <a href="#iletisim" class="btn btn-primary">Demo İste</a>
   </div>
-</header>
+</nav>
 
 <!-- Hero -->
-<section class="relative pt-32 pb-28 overflow-hidden">
-  <div class="absolute inset-0 hero-glow pointer-events-none"></div>
-  <div class="absolute inset-0 grid-bg opacity-40 pointer-events-none" style="mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%); -webkit-mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%);"></div>
-
-  <div class="relative max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-
-    <!-- LEFT: Copy -->
-    <div>
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs text-zinc-300 mb-8">
-        <span class="relative flex w-2 h-2">
-          <span class="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
-          <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-500"></span>
-        </span>
-        Otomatik tarama · Türkiye
-      </div>
-
-      <h1 class="text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-6">
-        Rakip fiyatları
-        <span class="block text-zinc-500">siz uyurken</span>
-        takip edilir.
-      </h1>
-
-      <p class="text-lg text-zinc-400 leading-relaxed max-w-xl mb-10">
-        Her gece Trendyol, Hepsiburada ve Amazon'daki rakip ürünleri otomatik tarar. %20+ fiyat hareketini Telegram'a alarm olarak düşürür. Haftalık PDF raporu Pazartesi sabah mail kutunuzda.
-      </p>
-
-      <div class="flex flex-wrap items-center gap-3">
-        <a href="#iletisim" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold transition shadow-xl shadow-emerald-500/25">
-          Demo Ayarla
-          <i data-lucide="arrow-right" class="w-4 h-4 stroke-[2.5]"></i>
-        </a>
-        <a href="#ozellikler" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass hover:bg-zinc-800/60 text-zinc-100 font-medium transition">
-          Nasıl çalışır
-        </a>
-      </div>
-
-      <div class="flex flex-wrap gap-6 mt-10 text-xs text-zinc-500">
-        <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>Kurulum 24 saat</span>
-        <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>İlk 3 müşteriye özel fiyat</span>
-        <span class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-500"></i>Taahhütsüz iptal</span>
-      </div>
+<section class="hero" style="border-top:none;">
+  <div class="container--narrow">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Otomatik tarama · Türkiye pazarı
     </div>
 
-    <!-- RIGHT: Dashboard Mockup -->
-    <div class="relative">
-      <div class="absolute -inset-4 bg-gradient-to-br from-emerald-500/10 via-transparent to-emerald-500/5 rounded-3xl blur-2xl"></div>
+    <h1>
+      Rakip fiyatları<br>
+      <span class="muted">siz uyurken takip edilir.</span>
+    </h1>
 
-      <div class="relative glass-strong rounded-2xl p-5 shadow-2xl">
-        <!-- Window chrome -->
-        <div class="flex items-center justify-between mb-5">
-          <div class="flex gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-zinc-700"></span>
+    <p>Her gece Trendyol, Hepsiburada ve Amazon'daki rakip ürünleri otomatik tarar. %20+ fiyat hareketi Telegram'a alarm olarak düşer. Haftalık PDF raporu Pazartesi sabahı mail kutunuzda.</p>
+
+    <div class="hero-actions">
+      <a href="#iletisim" class="btn-primary-lg">
+        Demo Ayarla
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+      <a href="#ozellikler" class="btn-ghost-lg">Özelliklere Bak</a>
+    </div>
+
+    <div class="trust-row">
+      <span><span class="check">✓</span> 24 saatte kurulum</span>
+      <span><span class="check">✓</span> İlk 3 müşteriye özel fiyat</span>
+      <span><span class="check">✓</span> Taahhütsüz iptal</span>
+    </div>
+
+    <!-- Mockup -->
+    <div class="mockup-wrap">
+      <div class="mockup-glow"></div>
+      <div class="mockup">
+        <div class="mockup-bar">
+          <div class="mockup-dots">
+            <span></span><span></span><span></span>
           </div>
-          <span class="text-[10px] font-medium text-zinc-500 font-mono">metrio.app/dashboard</span>
+          <span class="mockup-url">metrio.app / dashboard</span>
         </div>
-
-        <!-- Stats row -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-          <div class="rounded-lg bg-zinc-900/60 border border-white/5 px-3 py-2.5">
-            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Ürün</div>
-            <div class="text-xl font-bold mt-0.5">2.438</div>
-          </div>
-          <div class="rounded-lg bg-zinc-900/60 border border-white/5 px-3 py-2.5">
-            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Anomali</div>
-            <div class="text-xl font-bold mt-0.5 text-emerald-400">17</div>
-          </div>
-          <div class="rounded-lg bg-zinc-900/60 border border-white/5 px-3 py-2.5">
-            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Platform</div>
-            <div class="text-xl font-bold mt-0.5">3</div>
-          </div>
-        </div>
-
-        <!-- Table header -->
-        <div class="grid grid-cols-[1fr_auto_auto] gap-4 text-[10px] text-zinc-500 uppercase tracking-wider pb-2 border-b border-white/5">
-          <span>Ürün</span>
-          <span class="text-right">Fiyat</span>
-          <span class="text-right">Değişim</span>
-        </div>
-
-        <!-- Rows -->
-        <div class="divide-y divide-white/5 text-sm">
-          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
-            <div>
-              <div class="font-medium text-zinc-100">Hyaluronic Asit Serum</div>
-              <div class="text-[11px] text-zinc-500">L'Oréal</div>
+        <div class="mockup-body">
+          <div class="mockup-stats">
+            <div class="stat-chip">
+              <div class="label">Ürün</div>
+              <div class="value">2.438</div>
             </div>
-            <div class="text-right text-zinc-300 font-mono">127,90 ₺</div>
-            <div class="text-right">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 text-xs font-semibold">
-                <i data-lucide="trending-down" class="w-3 h-3"></i>-32%
-              </span>
+            <div class="stat-chip">
+              <div class="label">Anomali</div>
+              <div class="value accent">17</div>
+            </div>
+            <div class="stat-chip">
+              <div class="label">Platform</div>
+              <div class="value">3</div>
             </div>
           </div>
 
-          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
-            <div>
-              <div class="font-medium text-zinc-100">iPhone 15 128GB</div>
-              <div class="text-[11px] text-zinc-500">Apple</div>
-            </div>
-            <div class="text-right text-zinc-300 font-mono">44.999 ₺</div>
-            <div class="text-right">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-700/40 text-zinc-400 text-xs font-semibold">0%</span>
-            </div>
-          </div>
+          <table class="mockup-table">
+            <thead>
+              <tr>
+                <th>Ürün</th>
+                <th class="right">Fiyat</th>
+                <th class="right">Değişim</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="product-name">Hyaluronic Asit Serum</div>
+                  <div class="product-brand">L'Oréal</div>
+                </td>
+                <td class="right price">127,90 ₺</td>
+                <td class="right"><span class="badge-change badge-down">↓ -32%</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="product-name">iPhone 15 128GB</div>
+                  <div class="product-brand">Apple</div>
+                </td>
+                <td class="right price">44.999 ₺</td>
+                <td class="right"><span class="badge-change badge-flat">0%</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="product-name">Fit Me Fondöten</div>
+                  <div class="product-brand">Maybelline</div>
+                </td>
+                <td class="right price">249,00 ₺</td>
+                <td class="right"><span class="badge-change badge-up">↑ +12%</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="product-name">Niacinamide Serum</div>
+                  <div class="product-brand">The Ordinary</div>
+                </td>
+                <td class="right price">79,00 ₺</td>
+                <td class="right"><span class="badge-change badge-down">↓ -21%</span></td>
+              </tr>
+            </tbody>
+          </table>
 
-          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
-            <div>
-              <div class="font-medium text-zinc-100">Fit Me Fondöten</div>
-              <div class="text-[11px] text-zinc-500">Maybelline</div>
-            </div>
-            <div class="text-right text-zinc-300 font-mono">249,00 ₺</div>
-            <div class="text-right">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                <i data-lucide="trending-up" class="w-3 h-3"></i>+12%
-              </span>
-            </div>
+          <div class="mockup-footer">
+            <span><span class="live-dot"></span>Canlı · 2 dk önce güncellendi</span>
+            <span>03:00 otomatik tarama</span>
           </div>
-
-          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
-            <div>
-              <div class="font-medium text-zinc-100">Niacinamide Serum</div>
-              <div class="text-[11px] text-zinc-500">The Ordinary</div>
-            </div>
-            <div class="text-right text-zinc-300 font-mono">79,00 ₺</div>
-            <div class="text-right">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/10 text-red-400 text-xs font-semibold">
-                <i data-lucide="trending-down" class="w-3 h-3"></i>-21%
-              </span>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-[1fr_auto_auto] gap-4 py-3 items-center">
-            <div>
-              <div class="font-medium text-zinc-100">Vitamin C Parlatıcı</div>
-              <div class="text-[11px] text-zinc-500">The Ordinary</div>
-            </div>
-            <div class="text-right text-zinc-300 font-mono">189,50 ₺</div>
-            <div class="text-right">
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                <i data-lucide="trending-up" class="w-3 h-3"></i>+8%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Live indicator -->
-        <div class="flex items-center justify-between mt-4 pt-4 border-t border-white/5 text-[11px]">
-          <span class="inline-flex items-center gap-1.5 text-zinc-500">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Canlı · 2 dk önce güncellendi
-          </span>
-          <span class="text-zinc-500 font-mono">03:00 otomatik</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Stats strip -->
-<section class="border-t border-white/5 py-10 bg-zinc-950">
-  <div class="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-    <div class="text-center">
-      <div class="text-3xl font-bold tracking-tight">2.438</div>
-      <div class="text-xs text-zinc-500 uppercase tracking-wider mt-1">Ürün izleniyor</div>
-    </div>
-    <div class="text-center">
-      <div class="text-3xl font-bold tracking-tight">4</div>
-      <div class="text-xs text-zinc-500 uppercase tracking-wider mt-1">Aktif kategori</div>
-    </div>
-    <div class="text-center">
-      <div class="text-3xl font-bold tracking-tight">3</div>
-      <div class="text-xs text-zinc-500 uppercase tracking-wider mt-1">Platform desteği</div>
-    </div>
-    <div class="text-center">
-      <div class="text-3xl font-bold tracking-tight text-emerald-400">7/24</div>
-      <div class="text-xs text-zinc-500 uppercase tracking-wider mt-1">Otomatik tarama</div>
-    </div>
-  </div>
-</section>
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat"><div class="num">2.438</div><div class="desc">Ürün izleniyor</div></div>
+  <div class="stat"><div class="num">4</div><div class="desc">Aktif kategori</div></div>
+  <div class="stat"><div class="num">3</div><div class="desc">Platform</div></div>
+  <div class="stat"><div class="num accent">7/24</div><div class="desc">Otomatik tarama</div></div>
+</div>
 
 <!-- How it works -->
-<section id="nasil" class="py-28 border-t border-white/5">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="max-w-2xl mb-16">
-      <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">Nasıl Çalışır</div>
-      <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">Üç adımda kurulum, sonra <span class="text-zinc-500">otomatik</span>.</h2>
-      <p class="text-lg text-zinc-400">Kurulumu biz yaparız. Siz sadece dashboard'u kullanır, alarmları takip edersiniz.</p>
-    </div>
+<section id="nasil">
+  <div class="container">
+    <div class="section-label">Nasıl Çalışır</div>
+    <h2 class="section-title">Üç adımda kurulum, <span class="muted">sonra otomatik.</span></h2>
+    <p class="section-desc">Kurulumu biz yaparız. Siz sadece dashboard'u kullanır, alarmları takip edersiniz.</p>
 
-    <div class="grid md:grid-cols-3 gap-5">
-      <div class="glass rounded-2xl p-8 relative">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-            <i data-lucide="list-checks" class="w-5 h-5"></i>
-          </div>
-          <span class="text-xs text-zinc-500 font-mono">Adım 01</span>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         </div>
-        <h3 class="text-lg font-semibold mb-2">Rakipleri belirtin</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Hangi kategoride hangi markaları izleyeceğimizi söyleyin. Biz URL'leri ve ürün listelerini hazırlarız. İlk kurulum 24 saat içinde biter.</p>
+        <h3>Rakipleri belirtin</h3>
+        <p>Hangi kategoride hangi markaları izleyeceğimizi söyleyin. Biz URL'leri ve ürün listelerini hazırlarız. İlk kurulum 24 saat içinde biter.</p>
       </div>
 
-      <div class="glass rounded-2xl p-8 relative">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-            <i data-lucide="moon" class="w-5 h-5"></i>
-          </div>
-          <span class="text-xs text-zinc-500 font-mono">Adım 02</span>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         </div>
-        <h3 class="text-lg font-semibold mb-2">Otomatik tarama başlar</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Her gece 03:00'te sistem rakip ürünleri tarar. Fiyat, stok, indirim oranı ve trendleri veritabanına kaydeder. Siz uyurken çalışır.</p>
+        <h3>Otomatik tarama başlar</h3>
+        <p>Her gece 03:00'te sistem rakip ürünleri tarar. Fiyat, stok ve trendleri veritabanına kaydeder. Siz uyurken çalışır.</p>
       </div>
 
-      <div class="glass rounded-2xl p-8 relative">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-            <i data-lucide="bell-ring" class="w-5 h-5"></i>
-          </div>
-          <span class="text-xs text-zinc-500 font-mono">Adım 03</span>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         </div>
-        <h3 class="text-lg font-semibold mb-2">Anomali → bildirim</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">%20+ fiyat hareketinde Telegram'a anında alarm düşer. Pazartesi sabahları haftalık PDF raporu mail kutunuzda hazır.</p>
+        <h3>Anomali → bildirim</h3>
+        <p>%20+ fiyat hareketinde Telegram'a anında alarm düşer. Pazartesi sabahları haftalık PDF raporu mail kutunuzda hazır.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- Features -->
-<section id="ozellikler" class="py-28 border-t border-white/5">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="max-w-2xl mb-16">
-      <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">Özellikler</div>
-      <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">Pazarlama değil, <span class="text-zinc-500">mühendislik</span>.</h2>
-      <p class="text-lg text-zinc-400">TDD ile yazıldı, 150 test geçiyor. İlk müşterilerle beraber evrilecek.</p>
-    </div>
+<section id="ozellikler">
+  <div class="container">
+    <div class="section-label">Özellikler</div>
+    <h2 class="section-title">Pazarlama değil, <span class="muted">mühendislik.</span></h2>
+    <p class="section-desc">TDD ile yazıldı, 150 test geçiyor. İlk müşterilerle beraber evrilecek.</p>
 
-    <div class="grid md:grid-cols-3 gap-4">
-      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-          <i data-lucide="line-chart" class="w-5 h-5"></i>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <h3 class="font-semibold mb-1.5">Canlı Dashboard</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Tüm ürünler, fiyat geçmişi, marka trendleri tek web arayüzünde.</p>
+        <h3>Canlı Dashboard</h3>
+        <p>Tüm ürünler, fiyat geçmişi, marka trendleri tek web arayüzünde.</p>
       </div>
 
-      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-          <i data-lucide="message-square" class="w-5 h-5"></i>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <h3 class="font-semibold mb-1.5">Telegram Bot</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Anomali alarmları + <span class="font-mono text-zinc-300">/durum</span>, <span class="font-mono text-zinc-300">/trend</span>, <span class="font-mono text-zinc-300">/fiyat</span> komutları.</p>
+        <h3>Telegram Bot</h3>
+        <p>Anomali alarmları + <code style="font-size:12px;color:#a1a1aa;">/durum</code>, <code style="font-size:12px;color:#a1a1aa;">/trend</code>, <code style="font-size:12px;color:#a1a1aa;">/fiyat</code> komutları.</p>
       </div>
 
-      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-          <i data-lucide="file-text" class="w-5 h-5"></i>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </div>
-        <h3 class="font-semibold mb-1.5">Haftalık PDF</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Her Pazartesi 09:00'da profesyonel rapor mail kutunuzda.</p>
+        <h3>Haftalık PDF</h3>
+        <p>Her Pazartesi 09:00'da profesyonel rapor mail kutunuzda.</p>
       </div>
 
-      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-          <i data-lucide="search" class="w-5 h-5"></i>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         </div>
-        <h3 class="font-semibold mb-1.5">Ürün Arama</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">90 günlük fiyat grafiğini saniyede görün. Telegram'dan da sorgulayın.</p>
+        <h3>Ürün Arama</h3>
+        <p>90 günlük fiyat grafiğini saniyede görün. Telegram'dan da sorgulayın.</p>
       </div>
 
-      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-          <i data-lucide="download" class="w-5 h-5"></i>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
-        <h3 class="font-semibold mb-1.5">CSV Dışa Aktarım</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Her tablo tek tıkla Excel uyumlu CSV. Kendi analizinizi yapın.</p>
+        <h3>CSV Dışa Aktarım</h3>
+        <p>Her tablo tek tıkla Excel uyumlu CSV. Kendi analizinizi yapın.</p>
       </div>
 
-      <div class="glass rounded-xl p-6 hover:bg-zinc-900/60 transition">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-5">
-          <i data-lucide="grid-3x3" class="w-5 h-5"></i>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         </div>
-        <h3 class="font-semibold mb-1.5">Çoklu Platform</h3>
-        <p class="text-sm text-zinc-400 leading-relaxed">Trendyol aktif. Hepsiburada ve Amazon talebe göre eklenir.</p>
+        <h3>Çoklu Platform</h3>
+        <p>Trendyol aktif. Hepsiburada ve Amazon talebe göre eklenir.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- Pricing -->
-<section id="fiyat" class="py-28 border-t border-white/5">
-  <div class="max-w-7xl mx-auto px-6">
-    <div class="max-w-2xl mx-auto text-center mb-16">
-      <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">Fiyatlandırma</div>
-      <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">Basit, adil, <span class="text-zinc-500">taahhütsüz</span>.</h2>
-      <p class="text-lg text-zinc-400">İlk 3 müşteriye özel indirimli fiyat. Kurulum bize ait, siz sadece kullanın.</p>
+<section id="fiyat">
+  <div class="container">
+    <div style="text-align:center; max-width:560px; margin:0 auto;">
+      <div class="section-label">Fiyatlandırma</div>
+      <h2 class="section-title">Basit, adil, <span class="muted">taahhütsüz.</span></h2>
+      <p class="section-desc">İlk 3 müşteriye özel indirimli fiyat. Kurulum bize ait, siz sadece kullanın.</p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+    <div class="pricing-grid">
       <!-- Başlangıç -->
-      <div class="glass rounded-2xl p-8 flex flex-col">
-        <div class="text-xs text-zinc-500 font-semibold tracking-wider uppercase mb-2">Başlangıç</div>
-        <div class="flex items-baseline gap-1 mb-2">
-          <span class="text-4xl font-bold tracking-tight">₺1.500</span>
-          <span class="text-zinc-500 text-sm">/ay</span>
-        </div>
-        <p class="text-sm text-zinc-400 mb-8">Tek platform, tek kategori.</p>
-        <ul class="space-y-3 text-sm mb-8 flex-1">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>1 platform (Trendyol)</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Max 500 ürün izleme</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Günlük otomatik tarama</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Dashboard erişimi</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Haftalık PDF raporu</li>
+      <div class="plan">
+        <div class="plan-tier">Başlangıç</div>
+        <div class="plan-price">₺1.500 <span>/ay</span></div>
+        <div class="plan-desc">Tek platform, tek kategori.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 1 platform (Trendyol)</li>
+          <li><span class="check">✓</span> Max 500 ürün izleme</li>
+          <li><span class="check">✓</span> Günlük otomatik tarama</li>
+          <li><span class="check">✓</span> Dashboard erişimi</li>
+          <li><span class="check">✓</span> Haftalık PDF raporu</li>
         </ul>
-        <a href="#iletisim" class="block w-full text-center py-2.5 rounded-lg border border-white/10 hover:bg-zinc-800/60 text-sm font-semibold transition">Başla</a>
+        <a href="#iletisim" class="plan-btn plan-btn-outline">Başla</a>
       </div>
 
-      <!-- Pro (POPULAR) -->
-      <div class="relative glass-strong rounded-2xl p-8 flex flex-col card-glow">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-emerald-500 text-zinc-950 text-[10px] font-bold tracking-wider uppercase">
-          En Popüler
-        </div>
-        <div class="text-xs text-emerald-400 font-semibold tracking-wider uppercase mb-2">Pro</div>
-        <div class="flex items-baseline gap-1 mb-2">
-          <span class="text-4xl font-bold tracking-tight">₺3.500</span>
-          <span class="text-zinc-500 text-sm">/ay</span>
-        </div>
-        <p class="text-sm text-zinc-400 mb-8">Çoklu platform, Telegram bot.</p>
-        <ul class="space-y-3 text-sm mb-8 flex-1">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>2 platform</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>3 kategori (max 2.000 ürün)</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Telegram alarmları + bot</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Haftalık PDF raporu</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Özel ürün listesi desteği</li>
+      <!-- Pro -->
+      <div class="plan featured">
+        <div class="plan-badge">En Popüler</div>
+        <div class="plan-tier">Pro</div>
+        <div class="plan-price">₺3.500 <span>/ay</span></div>
+        <div class="plan-desc">Çoklu platform, Telegram bot.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 2 platform</li>
+          <li><span class="check">✓</span> 3 kategori (max 2.000 ürün)</li>
+          <li><span class="check">✓</span> Telegram alarmları + bot</li>
+          <li><span class="check">✓</span> Haftalık PDF raporu</li>
+          <li><span class="check">✓</span> Özel ürün listesi desteği</li>
         </ul>
-        <a href="#iletisim" class="block w-full text-center py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-sm font-semibold transition shadow-lg shadow-emerald-500/20">İletişime Geç</a>
+        <a href="#iletisim" class="plan-btn plan-btn-solid">İletişime Geç</a>
       </div>
 
       <!-- Kurumsal -->
-      <div class="glass rounded-2xl p-8 flex flex-col">
-        <div class="text-xs text-zinc-500 font-semibold tracking-wider uppercase mb-2">Kurumsal</div>
-        <div class="flex items-baseline gap-1 mb-2">
-          <span class="text-4xl font-bold tracking-tight">Özel</span>
-          <span class="text-zinc-500 text-sm">fiyat</span>
-        </div>
-        <p class="text-sm text-zinc-400 mb-8">Sınırsız, ihtiyaca özel.</p>
-        <ul class="space-y-3 text-sm mb-8 flex-1">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Sınırsız platform & ürün</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Saatlik tarama sıklığı</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>REST API erişimi</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Özel raporlar + SLA</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>Öncelikli destek</li>
+      <div class="plan">
+        <div class="plan-tier">Kurumsal</div>
+        <div class="plan-price">Özel <span>fiyat</span></div>
+        <div class="plan-desc">Sınırsız, ihtiyaca özel.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Sınırsız platform & ürün</li>
+          <li><span class="check">✓</span> Saatlik tarama sıklığı</li>
+          <li><span class="check">✓</span> REST API erişimi</li>
+          <li><span class="check">✓</span> Özel raporlar + SLA</li>
+          <li><span class="check">✓</span> Öncelikli destek</li>
         </ul>
-        <a href="#iletisim" class="block w-full text-center py-2.5 rounded-lg border border-white/10 hover:bg-zinc-800/60 text-sm font-semibold transition">Görüşelim</a>
+        <a href="#iletisim" class="plan-btn plan-btn-outline">Görüşelim</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Founder + Beta -->
+<section id="kurucu">
+  <div class="container">
+    <div style="text-align:center; margin-bottom: 56px;">
+      <div class="section-label">Şeffaflık</div>
+      <h2 class="section-title">Kurucunun <span class="muted">notu.</span></h2>
+      <p class="section-desc">Metrio 2026'da tek başına yazıldı. İlk 3 müşteriyi özellikle beraber şekillendirmek için arıyorum.</p>
+    </div>
+
+    <div class="founder-grid">
+      <div class="founder-note">
+        <p>Metrio'yu kendim için yazdım. Her sabah 45 dakikayı rakip fiyatlara bakarak geçirmek yorucu olduğu için. 6 hafta sonra sistem ayağa kalktı, 150 test geçti, bugün sizinle paylaşabilecek bir ürün var.</p>
+        <p>Beklemediğim şey: ürün daha iyi olsun diye insanların fikrine ne kadar ihtiyacım olduğu. O yüzden <strong style="color: var(--text);">ilk 3 müşteriyi özel fiyatla</strong> alıyor, onlara "kurucu yakınlığı" sözü veriyorum — demo süreci ben yaparım, haftalık check-in'de ne iyi/kötü çalışıyor konuşuruz.</p>
+        <p>Şeffaf olayım: Hepsiburada'nın bot koruması şu an aşılamıyor, Amazon için proxy gerekir. Trendyol 4 kategoride aktif. Büyük vaat yok, çalışan bir sistem var.</p>
+        <div class="founder-sign">
+          <div class="founder-avatar">E</div>
+          <div>
+            <div class="founder-sign-name">Emre Altunbulak</div>
+            <div class="founder-sign-role">Kurucu · Geliştirici</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="beta-card">
+        <span class="tag">Erken Erişim</span>
+        <h3>İlk 3 müşteri için özel</h3>
+        <p>Sadece ilk 3 marka. Normal fiyat başlar başlamaz bu avantaj kapanır.</p>
+        <ul class="beta-benefits">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            İlk 3 ay %50 indirim (₺1.500 → ₺750/ay, Başlangıç planı)
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Kurucuyla haftalık 30 dk check-in (WhatsApp/görüntülü)
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Özel kategori ekleme ücretsiz (normalde Pro paket)
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Memnun kalmazsanız iade — soru sorulmaz
+          </li>
+        </ul>
+        <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Erken%20Eri%C5%9Fim%20Talebi&body=Merhaba%20Emre%2C%0A%0AMetrio%20erken%20eri%C5%9Fim%20program%C4%B1na%20kat%C4%B1lmak%20istiyorum.%0A%0A%C5%9Eirket%3A%20%0ASekt%C3%B6r%2FKategori%3A%20%0A%C4%B0leti%C5%9Fim%3A%20%0A%0A" class="plan-btn plan-btn-solid">
+          Erken erişim başvur
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FAQ -->
-<section id="faq" class="py-28 border-t border-white/5">
-  <div class="max-w-3xl mx-auto px-6">
-    <div class="text-center mb-16">
-      <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">Sık Sorulanlar</div>
-      <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">Akılda kalan <span class="text-zinc-500">sorular</span>.</h2>
-      <p class="text-lg text-zinc-400">Demo'da en çok duyduklarımızın cevapları.</p>
+<section id="faq">
+  <div class="container--narrow">
+    <div style="text-align:center; margin-bottom: 48px;">
+      <div class="section-label">Sık Sorulanlar</div>
+      <h2 class="section-title">Akılda kalan <span class="muted">sorular.</span></h2>
     </div>
 
-    <div class="space-y-3">
-      <details class="glass rounded-xl p-5 group" open>
-        <summary class="flex items-center justify-between cursor-pointer list-none">
-          <span class="font-semibold">Rakip siteler scraping'i engellemez mi?</span>
-          <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition"></i>
+    <div class="faq-list">
+      <details class="faq" open>
+        <summary>
+          Rakip siteler scraping'i engellemez mi?
+          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <p class="text-sm text-zinc-400 leading-relaxed mt-4">Trendyol için Playwright + rotasyonlu fingerprint kullanıyoruz — gerçek tarayıcı davranışı taklit ediliyor. Hepsiburada ve Amazon için residential proxy altyapımız hazır, Pro+ paketlerde otomatik devreye giriyor. Bugüne kadar engellenmediği test edildi.</p>
+        <div class="faq-body">Trendyol için Playwright + rotasyonlu fingerprint kullanıyoruz — gerçek tarayıcı davranışı taklit ediliyor. Hepsiburada ve Amazon için residential proxy altyapımız hazır, Pro+ paketlerde otomatik devreye giriyor. Bugüne kadar engellenmediği test edildi.</div>
       </details>
 
-      <details class="glass rounded-xl p-5 group">
-        <summary class="flex items-center justify-between cursor-pointer list-none">
-          <span class="font-semibold">Verilerim nerede tutuluyor, güvende mi?</span>
-          <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition"></i>
+      <details class="faq">
+        <summary>
+          Verilerim nerede tutuluyor, güvende mi?
+          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <p class="text-sm text-zinc-400 leading-relaxed mt-4">Her müşteriye izole bir SQLite veritabanı atanıyor (Kurumsal pakette PostgreSQL). Şifreli yedekleme günlük, dashboard erişimi yalnızca size özel URL + şifreyle. Toplanan veriler sadece sizin için, 3. taraflarla paylaşılmaz.</p>
+        <div class="faq-body">Her müşteriye izole bir SQLite veritabanı atanıyor (Kurumsal pakette PostgreSQL). Şifreli yedekleme günlük, dashboard erişimi yalnızca size özel URL + şifreyle. Toplanan veriler sadece sizin için, 3. taraflarla paylaşılmaz.</div>
       </details>
 
-      <details class="glass rounded-xl p-5 group">
-        <summary class="flex items-center justify-between cursor-pointer list-none">
-          <span class="font-semibold">İptal edersem ne olur, veri kaybolur mu?</span>
-          <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition"></i>
+      <details class="faq">
+        <summary>
+          İptal edersem ne olur, veri kaybolur mu?
+          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <p class="text-sm text-zinc-400 leading-relaxed mt-4">İstediğiniz an taahhütsüz iptal. İptal sonrası 30 gün veri arşivi tutulur, CSV olarak tek tıkla indirebilirsiniz. 30 gün sonra kalıcı silinir. İptal için uzun form yok — bir e-posta yeterli.</p>
+        <div class="faq-body">İstediğiniz an taahhütsüz iptal. İptal sonrası 30 gün veri arşivi tutulur, CSV olarak tek tıkla indirebilirsiniz. 30 gün sonra kalıcı silinir. İptal için uzun form yok — bir e-posta yeterli.</div>
       </details>
 
-      <details class="glass rounded-xl p-5 group">
-        <summary class="flex items-center justify-between cursor-pointer list-none">
-          <span class="font-semibold">Hangi kategoriler destekleniyor?</span>
-          <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition"></i>
+      <details class="faq">
+        <summary>
+          Hangi kategoriler destekleniyor?
+          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <p class="text-sm text-zinc-400 leading-relaxed mt-4">Şu an kozmetik, parfüm, vitamin/takviye, cep telefonu aktif. İstediğiniz kategoriyi 24 saat içinde ekleyebiliriz — URL verebilirseniz veya kelimeyle tarif etmeniz yeterli.</p>
+        <div class="faq-body">Şu an kozmetik, parfüm, vitamin/takviye, cep telefonu aktif. İstediğiniz kategoriyi 24 saat içinde ekleyebiliriz — URL verebilirseniz veya kelimeyle tarif etmeniz yeterli.</div>
       </details>
 
-      <details class="glass rounded-xl p-5 group">
-        <summary class="flex items-center justify-between cursor-pointer list-none">
-          <span class="font-semibold">Demo süreci nasıl işliyor?</span>
-          <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition"></i>
+      <details class="faq">
+        <summary>
+          Demo süreci nasıl işliyor?
+          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <p class="text-sm text-zinc-400 leading-relaxed mt-4">15 dakikalık görüntülü görüşme. Sizin kategorinizden örnek ürünlerle canlı gösterim yaparız — "bu ürün geçen ay kaç TL'ydi?" gibi sorularınıza anında cevap. Beğenirseniz 24 saat içinde kurulum, beğenmezseniz hiçbir yükümlülük yok.</p>
+        <div class="faq-body">15 dakikalık görüntülü görüşme. Sizin kategorinizden örnek ürünlerle canlı gösterim yaparız. Beğenirseniz 24 saat içinde kurulum, beğenmezseniz hiçbir yükümlülük yok.</div>
       </details>
 
-      <details class="glass rounded-xl p-5 group">
-        <summary class="flex items-center justify-between cursor-pointer list-none">
-          <span class="font-semibold">Fatura kesiliyor mu, e-arşiv uyumlu mu?</span>
-          <i data-lucide="chevron-down" class="w-5 h-5 text-zinc-500 group-open:rotate-180 transition"></i>
+      <details class="faq">
+        <summary>
+          Fatura kesiliyor mu, e-arşiv uyumlu mu?
+          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <p class="text-sm text-zinc-400 leading-relaxed mt-4">Evet, her ödeme için e-arşiv faturası kesiliyor, şirket bilgilerinizi verdikten sonra aynı gün mail olarak geliyor. KDV dahil fiyat, gider gösterilebilir.</p>
+        <div class="faq-body">Evet, her ödeme için e-arşiv faturası kesiliyor, şirket bilgilerinizi verdikten sonra aynı gün mail olarak geliyor. KDV dahil fiyat, gider gösterilebilir.</div>
       </details>
     </div>
   </div>
 </section>
 
 <!-- Contact -->
-<section id="iletisim" class="py-28 border-t border-white/5 relative overflow-hidden">
-  <div class="absolute inset-0 hero-glow pointer-events-none"></div>
-  <div class="relative max-w-2xl mx-auto px-6 text-center">
-    <div class="text-xs text-emerald-500 font-semibold tracking-wider uppercase mb-3">İletişim</div>
-    <h2 class="text-4xl lg:text-5xl font-bold tracking-tight mb-4">15 dakikalık <span class="text-zinc-500">demo</span>.</h2>
-    <p class="text-lg text-zinc-400 mb-10">Mail atın veya WhatsApp'tan yazın, 24 saat içinde canlı demo ayarlayalım.</p>
-    <div class="flex flex-wrap justify-center gap-3 mb-6">
-      <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold transition shadow-xl shadow-emerald-500/25">
-        <i data-lucide="mail" class="w-4 h-4"></i>
+<section id="iletisim" class="contact-section">
+  <div class="container--narrow" style="text-align:center;">
+    <div class="section-label">İletişim</div>
+    <h2 class="section-title">15 dakikalık <span class="muted">demo.</span></h2>
+    <p class="section-desc">Mail atın veya WhatsApp'tan yazın, 24 saat içinde canlı demo ayarlayalım.</p>
+
+    <div class="contact-actions">
+      <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" class="btn-primary-lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         Mail At
       </a>
-      <a href="https://wa.me/905376588470?text=Metrio%20demo%20talebi" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl glass hover:bg-zinc-800/60 text-zinc-100 font-medium transition">
-        <i data-lucide="message-circle" class="w-4 h-4"></i>
+      <a href="https://wa.me/" class="btn-ghost-lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
         WhatsApp
       </a>
     </div>
-    <p class="text-xs text-zinc-600 font-mono">ealtunbulak8@gmail.com</p>
+
+    <p class="contact-email">ealtunbulak8@gmail.com</p>
   </div>
 </section>
 
 <!-- Footer -->
-<footer class="border-t border-white/5 py-10">
-  <div class="max-w-7xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4 text-sm">
-    <div class="flex items-center gap-2.5">
-      <div class="w-6 h-6 rounded-md bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-        <i data-lucide="activity" class="w-3 h-3 text-zinc-950 stroke-[2.5]"></i>
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-copy">
+        <div class="logo-icon" style="width:22px;height:22px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        © 2026 Metrio · Emre Altunbulak
       </div>
-      <span class="text-zinc-400">© 2026 Metrio · Emre Altunbulak</span>
+      <div class="footer-right">Made in Türkiye</div>
     </div>
-    <div class="text-zinc-600">Made in Türkiye</div>
   </div>
 </footer>
-
-<script>
-  lucide.createIcons();
-
-  // Mobile menu toggle
-  (function () {
-    const btn = document.getElementById('menu-toggle');
-    const menu = document.getElementById('mobile-menu');
-    if (!btn || !menu) return;
-    const icon = btn.querySelector('i');
-    const open = () => {
-      menu.classList.remove('hidden');
-      btn.setAttribute('aria-expanded', 'true');
-      btn.setAttribute('aria-label', 'Menüyü kapat');
-      icon.setAttribute('data-lucide', 'x');
-      lucide.createIcons();
-    };
-    const close = () => {
-      menu.classList.add('hidden');
-      btn.setAttribute('aria-expanded', 'false');
-      btn.setAttribute('aria-label', 'Menüyü aç');
-      icon.setAttribute('data-lucide', 'menu');
-      lucide.createIcons();
-    };
-    btn.addEventListener('click', () => {
-      menu.classList.contains('hidden') ? open() : close();
-    });
-    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
-  })();
-</script>
 
 </body>
 </html>
