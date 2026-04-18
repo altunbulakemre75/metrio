@@ -232,7 +232,13 @@ class TrendyolScraper(BaseScraper):
                 if len(all_snaps) >= max_products:
                     break
                 url = self._paginated_url(category_url, page_num)
-                html = self._load_page(page, url)
+                try:
+                    html = self._load_page(page, url)
+                except Exception as e:
+                    # Tek bir sayfa timeout/hata alırsa o sayfayı atla.
+                    # Önceki sayfalardan toplanan ürünler korunur.
+                    log.warning(f"Sayfa {page_num} yüklenemedi ({e}), atlanıyor")
+                    break
                 snapshots = extract_cards_from_page(
                     html, category=category, captured_at=captured_at,
                     max_products=max_products - len(all_snaps),
