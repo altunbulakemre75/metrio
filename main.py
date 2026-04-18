@@ -23,6 +23,7 @@ from config import settings
 from notifications.telegram import TelegramNotifier
 from scrapers.base import BaseScraper
 from scrapers.hepsiburada import HepsiburadaScraper
+from scrapers.akakce import AkakceScraper
 from scrapers.trendyol import TrendyolScraper
 from storage.database import connect, init_schema, save_snapshot, start_run, finish_run
 from utils.logger import get_logger
@@ -51,12 +52,29 @@ _DEFAULT_CATEGORIES = [
         "name": "vitamin",
         "url": "https://www.trendyol.com/vitamin-ve-takviye-gida-x-c108713",
     },
+    {
+        "platform": "akakce",
+        "name": "parfum",
+        "url": "https://www.akakce.com/parfum.html",
+    },
+    {
+        "platform": "akakce",
+        "name": "cilt-bakimi",
+        "url": "https://www.akakce.com/cilt-bakim.html",
+    },
+    {
+        "platform": "akakce",
+        "name": "cep-telefonu",
+        "url": "https://www.akakce.com/cep-telefonu.html",
+    },
 ]
 
 
 def _make_scraper(platform: str) -> BaseScraper:
     if platform == "hepsiburada":
         return HepsiburadaScraper()
+    if platform == "akakce":
+        return AkakceScraper()
     return TrendyolScraper()
 
 
