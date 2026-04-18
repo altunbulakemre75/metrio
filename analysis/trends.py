@@ -16,8 +16,16 @@ def _aggregate_query(
     where_clause: str,
     params: tuple,
     days: int,
+    platforms: list[str] | None = None,
 ) -> list[TrendPoint]:
     cutoff = datetime.now() - timedelta(days=days)
+    plat_clause = ""
+    plat_params: list = []
+    if platforms:
+        placeholders = ",".join("?" * len(platforms))
+        plat_clause = f"AND p.platform IN ({placeholders})"
+        plat_params = list(platforms)
+
     query = f"""
         SELECT DATE(s.captured_at) AS day,
                AVG(s.price) AS avg_price,
@@ -25,11 +33,11 @@ def _aggregate_query(
                GROUP_CONCAT(s.price) AS price_list
         FROM price_snapshots s
         JOIN products p ON p.id = s.product_id
-        WHERE s.captured_at >= ? AND {where_clause}
+        WHERE s.captured_at >= ? AND {where_clause} {plat_clause}
         GROUP BY day
         ORDER BY day ASC
     """
-    rows = conn.execute(query, (cutoff, *params)).fetchall()
+    rows = conn.execute(query, (cutoff, *params, *plat_params)).fetchall()
 
     points = []
     for r in rows:
@@ -45,9 +53,19 @@ def _aggregate_query(
     return points
 
 
-def brand_trend(conn, brand: str, days: int = 30) -> list[TrendPoint]:
-    return _aggregate_query(conn, "p.brand = ?", (brand,), days)
+def brand_trend(
+    conn: sqlite3.Connection,
+    brand: str,
+    days: int = 30,
+    platforms: list[str] | None = None,
+) -> list[TrendPoint]:
+    return _aggregate_query(conn, "p.brand = ?", (brand,), days, platforms)
 
 
-def category_trend(conn, category: str, days: int = 30) -> list[TrendPoint]:
-    return _aggregate_query(conn, "p.category = ?", (category,), days)
+def category_trend(
+    conn: sqlite3.Connection,
+    category: str,
+    days: int = 30,
+    platforms: list[str] | None = None,
+) -> list[TrendPoint]:
+    return _aggregate_query(conn, "p.category = ?", (category,), days, platforms)

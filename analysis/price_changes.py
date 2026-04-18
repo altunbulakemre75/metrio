@@ -25,11 +25,19 @@ def top_movers(
     days: int = 7,
     limit: int = 20,
     direction: Literal["down", "up", "both"] = "both",
+    platforms: list[str] | None = None,
 ) -> list[PriceChange]:
     """Son N günde fiyat hareketi olan ürünleri bulur."""
     cutoff = datetime.now() - timedelta(days=days)
 
-    query = """
+    plat_clause = ""
+    params: list = [cutoff]
+    if platforms:
+        placeholders = ",".join("?" * len(platforms))
+        plat_clause = f"AND p.platform IN ({placeholders})"
+        params.extend(platforms)
+
+    query = f"""
         WITH product_range AS (
             SELECT s.product_id,
                    MIN(s.captured_at) AS first_at,
@@ -44,14 +52,14 @@ def top_movers(
                s_old.price AS old_price, s_old.captured_at AS old_at,
                s_new.price AS new_price, s_new.captured_at AS new_at
         FROM product_range pr
-        JOIN products p ON p.id = pr.product_id
+        JOIN products p ON p.id = pr.product_id {plat_clause}
         JOIN price_snapshots s_old
             ON s_old.product_id = pr.product_id AND s_old.captured_at = pr.first_at
         JOIN price_snapshots s_new
             ON s_new.product_id = pr.product_id AND s_new.captured_at = pr.last_at
         WHERE s_old.price != s_new.price
     """
-    rows = conn.execute(query, (cutoff,)).fetchall()
+    rows = conn.execute(query, params).fetchall()
 
     changes = []
     for r in rows:

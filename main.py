@@ -25,6 +25,7 @@ from scrapers.base import BaseScraper
 from scrapers.hepsiburada import HepsiburadaScraper
 from scrapers.akakce import AkakceScraper
 from scrapers.trendyol import TrendyolScraper
+from scrapers.n11 import N11Scraper
 from storage.database import connect, init_schema, save_snapshot, start_run, finish_run
 from utils.logger import get_logger
 
@@ -67,6 +68,16 @@ _DEFAULT_CATEGORIES = [
         "name": "cep-telefonu",
         "url": "https://www.akakce.com/cep-telefonu.html",
     },
+    {
+        "platform": "n11",
+        "name": "kozmetik",
+        "url": "https://www.n11.com/kozmetik",
+    },
+    {
+        "platform": "n11",
+        "name": "parfum",
+        "url": "https://www.n11.com/parfum",
+    },
 ]
 
 
@@ -75,6 +86,8 @@ def _make_scraper(platform: str) -> BaseScraper:
         return HepsiburadaScraper()
     if platform == "akakce":
         return AkakceScraper()
+    if platform == "n11":
+        return N11Scraper()
     return TrendyolScraper()
 
 

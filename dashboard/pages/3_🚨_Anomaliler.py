@@ -8,6 +8,7 @@ import streamlit as st
 
 from dashboard.app import get_conn
 from analysis.anomaly import detect_anomalies
+from analysis.queries import get_unique_platforms
 from dashboard.components.exports import csv_download_button
 
 
@@ -17,6 +18,12 @@ st.title("🚨 Anomaliler — Normalden Sapanlar")
 st.caption("Son 30 günün ortalama fiyatından eşiği aşan sapmalar")
 
 conn = get_conn()
+
+all_platforms = get_unique_platforms(conn)
+selected_platforms = st.sidebar.multiselect(
+    "Platform", all_platforms, default=all_platforms,
+    help="Hangi platformların verisi gösterilsin"
+)
 
 c1, c2, c3 = st.columns(3)
 with c1:
@@ -34,11 +41,12 @@ with c3:
 
 
 @st.cache_data(ttl=60)
-def _load(threshold):
-    return detect_anomalies(conn, lookback_days=30, threshold_percent=threshold)
+def _load(threshold, platforms):
+    plat = list(platforms) if platforms else None
+    return detect_anomalies(conn, lookback_days=30, threshold_percent=threshold, platforms=plat)
 
 
-anomalies = _load(threshold)
+anomalies = _load(threshold, tuple(sorted(selected_platforms)))
 
 if direction_filter != "all":
     anomalies = [a for a in anomalies if a.direction == direction_filter]

@@ -8,6 +8,7 @@ import streamlit as st
 
 from dashboard.app import get_conn
 from analysis.price_changes import top_movers
+from analysis.queries import get_unique_platforms
 from dashboard.components.charts import top_discounts_bar
 from dashboard.components.exports import csv_download_button
 from dashboard.utils.ui import apply_custom_styles
@@ -18,6 +19,12 @@ apply_custom_styles(page_title="Fırsatlar | Metrio", page_icon="🎯")
 st.title("🎯 Fırsatlar — Fiyat Hareketleri")
 
 conn = get_conn()
+
+all_platforms = get_unique_platforms(conn)
+selected_platforms = st.sidebar.multiselect(
+    "Platform", all_platforms, default=all_platforms,
+    help="Hangi platformların verisi gösterilsin"
+)
 
 c1, c2, c3 = st.columns([2, 2, 1])
 with c1:
@@ -32,8 +39,9 @@ with c3:
 
 
 @st.cache_data(ttl=60)
-def _load(days, direction, limit):
-    movers = top_movers(conn, days=days, direction=direction, limit=limit)
+def _load(days, direction, limit, platforms):
+    plat = list(platforms) if platforms else None
+    movers = top_movers(conn, days=days, direction=direction, limit=limit, platforms=plat)
     df = pd.DataFrame([
         {
             "Marka": m.brand or "-",
@@ -48,7 +56,7 @@ def _load(days, direction, limit):
     return movers, df
 
 
-movers, df = _load(days, direction, limit)
+movers, df = _load(days, direction, limit, tuple(sorted(selected_platforms)))
 
 if movers:
     drops = [m for m in movers if m.change_percent < 0]

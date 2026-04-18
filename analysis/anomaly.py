@@ -32,11 +32,19 @@ def detect_anomalies(
     conn: sqlite3.Connection,
     lookback_days: int = 30,
     threshold_percent: float = 0.20,
+    platforms: list[str] | None = None,
 ) -> list[Anomaly]:
     """Son N günün ortalamasından eşiği aşan sapmaları bulur."""
     cutoff = datetime.now() - timedelta(days=lookback_days)
 
-    query = """
+    plat_clause = ""
+    params: list = [cutoff]
+    if platforms:
+        placeholders = ",".join("?" * len(platforms))
+        plat_clause = f"AND p.platform IN ({placeholders})"
+        params.extend(platforms)
+
+    query = f"""
         SELECT p.id, p.platform_product_id, p.name, p.brand, p.category, p.product_url,
                (SELECT price FROM price_snapshots s2
                 WHERE s2.product_id = p.id ORDER BY s2.captured_at DESC LIMIT 1) AS current_price,
@@ -44,11 +52,11 @@ def detect_anomalies(
                COUNT(s.id) AS snap_count
         FROM products p
         JOIN price_snapshots s ON s.product_id = p.id
-        WHERE s.captured_at >= ?
+        WHERE s.captured_at >= ? {plat_clause}
         GROUP BY p.id
         HAVING snap_count >= 2
     """
-    rows = conn.execute(query, (cutoff,)).fetchall()
+    rows = conn.execute(query, params).fetchall()
 
     anomalies = []
     for r in rows:

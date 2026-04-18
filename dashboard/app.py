@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import streamlit as st
 
 from config import settings
-from analysis.queries import get_latest_snapshots_df, get_unique_brands
+from analysis.queries import get_latest_snapshots_df, get_unique_brands, get_unique_platforms
 from analysis.price_changes import top_movers
 from analysis.anomaly import detect_anomalies
 from analysis.commentary import generate_daily_summary
@@ -28,12 +28,13 @@ def get_conn():
 
 
 @st.cache_data(ttl=300)
-def _load_overview():
+def _load_overview(platforms: tuple[str, ...] | None):
     conn = get_conn()
-    df = get_latest_snapshots_df(conn)
+    plat = list(platforms) if platforms else None
+    df = get_latest_snapshots_df(conn, platforms=plat)
     brands = get_unique_brands(conn)
-    movers = top_movers(conn, days=7, direction="both", limit=5)
-    anomalies = detect_anomalies(conn, lookback_days=30, threshold_percent=0.20)[:5]
+    movers = top_movers(conn, days=7, direction="both", limit=5, platforms=plat)
+    anomalies = detect_anomalies(conn, lookback_days=30, threshold_percent=0.20, platforms=plat)[:5]
 
     avg_discount = None
     if "discount_rate" in df.columns:
@@ -64,10 +65,18 @@ def _load_overview():
 
 def main():
     st.title("📊 Metrio")
-    st.caption("E-ticaret fiyat istihbaratı — kozmetik kategorisi")
+    st.caption("E-ticaret fiyat istihbaratı")
+
+    conn = get_conn()
+    all_platforms = get_unique_platforms(conn)
+    selected_platforms = st.sidebar.multiselect(
+        "Platform", all_platforms, default=all_platforms,
+        help="Hangi platformların verisi gösterilsin"
+    )
+    plat_key = tuple(sorted(selected_platforms)) if selected_platforms else None
 
     try:
-        data = _load_overview()
+        data = _load_overview(plat_key)
     except Exception as e:
         st.error(f"Veritabanı hatası: {e}")
         st.info("`python main.py` çalıştırarak önce veri toplayın.")
