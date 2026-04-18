@@ -5,6 +5,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Metrio — Rakip Fiyat İstihbaratı</title>
 <meta name="description" content="E-ticaret satıcıları için otomatik rakip fiyat takibi. Gece taramalı, Telegram'dan anında alarm, haftalık PDF raporu.">
+<meta name="keywords" content="fiyat takibi, rakip analiz, e-ticaret, trendyol, hepsiburada, amazon, otomasyon, SaaS, türkiye">
+<meta name="author" content="Emre Altunbulak">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="canonical" href="https://altunbulakemre75.github.io/metrio/">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2310B981'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='20' font-weight='400' fill='%230A0A0B' text-anchor='middle'%3EM%3C/text%3E%3C/svg%3E">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://altunbulakemre75.github.io/metrio/">
+<meta property="og:title" content="Metrio — Rakip Fiyat İstihbaratı">
+<meta property="og:description" content="Rakip fiyatları siz uyurken takip edilir. Trendyol, Hepsiburada ve Amazon için otomatik tarama, Telegram alarmları, haftalık PDF raporu.">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:site_name" content="Metrio">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Metrio — Rakip Fiyat İstihbaratı">
+<meta name="twitter:description" content="Rakip fiyatları siz uyurken takip edilir. Trendyol, Hepsiburada, Amazon için otomatik tarama + Telegram alarmları.">
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Metrio",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "description": "E-ticaret satıcıları için otomatik rakip fiyat izleme SaaS'ı. Trendyol, Hepsiburada ve Amazon platformlarında fiyat anomalilerini tespit eder, Telegram'dan anında alarm gönderir.",
+  "offers": [
+    {"@type": "Offer", "name": "Başlangıç", "price": "1500", "priceCurrency": "TRY", "priceSpecification": {"@type": "UnitPriceSpecification", "billingDuration": "P1M"}},
+    {"@type": "Offer", "name": "Pro", "price": "3500", "priceCurrency": "TRY", "priceSpecification": {"@type": "UnitPriceSpecification", "billingDuration": "P1M"}}
+  ],
+  "inLanguage": "tr",
+  "url": "https://altunbulakemre75.github.io/metrio/",
+  "author": {"@type": "Person", "name": "Emre Altunbulak"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Rakip siteler scraping'i engellemez mi?", "acceptedAnswer": {"@type": "Answer", "text": "Trendyol için Playwright + rotasyonlu fingerprint kullanıyoruz. Hepsiburada ve Amazon için residential proxy altyapımız hazır, Pro+ paketlerde otomatik devreye giriyor."}},
+    {"@type": "Question", "name": "Verilerim nerede tutuluyor, güvende mi?", "acceptedAnswer": {"@type": "Answer", "text": "Her müşteriye izole bir SQLite veritabanı atanıyor. Şifreli yedekleme günlük, dashboard erişimi yalnızca size özel URL + şifreyle."}},
+    {"@type": "Question", "name": "İptal edersem ne olur, veri kaybolur mu?", "acceptedAnswer": {"@type": "Answer", "text": "İstediğiniz an taahhütsüz iptal. İptal sonrası 30 gün veri arşivi tutulur, CSV olarak indirebilirsiniz."}},
+    {"@type": "Question", "name": "Hangi kategoriler destekleniyor?", "acceptedAnswer": {"@type": "Answer", "text": "Kozmetik, parfüm, vitamin/takviye, cep telefonu aktif. İstediğiniz kategoriyi 24 saat içinde ekleyebiliriz."}},
+    {"@type": "Question", "name": "Demo süreci nasıl işliyor?", "acceptedAnswer": {"@type": "Answer", "text": "15 dakikalık görüntülü görüşme. Sizin kategorinizden örnek ürünlerle canlı gösterim yaparız."}}
+  ]
+}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
