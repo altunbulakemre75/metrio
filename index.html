@@ -2,1508 +2,886 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Metrio — Rakip Fiyat İstihbaratı</title>
-<meta name="description" content="E-ticaret satıcıları için otomatik rakip fiyat takibi. Gece taramalı, Telegram'dan anında alarm, haftalık PDF raporu.">
+<meta name="description" content="Trendyol satıcıları için rakip fiyat takibi. Her gece otomatik tarama, %20+ fiyat hareketinde Telegram alarmı, haftalık PDF raporu. Tek seferlik rapor ₺750.">
+<meta name="theme-color" content="#F2F3F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1114" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:site_name" content="Metrio">
+<meta property="og:title" content="Metrio — Rakip Fiyat İstihbaratı">
+<meta property="og:description" content="Rakibiniz fiyat kırdığında ilk siz bilin. Trendyol için gece taraması, Telegram alarmı ve haftalık PDF raporu.">
+<meta property="og:url" content="https://altunbulakemre75.github.io/metrio/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 7h17l9 9-9 9H3z' fill='%23FFD21F' stroke='%23121417' stroke-width='2.5' stroke-linejoin='round'/%3E%3Ccircle cx='20' cy='16' r='2.6' fill='%23121417'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=JetBrains+Mono:wght@400;600&family=Rethink+Sans:wght@400;500;600;700&display=swap">
 
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* Yerleşim: tek sütunlu satış sayfası. Hero'da sağda gerçek tarama verisinden bir "rakip hareket fişi".
+   Motif: raf ve indirim etiketi. Sarı yalnızca etiket rolünde: vurgu, fiyat ve ana düğme. */
 :root {
-  /* ─ Base ─ */
-  --bg:        #07080f;      /* dark navy-black */
-  --surface:   #0c0e18;
-  --surface-2: #111422;
-  --surface-3: #161924;
+  --paper: #F2F3F5;
+  --card: #FFFFFF;
+  --ink: #121417;
+  --muted: #59606A;
+  --line: #D9DCE1;
+  --tag: #FFD21F;
+  --tag-ink: #121417;
+  --drop: #C42B1C;
+  --rise: #1B7A4B;
+  --link: #2350C8;
+  --lift: rgba(18, 20, 23, 0.14);
+  --shadow: 0 1px 2px rgba(18, 20, 23, 0.06), 0 12px 32px rgba(18, 20, 23, 0.07);
 
-  /* ─ Borders ─ */
-  --border:      rgba(255,255,255,0.07);
-  --border-med:  rgba(255,255,255,0.11);
-  --border-high: rgba(255,255,255,0.16);
-
-  /* ─ Text ─ */
-  --text:       #eef0f6;
-  --text-muted: #6b7280;
-  --text-dim:   #374151;
-
-  /* ─ Accent (cyan-to-emerald) ─ */
-  --cyan:          #22d3ee;
-  --emerald:       #10b981;
-  --accent-from:   #22d3ee;
-  --accent-to:     #10b981;
-  --accent-mid:    #0fd4a8;
-  --accent-solid:  #0ea5a2;   /* midpoint for solid buttons */
-
-  /* ─ Gradient strings ─ */
-  --grad-accent:      linear-gradient(135deg, var(--accent-from), var(--accent-to));
-  --grad-accent-text: linear-gradient(90deg, var(--cyan) 0%, var(--emerald) 100%);
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Rethink Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0F1114;
+    --card: #181B20;
+    --ink: #ECEEF1;
+    --muted: #9BA2AC;
+    --line: #2B3038;
+    --drop: #FF7A6E;
+    --rise: #52C98F;
+    --link: #8EB2FF;
+    --lift: rgba(0, 0, 0, 0.55);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.35);
+    color-scheme: dark;
+  }
 }
 
-html { scroll-behavior: smooth; }
-
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.6;
-}
-
-a { text-decoration: none; color: inherit; }
-
-/* ══════════════════════════════
-   Layout
-══════════════════════════════ */
-.container        { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
-.container--narrow { max-width: 700px;  margin: 0 auto; padding: 0 28px; }
-
-/* ══════════════════════════════
-   Gradient utility
-══════════════════════════════ */
-.gradient-text {
-  background: var(--grad-accent-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ══════════════════════════════
-   Nav
-══════════════════════════════ */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 50;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  background: rgba(7,8,15,0.80);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
-  border-bottom: 1px solid var(--border);
-}
-
-.nav-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 28px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: -0.02em;
-}
-
-.logo-icon {
-  width: 30px; height: 30px;
-  background: var(--grad-accent);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 16px rgba(34,211,238,0.25);
-}
-
-.logo-icon svg { width: 14px; height: 14px; color: #000; }
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  list-style: none;
-}
-
-.nav-links a {
-  font-size: 13.5px;
-  color: var(--text-muted);
-  transition: color .2s;
-  font-weight: 500;
-}
-.nav-links a:hover { color: var(--text); }
-
-/* ── Buttons ── */
-.btn-nav {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s;
-  background: var(--grad-accent);
-  color: #000;
-  border: none;
-  box-shadow: 0 0 20px rgba(16,185,129,0.2);
-}
-.btn-nav:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 24px rgba(16,185,129,0.3); }
-
-/* ══════════════════════════════
-   Hero
-══════════════════════════════ */
-.hero {
-  padding: 150px 0 90px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Aurora background */
-.hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(34,211,238,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80%  20%, rgba(16,185,129,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 35% at 20%  25%, rgba(34,211,238,0.05) 0%, transparent 55%);
-  pointer-events: none;
-}
-
-/* Subtle dot grid */
-.hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, rgba(255,255,255,0.045) 1px, transparent 1px);
-  background-size: 32px 32px;
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 80%);
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 20%, transparent 80%);
-  pointer-events: none;
-}
-
-.hero > * { position: relative; z-index: 1; }
-
-/* Badge */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(34,211,238,0.06);
-  border: 1px solid rgba(34,211,238,0.2);
-  border-radius: 100px;
-  padding: 5px 16px 5px 10px;
-  font-size: 12px;
-  color: rgba(34,211,238,0.85);
-  margin-bottom: 32px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-}
-
-.badge-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--cyan);
-  box-shadow: 0 0 6px var(--cyan);
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 4px var(--cyan), 0 0 8px rgba(34,211,238,0.3); }
-  50%       { box-shadow: 0 0 8px var(--cyan), 0 0 20px rgba(34,211,238,0.15); }
-}
-
-/* Heading */
-.hero-h1 {
-  font-size: clamp(40px, 6.5vw, 68px);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.06;
-  margin-bottom: 22px;
-}
-
-.hero-h1 .line-2 {
-  display: block;
-  background: linear-gradient(90deg,
-    rgba(238,240,246,0.45) 0%,
-    rgba(238,240,246,0.20) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 300;
-  letter-spacing: -0.025em;
-}
-
-.hero p {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
   font-size: 17px;
-  color: var(--text-muted);
-  max-width: 520px;
-  margin: 0 auto 38px;
-  line-height: 1.75;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
+a { color: var(--link); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+p { margin: 0; }
 
-/* CTA Buttons */
-.hero-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 52px;
-  flex-wrap: wrap;
-}
-
-.btn-primary {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 30px;
-  font-size: 15px;
-  font-weight: 700;
-  border-radius: 12px;
-  background: var(--grad-accent);
-  color: #000;
-  transition: all .25s;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.15) inset,
-    0 0 0 1px rgba(34,211,238,0.3),
-    0 8px 30px -4px rgba(16,185,129,0.35);
-  letter-spacing: -0.01em;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.15) inset,
-    0 0 0 1px rgba(34,211,238,0.4),
-    0 12px 40px -4px rgba(16,185,129,0.45);
-}
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 28px;
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 12px;
-  background: transparent;
-  border: 1px solid var(--border-med);
-  color: var(--text);
-  transition: all .2s;
-  letter-spacing: -0.01em;
-}
-.btn-secondary:hover { background: var(--surface); border-color: var(--border-high); }
-
-/* Trust row */
-.trust-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 28px;
-  font-size: 12.5px;
-  color: var(--text-dim);
-  flex-wrap: wrap;
-}
-
-.trust-row span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.trust-check {
-  width: 16px; height: 16px;
-  background: rgba(16,185,129,0.12);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--emerald);
-  font-size: 10px;
-  flex-shrink: 0;
-}
-
-/* ══════════════════════════════
-   Dashboard Mockup
-══════════════════════════════ */
-.mockup-wrap {
-  margin-top: 72px;
-  position: relative;
-  z-index: 1;
-}
-
-.mockup-glow {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform: translate(-50%, -40%);
-  width: 70%; height: 50%;
-  background: radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, rgba(34,211,238,0.05) 40%, transparent 70%);
-  pointer-events: none;
-  filter: blur(40px);
-}
-
-.mockup {
-  background: var(--surface);
-  border: 1px solid var(--border-med);
-  border-radius: 18px;
-  overflow: hidden;
-  max-width: 780px;
+.wrap {
+  max-width: 1120px;
   margin: 0 auto;
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.04) inset,
-    0 40px 80px -20px rgba(0,0,0,0.7),
-    0 0 60px -20px rgba(34,211,238,0.08);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 
-.mockup-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 20px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface-2);
-}
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; }
+h1 { font-weight: 800; font-stretch: 72%; font-size: clamp(2.7rem, 6.6vw, 4.7rem); line-height: 0.96; letter-spacing: -0.01em; }
+h2 { font-weight: 800; font-stretch: 75%; font-size: clamp(2.1rem, 4.4vw, 3.1rem); line-height: 1.02; }
+h3 { font-weight: 700; font-stretch: 85%; font-size: 1.3rem; line-height: 1.15; }
 
-.mockup-dots { display: flex; gap: 6px; }
-.mockup-dots span {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  background: var(--surface-3);
-  border: 1px solid var(--border-med);
-}
-
-.mockup-url {
-  font-size: 11px;
-  color: var(--text-dim);
-  font-family: monospace;
-  letter-spacing: 0.03em;
-}
-
-.mockup-body { padding: 22px; }
-
-.mockup-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 22px;
-}
-
-.stat-chip {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 16px;
-}
-
-.stat-chip .label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--text-dim);
-  margin-bottom: 7px;
-  font-weight: 600;
-}
-
-.stat-chip .value {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--text);
-}
-
-.stat-chip .value.accent {
-  background: var(--grad-accent-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.mockup-table { width: 100%; border-collapse: collapse; }
-
-.mockup-table thead th {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--text-dim);
-  text-align: left;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  font-weight: 600;
-}
-
-.mockup-table thead th.right { text-align: right; }
-.mockup-table tbody tr { border-bottom: 1px solid var(--border); }
-.mockup-table tbody tr:last-child { border-bottom: none; }
-.mockup-table tbody td { padding: 11px 0; font-size: 13px; }
-.mockup-table tbody td.right { text-align: right; }
-
-.product-name { font-weight: 600; margin-bottom: 2px; color: var(--text); }
-.product-brand { font-size: 11px; color: var(--text-dim); }
-.price { font-family: monospace; color: var(--text-muted); font-size: 12.5px; }
-
-.badge-change {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 3px 9px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  float: right;
-  letter-spacing: 0.01em;
-}
-.badge-down { background: rgba(239,68,68,0.10); color: #f87171; border: 1px solid rgba(239,68,68,0.15); }
-.badge-up   { background: rgba(16,185,129,0.10); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
-.badge-flat { background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
-
-.mockup-footer {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.live-indicator { display: flex; align-items: center; gap: 6px; }
-.live-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--emerald);
-  box-shadow: 0 0 6px var(--emerald);
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-/* ══════════════════════════════
-   Stats Strip
-══════════════════════════════ */
-.stats-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.stats-strip .stat {
-  padding: 36px 0;
-  text-align: center;
-  border-right: 1px solid var(--border);
-  transition: background .2s;
-}
-.stats-strip .stat:last-child { border-right: none; }
-.stats-strip .stat:hover { background: var(--surface); }
-
-.stats-strip .num {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  margin-bottom: 5px;
-}
-
-.stats-strip .num.accent {
-  background: var(--grad-accent-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.stats-strip .desc {
-  font-size: 11.5px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-}
-
-/* ══════════════════════════════
-   Sections common
-══════════════════════════════ */
-section { padding: 100px 0; border-top: 1px solid var(--border); }
-
-.section-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--cyan);
-  text-transform: uppercase;
+.eyebrow {
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
-  margin-bottom: 14px;
-}
-
-.section-eyebrow::before {
-  content: '';
-  width: 14px; height: 1.5px;
-  background: var(--grad-accent);
-  border-radius: 2px;
-}
-
-.section-title {
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 16px;
-}
-
-.section-title .muted {
-  font-weight: 300;
-  color: var(--text-muted);
-  letter-spacing: -0.02em;
-}
-
-.section-desc {
-  font-size: 16px;
-  color: var(--text-muted);
-  line-height: 1.75;
-}
-
-/* ══════════════════════════════
-   Steps (How it works)
-══════════════════════════════ */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--border);
-  margin-top: 52px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.step {
-  background: var(--bg);
-  padding: 40px 32px;
-  transition: background .2s;
-}
-.step:hover { background: var(--surface); }
-
-.step-num {
-  font-size: 11px;
-  font-family: monospace;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  background: var(--grad-accent-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 20px;
-}
-
-.step-icon {
-  width: 42px; height: 42px;
-  background: rgba(34,211,238,0.08);
-  border: 1px solid rgba(34,211,238,0.15);
-  border-radius: 11px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 22px;
-  transition: all .2s;
-}
-
-.step:hover .step-icon {
-  background: rgba(34,211,238,0.14);
-  box-shadow: 0 0 20px rgba(34,211,238,0.1);
-}
-
-.step-icon svg { width: 18px; height: 18px; stroke: var(--cyan); }
-
-.step h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.015em; }
-.step p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
-
-/* ══════════════════════════════
-   Features
-══════════════════════════════ */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--border);
-  margin-top: 52px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.feature {
-  background: var(--bg);
-  padding: 32px;
-  transition: background .2s;
-  position: relative;
-}
-
-.feature::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 32px; right: 32px;
-  height: 1px;
-  background: var(--grad-accent);
-  opacity: 0;
-  transition: opacity .3s;
-}
-
-.feature:hover { background: var(--surface); }
-.feature:hover::before { opacity: 0.5; }
-
-.feature-icon {
-  width: 38px; height: 38px;
-  background: rgba(34,211,238,0.08);
-  border: 1px solid rgba(34,211,238,0.12);
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 18px;
-}
-
-.feature-icon svg { width: 16px; height: 16px; stroke: var(--cyan); }
-.feature h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
-.feature p { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
-
-/* ══════════════════════════════
-   Pricing
-══════════════════════════════ */
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-top: 52px;
-  align-items: start;
-}
-
-.plan {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  transition: border-color .2s;
-}
-
-.plan:hover { border-color: var(--border-med); }
-
-/* Featured plan with gradient border */
-.plan.featured {
-  position: relative;
-  background: var(--surface);
-  border: none;
-  padding: 33px;  /* +1 to compensate for gradient border wrapper */
-}
-
-.plan.featured::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 17px;
-  padding: 1px;
-  background: linear-gradient(145deg, var(--cyan), var(--emerald));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-}
-
-.plan.featured { box-shadow: 0 0 60px -15px rgba(16,185,129,0.2), 0 0 40px -20px rgba(34,211,238,0.15); }
-
-.plan-badge {
-  position: absolute;
-  top: -13px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--grad-accent);
-  color: #000;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 4px 14px;
-  border-radius: 100px;
+  color: var(--muted);
+}
+.hl {
+  background: var(--tag);
+  color: var(--tag-ink);
+  padding: 0 0.14em;
   white-space: nowrap;
 }
-
-.plan-tier {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-  margin-bottom: 18px;
+code {
+  font-family: var(--f-mono);
+  font-size: 0.84em;
+  background: color-mix(in srgb, var(--line) 65%, transparent);
+  padding: 1px 5px;
+  border-radius: 3px;
 }
 
-.plan.featured .plan-tier { color: var(--cyan); }
-
-.plan-price {
-  font-size: 38px;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1;
-  margin-bottom: 6px;
-}
-
-.plan-price span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
-
-.plan-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-bottom: 26px;
-  padding-bottom: 22px;
-  border-bottom: 1px solid var(--border);
-}
-
-.plan-features {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 28px;
-  flex: 1;
-}
-
-.plan-features li {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.plan-check {
-  width: 18px; height: 18px;
-  background: rgba(16,185,129,0.10);
-  border: 1px solid rgba(16,185,129,0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 0.5px;
-  font-size: 10px;
-  color: var(--emerald);
-}
-
-.plan-btn {
-  display: block;
-  width: 100%;
-  text-align: center;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  transition: all .2s;
-  letter-spacing: -0.01em;
-}
-
-.plan-btn-outline {
-  border: 1px solid var(--border-med);
-  color: var(--text);
-}
-.plan-btn-outline:hover { background: var(--surface-2); border-color: var(--border-high); }
-
-.plan-btn-solid {
-  background: var(--grad-accent);
-  color: #000;
-  box-shadow: 0 0 24px rgba(16,185,129,0.25);
-}
-.plan-btn-solid:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 28px rgba(16,185,129,0.35); }
-
-/* ══════════════════════════════
-   FAQ
-══════════════════════════════ */
-.faq-list { margin-top: 48px; display: flex; flex-direction: column; gap: 3px; }
-
-details.faq {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: border-color .2s;
-}
-
-details.faq[open] { border-color: var(--border-med); }
-
-details.faq summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 22px;
-  font-size: 14.5px;
-  font-weight: 600;
-  cursor: pointer;
-  list-style: none;
-  transition: background .2s;
-  letter-spacing: -0.01em;
-}
-
-details.faq summary:hover { background: var(--surface-2); }
-details.faq summary::-webkit-details-marker { display: none; }
-
-.faq-arrow {
-  width: 18px; height: 18px;
-  color: var(--text-dim);
-  transition: transform .25s, color .2s;
-  flex-shrink: 0;
-}
-details.faq[open] .faq-arrow { transform: rotate(180deg); color: var(--cyan); }
-
-.faq-body {
-  padding: 16px 22px 20px;
-  font-size: 14px;
-  color: var(--text-muted);
-  line-height: 1.75;
-  border-top: 1px solid var(--border);
-}
-
-/* ══════════════════════════════
-   Contact
-══════════════════════════════ */
-.contact-section {
-  position: relative;
-  overflow: hidden;
-}
-
-.contact-section::before {
-  content: '';
-  position: absolute;
-  left: 50%; top: 0;
-  transform: translateX(-50%);
-  width: 600px; height: 300px;
-  background: radial-gradient(ellipse, rgba(34,211,238,0.07) 0%, rgba(16,185,129,0.04) 40%, transparent 70%);
-  pointer-events: none;
-}
-
-/* Intake form */
-.intake-form {
-  max-width: 560px;
-  margin: 40px auto 0;
-  text-align: left;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px;
-}
-.form-row {
-  margin-bottom: 18px;
-}
-.form-row-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.form-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 6px;
-}
-.form-label .required, .form-consent .required { color: var(--cyan); }
-.form-input, .form-textarea {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 11px 14px;
-  color: var(--text);
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.15s;
-}
-.form-input:focus, .form-textarea:focus {
-  outline: none;
-  border-color: var(--cyan);
-}
-.form-textarea { resize: vertical; min-height: 80px; }
-.form-fieldset { border: none; }
-.form-checks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
-}
-.form-check {
+/* ─── Düğmeler ─── */
+.btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.form-check input { accent-color: var(--emerald); }
-.form-consent {
-  display: flex;
-  align-items: flex-start;
   gap: 8px;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-.form-consent input { margin-top: 3px; accent-color: var(--emerald); }
-.form-link { color: var(--cyan); }
-.form-submit {
-  width: 100%;
-  justify-content: center;
-  margin-top: 8px;
+  font-family: var(--f-body);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
   padding: 13px 20px;
-  font-size: 14px;
-  font-family: inherit;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  text-decoration: none;
   cursor: pointer;
-  border: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
-.form-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 12px;
-  text-align: center;
+.btn-tag {
+  background: var(--tag);
+  color: var(--tag-ink);
+  border-color: var(--tag-ink);
+  box-shadow: 3px 3px 0 var(--ink);
 }
-@media (max-width: 520px) {
-  .form-row-split { grid-template-columns: 1fr; }
-  .intake-form { padding: 22px; }
-}
+.btn-tag:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+.btn-tag:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover { border-color: var(--ink); }
+.btn-sm { padding: 8px 14px; font-size: 0.92rem; }
 
-/* ══════════════════════════════
-   Footer
-══════════════════════════════ */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 28px 0;
-  background: var(--surface);
+/* ─── Üst menü ─── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  padding-top: env(safe-area-inset-top, 0px);
 }
-
-.footer-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.footer-copy {
-  font-size: 13px;
-  color: var(--text-dim);
-  display: flex;
+.nav .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+.logo {
+  display: inline-flex;
   align-items: center;
   gap: 10px;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-stretch: 80%;
+  font-size: 1.55rem;
+  color: var(--ink);
+  text-decoration: none;
 }
-
-.footer-right { font-size: 13px; color: var(--text-dim); }
-
-/* ══════════════════════════════
-   Responsive
-══════════════════════════════ */
-@media (max-width: 820px) {
+.logo svg { width: 28px; height: 28px; flex: none; }
+.nav-links { display: flex; gap: 26px; margin: 0 0 0 auto; padding: 0; list-style: none; }
+.nav-links a { color: var(--muted); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+.nav-links a:hover { color: var(--ink); }
+@media (max-width: 760px) {
   .nav-links { display: none; }
-  .hero { padding: 110px 0 60px; }
-  .hero-actions { flex-direction: column; align-items: center; }
-  .trust-row { flex-direction: column; gap: 10px; }
-  .stats-strip { grid-template-columns: repeat(2, 1fr); }
-  .steps { grid-template-columns: 1fr; }
-  .features-grid { grid-template-columns: 1fr 1fr; }
-  .pricing-grid { grid-template-columns: 1fr; }
-  .mockup-stats { display: none; }
+  .nav .btn { margin-left: auto; }
 }
 
-@media (max-width: 560px) {
-  .features-grid { grid-template-columns: 1fr; }
-  .hero-h1 { font-size: 36px; }
+/* ─── Bölümler ─── */
+section { padding-block: clamp(64px, 9vw, 112px); scroll-margin-top: 64px; }
+.alt { background: var(--card); border-block: 1px solid var(--line); }
+.sec-head { display: grid; gap: 14px; max-width: 42rem; margin-bottom: clamp(32px, 5vw, 52px); }
+.sec-head p { color: var(--muted); font-size: 1.08rem; }
+
+/* ─── Hero ─── */
+.hero { padding-block: clamp(40px, 7vw, 88px) clamp(56px, 8vw, 104px); }
+.hero .wrap { display: grid; gap: 56px; align-items: center; }
+@media (min-width: 980px) { .hero .wrap { grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); gap: 64px; } }
+.hero-copy { display: grid; gap: 24px; min-width: 0; justify-items: start; }
+.lede { font-size: 1.16rem; color: var(--muted); max-width: 34rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.trust { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; padding: 0; list-style: none; font-size: 0.93rem; color: var(--muted); }
+.trust li::before { content: "✓"; color: var(--rise); font-weight: 700; margin-right: 7px; }
+
+/* Rakip hareket fişi */
+.receipt-wrap { min-width: 0; filter: drop-shadow(0 16px 30px var(--lift)); }
+.receipt {
+  position: relative;
+  background: var(--card);
+  padding: 24px 22px 22px;
+  margin-bottom: 12px;
+  font-family: var(--f-mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
+@media (min-width: 980px) { .receipt { transform: rotate(1.2deg); } }
+.receipt::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 100%;
+  height: 10px;
+  background: conic-gradient(from -45deg at bottom, var(--card) 90deg, transparent 0) 50% / 20px 100%;
+}
+.r-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.r-title { font-weight: 600; letter-spacing: 0.14em; }
+.r-meta { color: var(--muted); display: grid; gap: 2px; padding-block: 10px 12px; border-bottom: 1px dashed var(--line); }
+.r-rows { width: 100%; border-collapse: collapse; }
+.r-rows td { padding: 10px 0; border-bottom: 1px dashed var(--line); vertical-align: top; }
+.r-item { font-family: var(--f-body); font-size: 0.9rem; line-height: 1.3; padding-right: 10px !important; }
+.r-item small { display: block; font-family: var(--f-mono); font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+.r-price { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.r-price s { display: block; color: var(--muted); font-size: 0.72rem; }
+.r-pct { text-align: right; white-space: nowrap; padding-left: 10px !important; }
+.pct {
+  display: inline-block;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: color-mix(in srgb, currentColor 13%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.down { color: var(--drop); }
+.up { color: var(--rise); }
+.r-sum { display: grid; gap: 3px; padding-top: 12px; }
+.r-sum div { display: flex; justify-content: space-between; gap: 12px; }
+.r-sum b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.r-note { margin-top: 12px; color: var(--muted); font-size: 0.7rem; }
+@media (max-width: 420px) {
+  .receipt { padding-inline: 16px; }
+  .r-item { font-size: 0.85rem; }
+}
+
+/* ─── Gerçek veri şeridi ─── */
+.proof { padding-block: 0; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px 32px;
+  padding-block: 36px 14px;
+}
+@media (max-width: 860px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat .n {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-stretch: 70%;
+  font-size: clamp(2.5rem, 4.6vw, 3.5rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.stat .n small { font-size: 0.5em; font-weight: 700; color: var(--muted); }
+.stat .d { color: var(--muted); font-size: 0.95rem; margin-top: 8px; max-width: 16rem; }
+.source { font-family: var(--f-mono); font-size: 0.72rem; color: var(--muted); padding-bottom: 32px; }
+
+/* ─── Nasıl çalışır ─── */
+.steps { display: grid; gap: 36px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+@media (max-width: 820px) { .steps { grid-template-columns: minmax(0, 1fr); gap: 28px; } }
+.step { display: grid; gap: 12px; align-content: start; }
+.step .num {
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-stretch: 70%;
+  font-size: 3.4rem;
+  line-height: 0.9;
+  justify-self: start;
+  border-bottom: 6px solid var(--tag);
+  padding-bottom: 4px;
+}
+.step p { color: var(--muted); }
+
+/* ─── Ne alırsınız ─── */
+.get { display: grid; gap: 48px; align-items: start; }
+@media (min-width: 980px) { .get { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 64px; } }
+.tg {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 12px;
+  max-width: 27rem;
+}
+.tg-head { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.tg-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--tag); color: var(--tag-ink);
+  display: grid; place-items: center;
+  font-family: var(--f-display); font-weight: 800; font-size: 1.1rem;
+}
+.tg-name { font-weight: 600; line-height: 1.2; }
+.tg-name small { display: block; font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+.bubble {
+  background: color-mix(in srgb, var(--link) 9%, var(--card));
+  border-radius: 12px 12px 12px 4px;
+  padding: 12px 14px;
+  font-size: 0.93rem;
+  line-height: 1.5;
+  display: grid;
+  gap: 4px;
+}
+.bubble .big { font-family: var(--f-mono); font-size: 0.86rem; font-variant-numeric: tabular-nums; }
+.bubble.me {
+  justify-self: end;
+  background: color-mix(in srgb, var(--tag) 40%, var(--card));
+  border-radius: 12px 12px 4px 12px;
+  font-family: var(--f-mono);
+  font-size: 0.85rem;
+}
+.caption { font-size: 0.82rem; color: var(--muted); margin-top: 12px; }
+.features { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 36px; margin: 0; }
+@media (max-width: 620px) { .features { grid-template-columns: minmax(0, 1fr); gap: 22px; } }
+.features div { border-top: 2px solid var(--ink); padding-top: 12px; }
+.features dt { font-family: var(--f-display); font-weight: 700; font-stretch: 85%; font-size: 1.2rem; }
+.features dd { margin: 4px 0 0; color: var(--muted); }
+
+/* ─── Fiyat ─── */
+.plans { display: grid; gap: 26px 18px; grid-template-columns: repeat(4, minmax(0, 1fr)); padding-top: 11px; }
+@media (max-width: 1080px) { .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .plans { grid-template-columns: minmax(0, 1fr); } }
+.plan {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.plan.start { border: 2px solid var(--ink); box-shadow: var(--shadow); }
+.plan-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.plan-name { font-family: var(--f-display); font-weight: 700; font-stretch: 85%; font-size: 1.3rem; }
+.ribbon {
+  position: absolute;
+  top: -11px;
+  left: 20px;
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 3px 7px;
+  border-radius: 3px;
+}
+.price {
+  position: relative;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  background: var(--tag);
+  color: var(--tag-ink);
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-stretch: 70%;
+  font-size: 2.5rem;
+  line-height: 1;
+  padding: 10px 34px 10px 14px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+  font-variant-numeric: tabular-nums;
+}
+.price::after {
+  content: "";
+  position: absolute;
+  right: 12px; top: 50%;
+  width: 7px; height: 7px;
+  margin-top: -3.5px;
+  border-radius: 50%;
+  background: var(--card);
+}
+.price small { font-family: var(--f-body); font-stretch: 100%; font-weight: 600; font-size: 0.85rem; }
+.price.plain { background: var(--line); color: var(--ink); }
+.plan-note { font-size: 0.86rem; color: var(--muted); margin-top: -8px; }
+.plan-desc { color: var(--muted); font-size: 0.95rem; }
+.plan ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 0.95rem; }
+.plan li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; }
+.plan li::before { content: "✓"; color: var(--rise); font-weight: 700; }
+.plan .btn { margin-top: auto; justify-content: center; }
+
+
+/* ─── Kurucu ─── */
+.founder { display: grid; gap: 28px; }
+@media (min-width: 900px) { .founder { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 64px; } }
+.founder-text { display: grid; gap: 16px; font-size: 1.08rem; max-width: 38rem; }
+.sign { font-family: var(--f-mono); font-size: 0.85rem; color: var(--muted); }
+
+/* ─── SSS ─── */
+.faq-wrap { max-width: 46rem; }
+.faq { border-top: 1px solid var(--line); }
+.faq:last-child { border-bottom: 1px solid var(--line); }
+.faq summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 18px 0;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+";
+  font-family: var(--f-mono);
+  font-size: 1.2rem;
+  color: var(--muted);
+  flex: none;
+}
+.faq[open] summary::after { content: "−"; }
+.faq-body { padding: 0 0 20px; color: var(--muted); max-width: 40rem; }
+
+/* ─── İletişim ve form ─── */
+.contact { display: grid; gap: 40px; align-items: start; }
+@media (min-width: 980px) { .contact { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 64px; } }
+.contact-side { display: grid; gap: 18px; }
+.contact-side p { color: var(--muted); }
+.reach { display: grid; gap: 10px; margin: 0; }
+.reach div { display: grid; gap: 2px; }
+.reach dt { font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.reach dd { margin: 0; font-weight: 600; }
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: clamp(20px, 3.4vw, 32px);
+  display: grid;
+  gap: 18px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.row2 { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 560px) { .row2 { grid-template-columns: minmax(0, 1fr); } }
+.field { display: grid; gap: 6px; min-width: 0; }
+.lbl { font-weight: 600; font-size: 0.92rem; padding: 0; }
+.req { color: var(--drop); }
+.form-card input[type="text"],
+.form-card input[type="email"],
+.form-card input[type="tel"],
+.form-card textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 11px 12px;
+}
+.form-card input::placeholder, .form-card textarea::placeholder { color: var(--muted); opacity: 0.8; }
+.form-card input:focus, .form-card textarea:focus { border-color: var(--ink); outline: 2px solid var(--link); outline-offset: 1px; }
+.form-card textarea { min-height: 88px; resize: vertical; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 8px; }
+.choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.93rem;
+  cursor: pointer;
+  background: var(--paper);
+}
+.choice:has(input:checked) { border-color: var(--ink); background: color-mix(in srgb, var(--tag) 34%, var(--card)); }
+.choice input, .consent input { accent-color: var(--ink); margin: 0; }
+.consent { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 10px; font-size: 0.85rem; color: var(--muted); line-height: 1.5; cursor: pointer; }
+.consent input { margin-top: 3px; }
+.form-card .btn { justify-content: center; width: 100%; font-size: 1.05rem; }
+.hint { font-size: 0.82rem; color: var(--muted); text-align: center; }
+
+/* ─── Alt bilgi ─── */
+footer { border-top: 1px solid var(--line); padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px)); font-size: 0.9rem; color: var(--muted); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; justify-content: space-between; }
+.foot-brand { display: inline-flex; align-items: center; gap: 10px; }
+.foot-brand svg { width: 20px; height: 20px; }
+.foot-links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.foot-links a { color: var(--muted); }
+.foot-links a:hover { color: var(--ink); }
 </style>
 </head>
 <body>
 
-<!-- ─── Nav ─── -->
-<nav>
-  <div class="nav-inner">
-    <a href="#" class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-        </svg>
-      </div>
-      Metrio
-    </a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="tag" viewBox="0 0 32 32">
+    <path d="M3 7h17l9 9-9 9H3z" fill="#FFD21F" stroke="#121417" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="20" cy="16" r="2.6" fill="#121417"/>
+  </symbol>
+</svg>
 
+<!-- ─── Üst menü ─── -->
+<header class="nav">
+  <div class="wrap">
+    <a href="#" class="logo" aria-label="Metrio ana sayfa"><svg aria-hidden="true"><use href="#tag"/></svg>Metrio</a>
     <ul class="nav-links">
-      <li><a href="#nasil">Nasıl Çalışır</a></li>
-      <li><a href="#ozellikler">Özellikler</a></li>
+      <li><a href="#nasil">Nasıl çalışır</a></li>
+      <li><a href="#neler">Neler alırsınız</a></li>
       <li><a href="#fiyat">Fiyat</a></li>
-      <li><a href="#faq">SSS</a></li>
+      <li><a href="#sss">SSS</a></li>
     </ul>
-
-    <a href="#iletisim" class="btn-nav">
-      Demo İste
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-    </a>
+    <a href="#iletisim" class="btn btn-tag btn-sm" data-talep="Tek seferlik rapor">Rapor iste</a>
   </div>
-</nav>
+</header>
+
+<main>
 
 <!-- ─── Hero ─── -->
-<section class="hero" style="border-top:none;">
-  <div class="container--narrow">
-
-    <div class="badge">
-      <span class="badge-dot"></span>
-      Otomatik tarama · Türkiye pazarı
-    </div>
-
-    <h1 class="hero-h1">
-      Rakip fiyatları<br>
-      <span class="line-2">siz uyurken takip edilir.</span>
-    </h1>
-
-    <p>Her gece Trendyol'daki rakip ürünleri otomatik tarar (Hepsiburada yakında). %20+ fiyat hareketi Telegram'a alarm olarak düşer. Haftalık PDF raporu Pazartesi sabahı mail kutunuzda.</p>
-
-    <div class="hero-actions">
-      <a href="#iletisim" class="btn-primary">
-        Demo Ayarla
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </a>
-      <a href="#ozellikler" class="btn-secondary">Özelliklere Bak</a>
-    </div>
-
-    <div class="trust-row">
-      <span><span class="trust-check">✓</span>24 saatte kurulum</span>
-      <span><span class="trust-check">✓</span>İlk ay ₺750</span>
-      <span><span class="trust-check">✓</span>Taahhütsüz iptal</span>
-    </div>
-
-    <!-- Dashboard Mockup -->
-    <div class="mockup-wrap">
-      <div class="mockup-glow"></div>
-      <div class="mockup">
-        <div class="mockup-bar">
-          <div class="mockup-dots">
-            <span></span><span></span><span></span>
-          </div>
-          <span class="mockup-url">metrio.app / dashboard</span>
-        </div>
-        <div class="mockup-body">
-          <div class="mockup-stats">
-            <div class="stat-chip">
-              <div class="label">Ürün</div>
-              <div class="value">2.438</div>
-            </div>
-            <div class="stat-chip">
-              <div class="label">Anomali</div>
-              <div class="value accent">17</div>
-            </div>
-            <div class="stat-chip">
-              <div class="label">Platform</div>
-              <div class="value">3</div>
-            </div>
-          </div>
-
-          <table class="mockup-table">
-            <thead>
-              <tr>
-                <th>Ürün</th>
-                <th class="right">Fiyat</th>
-                <th class="right">Değişim</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div class="product-name">Hyaluronic Asit Serum</div>
-                  <div class="product-brand">L'Oréal</div>
-                </td>
-                <td class="right price">127,90 ₺</td>
-                <td class="right"><span class="badge-change badge-down">↓ −32%</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="product-name">iPhone 15 128GB</div>
-                  <div class="product-brand">Apple</div>
-                </td>
-                <td class="right price">44.999 ₺</td>
-                <td class="right"><span class="badge-change badge-flat">—</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="product-name">Fit Me Fondöten</div>
-                  <div class="product-brand">Maybelline</div>
-                </td>
-                <td class="right price">249,00 ₺</td>
-                <td class="right"><span class="badge-change badge-up">↑ +12%</span></td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="product-name">Niacinamide Serum</div>
-                  <div class="product-brand">The Ordinary</div>
-                </td>
-                <td class="right price">79,00 ₺</td>
-                <td class="right"><span class="badge-change badge-down">↓ −21%</span></td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="mockup-footer">
-            <span class="live-indicator">
-              <span class="live-dot"></span>
-              Canlı · 2 dk önce güncellendi
-            </span>
-            <span>03:00 otomatik tarama</span>
-          </div>
-        </div>
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <span class="eyebrow">Trendyol satıcıları için rakip fiyat takibi</span>
+      <h1>Rakibiniz fiyat kırdığında <span class="hl">ilk siz</span> bilin.</h1>
+      <p class="lede">Metrio her gece rakip ürünleri tarar. Bir fiyat %20'den fazla oynarsa Telegram'a alarm gelir. Pazartesi sabahı haftalık PDF raporu e-postanızda olur. Trendyol aktif, Hepsiburada yakında.</p>
+      <div class="actions">
+        <a href="#iletisim" class="btn btn-tag" data-talep="Tek seferlik rapor">₺750'ye örnek rapor iste</a>
+        <a href="#iletisim" class="btn btn-ghost" data-talep="Demo">15 dakikalık demo</a>
       </div>
+      <ul class="trust">
+        <li>24 saatte kurulum</li>
+        <li>İlk ay ₺750</li>
+        <li>Taahhütsüz iptal</li>
+      </ul>
     </div>
+
+    <figure class="receipt-wrap" style="margin:0">
+      <div class="receipt" role="group" aria-label="Örnek rakip hareket fişi">
+        <div class="r-head">
+          <span class="r-title">RAKİP HAREKET FİŞİ</span>
+          <span>TRENDYOL · KOZMETİK</span>
+        </div>
+        <div class="r-meta">
+          <span>Önceki tarama : Nisan 2026 sonu</span>
+          <span>Son tarama&nbsp;&nbsp;&nbsp;&nbsp;: 27.10.2026</span>
+        </div>
+        <table class="r-rows">
+          <tbody>
+            <tr>
+              <td class="r-item">Siyah nokta köpüğü 120 ml<small>Marka A</small></td>
+              <td class="r-price"><s>₺398,90</s>₺188,20</td>
+              <td class="r-pct"><span class="pct down">−52,8%</span></td>
+            </tr>
+            <tr>
+              <td class="r-item">Glikolik asit tonik 200 ml<small>Marka A</small></td>
+              <td class="r-price"><s>₺379,90</s>₺192,02</td>
+              <td class="r-pct"><span class="pct down">−49,5%</span></td>
+            </tr>
+            <tr>
+              <td class="r-item">Retinal booster krem 20 ml<small>Marka B</small></td>
+              <td class="r-price"><s>₺608,00</s>₺393,39</td>
+              <td class="r-pct"><span class="pct down">−35,3%</span></td>
+            </tr>
+            <tr>
+              <td class="r-item">Q10 vücut losyonu 250 ml<small>Marka C</small></td>
+              <td class="r-price"><s>₺188,00</s>₺144,00</td>
+              <td class="r-pct"><span class="pct down">−23,4%</span></td>
+            </tr>
+            <tr>
+              <td class="r-item">Bitkisel saç bakım yağı<small>Marka D</small></td>
+              <td class="r-price"><s>₺613,00</s>₺949,00</td>
+              <td class="r-pct"><span class="pct up">+54,8%</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="r-sum">
+          <div><span>Karşılaştırılan ürün</span><b>101</b></div>
+          <div><span>Fiyatı değişen</span><b>89</b></div>
+          <div><span>%20'den fazla düşen</span><b class="down">8</b></div>
+          <div><span>%20'den fazla artan</span><b class="up">14</b></div>
+        </div>
+        <p class="r-note">Gerçek tarama verisi. Marka adları gizlendi.</p>
+      </div>
+    </figure>
   </div>
 </section>
 
-<!-- ─── Stats Strip ─── -->
-<div class="stats-strip">
-  <div class="stat"><div class="num">2.438</div><div class="desc">Ürün izleniyor</div></div>
-  <div class="stat"><div class="num">4</div><div class="desc">Aktif kategori</div></div>
-  <div class="stat"><div class="num">3</div><div class="desc">Platform</div></div>
-  <div class="stat"><div class="num accent">7/24</div><div class="desc">Otomatik tarama</div></div>
-</div>
+<!-- ─── Gerçek veri ─── -->
+<section class="proof alt" aria-label="Metrio veritabanından rakamlar">
+  <div class="wrap">
+    <div class="stats">
+      <div class="stat"><div class="n">3.143</div><p class="d">ürün kayıtlı, Trendyol ve Akakçe'den</p></div>
+      <div class="stat"><div class="n">8.242</div><p class="d">fiyat kaydı</p></div>
+      <div class="stat"><div class="n">89<small> / 101</small></div><p class="d">kozmetik ürününün fiyatı Nisan'dan bu yana değişti</p></div>
+      <div class="stat"><div class="n">4</div><p class="d">Trendyol kategorisi her gece taranıyor</p></div>
+    </div>
+    <p class="source">Kaynak: Metrio veritabanı, 27 Ekim 2026 taraması.</p>
+  </div>
+</section>
 
-<!-- ─── How it works ─── -->
+<!-- ─── Nasıl çalışır ─── -->
 <section id="nasil">
-  <div class="container">
-    <div class="section-eyebrow">Nasıl Çalışır</div>
-    <h2 class="section-title">Üç adımda kurulum, <span class="muted">sonra otomatik.</span></h2>
-    <p class="section-desc">Kurulumu biz yaparız. Siz sadece dashboard'u kullanır, alarmları takip edersiniz.</p>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Nasıl çalışır</span>
+      <h2>Kurulumu biz yaparız, sonrası kendiliğinden işler.</h2>
+    </div>
+    <ol class="steps">
+      <li class="step">
+        <span class="num">1</span>
+        <h3>Rakipleri söyleyin</h3>
+        <p>Hangi kategoride hangi markaları izleyeceğimizi yazın. Ürün listesini biz hazırlarız, kurulum 24 saatte biter.</p>
+      </li>
+      <li class="step">
+        <span class="num">2</span>
+        <h3>Her gece taranır</h3>
+        <p>Saat 03:00'te rakip ürünlerin fiyatı, indirimi ve stoğu kaydedilir. Sizin bir şey yapmanız gerekmez.</p>
+      </li>
+      <li class="step">
+        <span class="num">3</span>
+        <h3>Hareket olunca haber verilir</h3>
+        <p>Bir fiyat %20'den fazla oynarsa Telegram'a alarm gelir. Pazartesi sabahı haftalık PDF raporu e-postanızda olur.</p>
+      </li>
+    </ol>
+  </div>
+</section>
 
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">01</div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
+<!-- ─── Neler alırsınız ─── -->
+<section id="neler" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Neler alırsınız</span>
+      <h2>Fiyat hareketi telefonunuza, özet e-postanıza gelir.</h2>
+    </div>
+    <div class="get">
+      <div>
+        <div class="tg" role="group" aria-label="Örnek Telegram alarmı">
+          <div class="tg-head">
+            <span class="tg-avatar" aria-hidden="true">M</span>
+            <span class="tg-name">Metrio Alarm<small>bot</small></span>
+          </div>
+          <div class="bubble">
+            <strong>%20+ fiyat hareketi</strong>
+            <span>Glikolik asit tonik 200 ml · Marka A</span>
+            <span class="big">₺379,90 → ₺192,02 <span class="pct down">−49,5%</span></span>
+            <span style="color:var(--muted);font-size:.85rem">Trendyol · kozmetik</span>
+          </div>
+          <div class="bubble me">/fiyat tonik</div>
         </div>
-        <h3>Rakipleri belirtin</h3>
-        <p>Hangi kategoride hangi markaları izleyeceğimizi söyleyin. Biz URL'leri ve ürün listelerini hazırlarız. İlk kurulum 24 saat içinde biter.</p>
+        <p class="caption">Örnek alarm. Rakamlar gerçek tarama verisinden.</p>
       </div>
-
-      <div class="step">
-        <div class="step-num">02</div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-          </svg>
-        </div>
-        <h3>Otomatik tarama başlar</h3>
-        <p>Her gece 03:00'te sistem rakip ürünleri tarar. Fiyat, stok ve trendleri veritabanına kaydeder. Siz uyurken çalışır.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-num">03</div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-        </div>
-        <h3>Anomali → bildirim</h3>
-        <p>%20+ fiyat hareketinde Telegram'a anında alarm düşer. Pazartesi sabahları haftalık PDF raporu mail kutunuzda hazır.</p>
-      </div>
+      <dl class="features">
+        <div><dt>Gece taraması</dt><dd>Her gece 03:00'te fiyat, indirim ve stok kaydı.</dd></div>
+        <div><dt>Telegram alarmı</dt><dd>%20'den büyük hareket anında telefonunuzda. <code>/durum</code> <code>/trend</code> <code>/fiyat</code> komutlarıyla istediğiniz an sorgulayın.</dd></div>
+        <div><dt>Haftalık PDF</dt><dd>Her Pazartesi 09:00'da e-postanızda: en büyük hareketler, anomaliler, marka trendleri.</dd></div>
+        <div><dt>Fiyat geçmişi</dt><dd>Ürün bazında 90 günlük fiyat grafiği, marka ve kategori trendleri tek panelde.</dd></div>
+        <div><dt>CSV dışa aktarım</dt><dd>Her tabloyu Excel'de açın, kendi analizinizi yapın.</dd></div>
+        <div><dt>Platformlar</dt><dd>Trendyol aktif. Hepsiburada ve Amazon talebe göre eklenir.</dd></div>
+      </dl>
     </div>
   </div>
 </section>
 
-<!-- ─── Features ─── -->
-<section id="ozellikler">
-  <div class="container">
-    <div class="section-eyebrow">Özellikler</div>
-    <h2 class="section-title">Pazarlama değil, <span class="muted">mühendislik.</span></h2>
-    <p class="section-desc">TDD ile yazıldı, 167 test geçiyor. İlk müşterilerle beraber evrilecek.</p>
-
-    <div class="features-grid">
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-        </div>
-        <h3>Canlı Dashboard</h3>
-        <p>Tüm ürünler, fiyat geçmişi, marka trendleri tek web arayüzünde.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-        </div>
-        <h3>Telegram Bot</h3>
-        <p>Anomali alarmları + <code style="font-size:12px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:#a1a1aa;">/durum</code> <code style="font-size:12px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:#a1a1aa;">/trend</code> <code style="font-size:12px;background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;color:#a1a1aa;">/fiyat</code> komutları.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-        </div>
-        <h3>Haftalık PDF</h3>
-        <p>Her Pazartesi 09:00'da profesyonel rapor mail kutunuzda.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-        </div>
-        <h3>Ürün Arama</h3>
-        <p>90 günlük fiyat grafiğini saniyede görün. Telegram'dan da sorgulayın.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-        </div>
-        <h3>CSV Dışa Aktarım</h3>
-        <p>Her tablo tek tıkla Excel uyumlu CSV. Kendi analizinizi yapın.</p>
-      </div>
-
-      <div class="feature">
-        <div class="feature-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
-          </svg>
-        </div>
-        <h3>Çoklu Platform</h3>
-        <p>Trendyol aktif. Hepsiburada ve Amazon talebe göre eklenir.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ─── Pricing ─── -->
+<!-- ─── Fiyat ─── -->
 <section id="fiyat">
-  <div class="container">
-    <div style="text-align:center; max-width:560px; margin:0 auto;">
-      <div class="section-eyebrow" style="justify-content:center;">Fiyatlandırma</div>
-      <h2 class="section-title">Basit, adil, <span class="muted">taahhütsüz.</span></h2>
-      <p class="section-desc">İlk 3 müşteriye ilk ay ₺750. Kurulum bize ait, siz sadece kullanın.</p>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Fiyat</span>
+      <h2>Önce tek bir raporla deneyin.</h2>
+      <p>Taahhüt yok, kurulum bizden. İlk 3 müşteriye aylık takipte ilk ay ₺750.</p>
     </div>
-
-    <div class="pricing-grid">
-      <!-- Başlangıç -->
-      <div class="plan">
-        <div class="plan-tier">Başlangıç</div>
-        <div class="plan-price">₺1.500 <span>/ay</span></div>
-        <div class="plan-desc">Tek platform, tek kategori.</div>
-        <ul class="plan-features">
-          <li><span class="plan-check">✓</span>1 platform (Trendyol)</li>
-          <li><span class="plan-check">✓</span>Max 500 ürün izleme</li>
-          <li><span class="plan-check">✓</span>Günlük otomatik tarama</li>
-          <li><span class="plan-check">✓</span>Dashboard erişimi</li>
-          <li><span class="plan-check">✓</span>Haftalık PDF raporu</li>
+    <div class="plans">
+      <article class="plan start">
+        <div class="plan-top"><span class="plan-name">Tek seferlik rapor</span><span class="ribbon">Buradan başlayın</span></div>
+        <span class="price">₺750 <small>tek sefer</small></span>
+        <p class="plan-desc">Kategorinizdeki rakiplerin bugünkü fotoğrafı.</p>
+        <ul>
+          <li>20–50 rakip ürünün fiyat ve indirim hareketleri</li>
+          <li>Her ürününüzün fiyat konumu</li>
+          <li>48 saatte PDF teslim</li>
+          <li>15 dakikalık sonuç görüşmesi</li>
         </ul>
-        <a href="#iletisim" class="plan-btn plan-btn-outline">Başla</a>
-      </div>
+        <a href="#iletisim" class="btn btn-tag" data-talep="Tek seferlik rapor">Rapor iste</a>
+      </article>
 
-      <!-- Pro -->
-      <div class="plan featured">
-        <div class="plan-badge">En Popüler</div>
-        <div class="plan-tier">Pro</div>
-        <div class="plan-price">₺3.500 <span>/ay</span></div>
-        <div class="plan-desc">Çoklu platform, Telegram bot.</div>
-        <ul class="plan-features">
-          <li><span class="plan-check">✓</span>2 platform</li>
-          <li><span class="plan-check">✓</span>3 kategori (max 2.000 ürün)</li>
-          <li><span class="plan-check">✓</span>Telegram alarmları + bot</li>
-          <li><span class="plan-check">✓</span>Haftalık PDF raporu</li>
-          <li><span class="plan-check">✓</span>Özel ürün listesi desteği</li>
+      <article class="plan">
+        <div class="plan-top"><span class="plan-name">Başlangıç</span></div>
+        <span class="price">₺1.500 <small>/ay</small></span>
+        <p class="plan-note">İlk ay ₺750</p>
+        <p class="plan-desc">Tek platform, tek kategori.</p>
+        <ul>
+          <li>1 platform (Trendyol)</li>
+          <li>500 ürüne kadar izleme</li>
+          <li>Günlük otomatik tarama</li>
+          <li>Panel erişimi</li>
+          <li>Haftalık PDF raporu</li>
         </ul>
-        <a href="#iletisim" class="plan-btn plan-btn-solid">İletişime Geç</a>
-      </div>
+        <a href="#iletisim" class="btn btn-ghost" data-talep="Aylık takip">Başla</a>
+      </article>
 
-      <!-- Kurumsal -->
-      <div class="plan">
-        <div class="plan-tier">Kurumsal</div>
-        <div class="plan-price">Özel <span>fiyat</span></div>
-        <div class="plan-desc">Sınırsız, ihtiyaca özel.</div>
-        <ul class="plan-features">
-          <li><span class="plan-check">✓</span>Sınırsız platform &amp; ürün</li>
-          <li><span class="plan-check">✓</span>Saatlik tarama sıklığı</li>
-          <li><span class="plan-check">✓</span>REST API erişimi</li>
-          <li><span class="plan-check">✓</span>Özel raporlar + SLA</li>
-          <li><span class="plan-check">✓</span>Öncelikli destek</li>
+      <article class="plan">
+        <div class="plan-top"><span class="plan-name">Pro</span></div>
+        <span class="price">₺3.500 <small>/ay</small></span>
+        <p class="plan-desc">Çoklu platform, Telegram botu.</p>
+        <ul>
+          <li>2 platform</li>
+          <li>3 kategori, 2.000 ürüne kadar</li>
+          <li>Telegram alarmları ve bot</li>
+          <li>Haftalık PDF raporu</li>
+          <li>Özel ürün listesi</li>
         </ul>
-        <a href="#iletisim" class="plan-btn plan-btn-outline">Görüşelim</a>
-      </div>
+        <a href="#iletisim" class="btn btn-ghost" data-talep="Aylık takip">İletişime geç</a>
+      </article>
+
+      <article class="plan">
+        <div class="plan-top"><span class="plan-name">Kurumsal</span></div>
+        <span class="price plain">Özel <small>fiyat</small></span>
+        <p class="plan-desc">Sınırsız, ihtiyaca göre.</p>
+        <ul>
+          <li>Sınırsız platform ve ürün</li>
+          <li>Saatlik tarama</li>
+          <li>REST API erişimi</li>
+          <li>Özel raporlar ve SLA</li>
+          <li>Öncelikli destek</li>
+        </ul>
+        <a href="#iletisim" class="btn btn-ghost" data-talep="Aylık takip">Görüşelim</a>
+      </article>
     </div>
-    <p class="section-desc" style="text-align:center; max-width:560px; margin:32px auto 0;">Önce denemek mi istiyorsunuz? <strong>Tek seferlik rakip fiyat raporu: ₺750.</strong> Kategorinizde 20–50 rakip ürünün fiyat ve indirim hareketleri, 48 saatte PDF olarak. <a href="#iletisim" class="form-link">Rapor isteyin</a></p>
   </div>
 </section>
 
-<!-- ─── FAQ ─── -->
-<section id="faq">
-  <div class="container--narrow">
-    <div style="text-align:center; margin-bottom:48px;">
-      <div class="section-eyebrow" style="justify-content:center;">Sık Sorulanlar</div>
-      <h2 class="section-title">Akılda kalan <span class="muted">sorular.</span></h2>
+<!-- ─── Kurucu ─── -->
+<section class="alt" aria-labelledby="kurucu-baslik">
+  <div class="wrap founder">
+    <div class="sec-head" style="margin-bottom:0">
+      <span class="eyebrow">Arkasında kim var</span>
+      <h2 id="kurucu-baslik">Talebinize ben dönüyorum.</h2>
     </div>
+    <div class="founder-text">
+      <p>Ben Emre Altunbulak, makine mühendisiyim. Kendi geliştirdiğim savunma ve uydu yazılımı projelerinde kullandığım test disiplinini Metrio'ya taşıdım. Sistem her değişiklikte 167 otomatik testten geçiyor.</p>
+      <p>Metrio yeni bir ürün ve ilk müşterileriyle birlikte şekillenecek. Hangi rakibi, hangi sıklıkla izlemek istediğinizi duymak istiyorum.</p>
+      <span class="sign">Emre Altunbulak · Metrio</span>
+    </div>
+  </div>
+</section>
 
-    <div class="faq-list">
+<!-- ─── SSS ─── -->
+<section id="sss">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Sık sorulanlar</span>
+      <h2>Aklınıza takılanlar.</h2>
+    </div>
+    <div class="faq-wrap">
       <details class="faq" open>
-        <summary>
-          Rakip siteler scraping'i engellemez mi?
-          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="faq-body">Trendyol için Playwright + rotasyonlu fingerprint kullanıyoruz — gerçek tarayıcı davranışı taklit ediliyor. Tarama yavaş ve aralıklı yapılır, yalnızca herkese açık fiyat ve stok bilgisi toplanır. Hepsiburada ve Amazon talebe göre eklenir.</div>
+        <summary>Rakip siteler taramayı engellemez mi?</summary>
+        <div class="faq-body">Trendyol için gerçek bir tarayıcı kullanıyoruz. Tarama yavaş ve aralıklı yapılır, yalnızca herkese açık fiyat ve stok bilgisi toplanır. Hepsiburada ve Amazon talebe göre eklenir.</div>
       </details>
-
       <details class="faq">
-        <summary>
-          Verilerim nerede tutuluyor, güvende mi?
-          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
+        <summary>Verilerim nerede tutuluyor, güvende mi?</summary>
         <div class="faq-body">Her müşteri için ayrı bir veritabanı tutulur. Raporlar e-postayla, alarmlar Telegram'dan yalnızca size gelir. Toplanan veriler 3. taraflarla paylaşılmaz.</div>
       </details>
-
       <details class="faq">
-        <summary>
-          İptal edersem ne olur, veri kaybolur mu?
-          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="faq-body">İstediğiniz an taahhütsüz iptal. İptal sonrası 30 gün veri arşivi tutulur, isterseniz CSV olarak gönderilir. 30 gün sonra kalıcı silinir. İptal için uzun form yok — bir e-posta yeterli.</div>
+        <summary>İptal edersem ne olur, veriler kaybolur mu?</summary>
+        <div class="faq-body">İstediğiniz an taahhütsüz iptal edebilirsiniz. İptalden sonra veriler 30 gün saklanır, isterseniz CSV olarak gönderilir. 30 gün sonra kalıcı olarak silinir. İptal için bir e-posta yeterli.</div>
       </details>
-
       <details class="faq">
-        <summary>
-          Hangi kategoriler destekleniyor?
-          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="faq-body">Şu an kozmetik, parfüm, vitamin/takviye, cep telefonu aktif. İstediğiniz kategoriyi 24 saat içinde ekleyebiliriz — URL verebilirseniz veya kelimeyle tarif etmeniz yeterli.</div>
+        <summary>Hangi kategoriler destekleniyor?</summary>
+        <div class="faq-body">Şu an kozmetik, parfüm, vitamin ve takviye ile cep telefonu aktif. İstediğiniz kategoriyi 24 saat içinde ekleyebiliriz. Kategori adresini ya da kısa bir tarifini vermeniz yeterli.</div>
       </details>
-
       <details class="faq">
-        <summary>
-          Demo süreci nasıl işliyor?
-          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="faq-body">15 dakikalık görüntülü görüşme. Sizin kategorinizden örnek ürünlerle canlı gösterim yaparız. Beğenirseniz 24 saat içinde kurulum, beğenmezseniz hiçbir yükümlülük yok.</div>
+        <summary>Demo nasıl işliyor?</summary>
+        <div class="faq-body">15 dakikalık görüntülü görüşme. Kendi kategorinizden ürünlerle canlı gösteririz. Beğenirseniz kurulum 24 saatte biter, beğenmezseniz hiçbir yükümlülüğünüz olmaz.</div>
       </details>
-
       <details class="faq">
-        <summary>
-          Fatura kesiliyor mu, e-arşiv uyumlu mu?
-          <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="faq-body">Evet, her ödeme için e-arşiv faturası kesiliyor, şirket bilgilerinizi verdikten sonra aynı gün mail olarak geliyor. KDV dahil fiyat, gider gösterilebilir.</div>
+        <summary>Ödeme ve fatura nasıl oluyor?</summary>
+        <div class="faq-body">Ödeme ve fatura ayrıntılarını görüşmede birlikte netleştiriyoruz.</div>
       </details>
     </div>
   </div>
 </section>
 
-<!-- ─── Contact ─── -->
-<section id="iletisim" class="contact-section">
-  <div class="container--narrow" style="position:relative;z-index:1;text-align:center;">
-    <div class="section-eyebrow" style="justify-content:center;">Demo Başvurusu</div>
-    <h2 class="section-title">15 dakikalık <span class="muted">demo.</span></h2>
-    <p class="section-desc">Formu doldurun, 24 saat içinde size dönelim. Tercih ederseniz <a href="https://wa.me/905376588470?text=Metrio%20demo%20talebi" class="form-link">WhatsApp</a> veya <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" class="form-link">mail</a> de kullanabilirsiniz.</p>
+<!-- ─── İletişim ─── -->
+<section id="iletisim" class="alt">
+  <div class="wrap contact">
+    <div class="contact-side">
+      <span class="eyebrow">Başvuru</span>
+      <h2>Rapor ya da demo isteyin.</h2>
+      <p>Formu doldurun, 24 saat içinde dönelim. İsterseniz doğrudan yazabilirsiniz.</p>
+      <dl class="reach">
+        <div><dt>WhatsApp</dt><dd><a href="https://wa.me/905376588470?text=Metrio%20talebi">+90 537 658 84 70</a></dd></div>
+        <div><dt>E-posta</dt><dd><a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20talebi">ealtunbulak8@gmail.com</a></dd></div>
+      </dl>
+    </div>
 
-    <form class="intake-form" action="https://formsubmit.co/ealtunbulak8@gmail.com" method="POST">
-      <!-- Formsubmit config -->
-      <input type="hidden" name="_subject" value="Metrio — Yeni Demo Başvurusu">
+    <form class="form-card" action="https://formsubmit.co/ealtunbulak8@gmail.com" method="POST">
+      <!-- FormSubmit ayarları -->
+      <input type="hidden" name="_subject" value="Metrio — Yeni Talep">
       <input type="hidden" name="_template" value="table">
       <input type="hidden" name="_captcha" value="false">
       <input type="hidden" name="_next" value="https://altunbulakemre75.github.io/metrio/tesekkurler.html">
       <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
-      <div class="form-row form-row-split">
-        <div>
-          <label class="form-label" for="f-sirket">Şirket / Marka <span class="required">*</span></label>
-          <input class="form-input" id="f-sirket" type="text" name="sirket" required autocomplete="organization" placeholder="Örn. Acme Kozmetik">
-        </div>
-        <div>
-          <label class="form-label" for="f-sektor">Sektör</label>
-          <input class="form-input" id="f-sektor" type="text" name="sektor" placeholder="Kozmetik, Parfüm, …">
-        </div>
-      </div>
-
-      <div class="form-row form-row-split">
-        <div>
-          <label class="form-label" for="f-ad">Ad Soyad <span class="required">*</span></label>
-          <input class="form-input" id="f-ad" type="text" name="ad_soyad" required autocomplete="name" placeholder="İsim Soyisim">
-        </div>
-        <div>
-          <label class="form-label" for="f-email">E-posta <span class="required">*</span></label>
-          <input class="form-input" id="f-email" type="email" name="email" required autocomplete="email" placeholder="siz@sirket.com">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <label class="form-label" for="f-tel">WhatsApp / Telefon <span class="required">*</span></label>
-        <input class="form-input" id="f-tel" type="tel" name="telefon" required autocomplete="tel" placeholder="+90 5xx xxx xx xx">
-      </div>
-
-      <div class="form-row">
-        <label class="form-label" for="f-rakipler">İzlemek istediğiniz 3-5 rakip marka</label>
-        <textarea class="form-textarea" id="f-rakipler" name="rakipler" placeholder="Her satıra bir marka&#10;veya URL"></textarea>
-      </div>
-
-      <fieldset class="form-row form-fieldset">
-        <legend class="form-label">Platformlar</legend>
-        <div class="form-checks">
-          <label class="form-check"><input type="checkbox" name="platform_trendyol" value="Trendyol"> Trendyol</label>
-          <label class="form-check"><input type="checkbox" name="platform_akakce" value="Akakçe"> Akakçe</label>
-          <label class="form-check"><input type="checkbox" name="platform_hepsiburada" value="Hepsiburada"> Hepsiburada</label>
-          <label class="form-check"><input type="checkbox" name="platform_amazon" value="Amazon TR"> Amazon TR</label>
-          <label class="form-check"><input type="checkbox" name="platform_diger" value="Diğer"> Diğer</label>
+      <fieldset>
+        <legend class="lbl">Ne istiyorsunuz?</legend>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="talep" value="Tek seferlik rapor" checked> Tek seferlik rapor (₺750)</label>
+          <label class="choice"><input type="radio" name="talep" value="Demo"> 15 dakikalık demo</label>
+          <label class="choice"><input type="radio" name="talep" value="Aylık takip"> Aylık takip</label>
         </div>
       </fieldset>
 
-      <div class="form-row">
-        <label class="form-label" for="f-not">Notunuz</label>
-        <textarea class="form-textarea" id="f-not" name="not" placeholder="Özel istekler, müsait saatler, vb. (opsiyonel)"></textarea>
+      <div class="row2">
+        <div class="field">
+          <label class="lbl" for="f-sirket">Şirket / marka <span class="req">*</span></label>
+          <input id="f-sirket" type="text" name="sirket" required autocomplete="organization" placeholder="Örn. Acme Kozmetik">
+        </div>
+        <div class="field">
+          <label class="lbl" for="f-sektor">Sektör</label>
+          <input id="f-sektor" type="text" name="sektor" placeholder="Kozmetik, parfüm, …">
+        </div>
       </div>
 
-      <div class="form-row">
-        <label class="form-consent">
-          <input type="checkbox" name="kvkk_onay" value="Onaylandı" required>
-          <span><a href="kvkk.html" class="form-link">KVKK Aydınlatma Metni</a>'ni okudum; bilgilerimin demo talebime dönüş amacıyla işlenmesine ve form altyapısı (FormSubmit, ABD) üzerinden yurt dışına aktarılmasına açık rıza veriyorum. <span class="required">*</span></span>
-        </label>
+      <div class="row2">
+        <div class="field">
+          <label class="lbl" for="f-ad">Ad soyad <span class="req">*</span></label>
+          <input id="f-ad" type="text" name="ad_soyad" required autocomplete="name" placeholder="İsim Soyisim">
+        </div>
+        <div class="field">
+          <label class="lbl" for="f-email">E-posta <span class="req">*</span></label>
+          <input id="f-email" type="email" name="email" required autocomplete="email" placeholder="siz@sirket.com">
+        </div>
       </div>
 
-      <button type="submit" class="btn-primary form-submit">Demo Talebi Gönder</button>
-      <p class="form-hint">Bilgileriniz yalnızca size dönüş için kullanılır.</p>
+      <div class="field">
+        <label class="lbl" for="f-tel">WhatsApp / telefon <span class="req">*</span></label>
+        <input id="f-tel" type="tel" name="telefon" required autocomplete="tel" placeholder="+90 5xx xxx xx xx">
+      </div>
+
+      <div class="field">
+        <label class="lbl" for="f-rakipler">İzlemek istediğiniz 3–5 rakip marka</label>
+        <textarea id="f-rakipler" name="rakipler" placeholder="Her satıra bir marka&#10;ya da mağaza adresi"></textarea>
+      </div>
+
+      <fieldset>
+        <legend class="lbl">Platformlar</legend>
+        <div class="choices">
+          <label class="choice"><input type="checkbox" name="platform_trendyol" value="Trendyol"> Trendyol</label>
+          <label class="choice"><input type="checkbox" name="platform_akakce" value="Akakçe"> Akakçe</label>
+          <label class="choice"><input type="checkbox" name="platform_hepsiburada" value="Hepsiburada"> Hepsiburada</label>
+          <label class="choice"><input type="checkbox" name="platform_amazon" value="Amazon TR"> Amazon TR</label>
+          <label class="choice"><input type="checkbox" name="platform_diger" value="Diğer"> Diğer</label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label class="lbl" for="f-not">Notunuz</label>
+        <textarea id="f-not" name="not" placeholder="Özel istekler, müsait saatler (isteğe bağlı)"></textarea>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" name="kvkk_onay" value="Onaylandı" required>
+        <span><a href="kvkk.html">KVKK Aydınlatma Metni</a>'ni okudum. Bilgilerimin talebime dönüş amacıyla işlenmesine ve form altyapısı (FormSubmit, ABD) üzerinden yurt dışına aktarılmasına açık rıza veriyorum. <span class="req">*</span></span>
+      </label>
+
+      <button type="submit" class="btn btn-tag">Talebi gönder</button>
+      <p class="hint">Bilgileriniz yalnızca size dönüş için kullanılır.</p>
     </form>
   </div>
 </section>
 
-<!-- ─── Footer ─── -->
+</main>
+
 <footer>
-  <div class="container">
-    <div class="footer-inner">
-      <div class="footer-copy">
-        <div class="logo-icon" style="width:24px;height:24px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;color:#000;">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-        </div>
-        © 2026 Metrio · Emre Altunbulak
-      </div>
-      <div class="footer-right">
-        <a href="kvkk.html" style="color:var(--text-dim);text-decoration:none;margin-right:1rem;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-dim)'">KVKK</a>
-        Made in Türkiye 🇹🇷
-      </div>
-    </div>
+  <div class="wrap">
+    <span class="foot-brand"><svg aria-hidden="true"><use href="#tag"/></svg>© 2026 Metrio · Emre Altunbulak</span>
+    <nav class="foot-links" aria-label="Alt bağlantılar">
+      <a href="kvkk.html">KVKK</a>
+      <a href="https://wa.me/905376588470?text=Metrio%20talebi">WhatsApp</a>
+      <a href="mailto:ealtunbulak8@gmail.com">E-posta</a>
+      <span>Türkiye'de geliştirildi</span>
+    </nav>
   </div>
 </footer>
 
+<script>
+  // Fiyat kartlarındaki ve menüdeki düğmeler formda ilgili talep türünü seçer.
+  document.querySelectorAll("[data-talep]").forEach(function (link) {
+    link.addEventListener("click", function () {
+      var radio = document.querySelector('input[name="talep"][value="' + link.dataset.talep + '"]');
+      if (radio) radio.checked = true;
+    });
+  });
+</script>
 </body>
 </html>

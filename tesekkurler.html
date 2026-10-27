@@ -2,93 +2,72 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Teşekkürler — Metrio</title>
   <meta name="robots" content="noindex">
   <meta http-equiv="refresh" content="6;url=index.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M3 7h17l9 9-9 9H3z' fill='%23FFD21F' stroke='%23121417' stroke-width='2.5' stroke-linejoin='round'/%3E%3Ccircle cx='20' cy='16' r='2.6' fill='%23121417'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=JetBrains+Mono:wght@400&family=Rethink+Sans:wght@400;600&display=swap">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #07080f;
-      --surface: #0c0e18;
-      --border: rgba(255,255,255,0.07);
-      --accent: #10b981;
-      --text: #eef0f6;
-      --muted: #9ca3af;
-      --grad-accent: linear-gradient(135deg, #22d3ee, #10b981);
+      --paper: #F2F3F5; --card: #FFFFFF; --ink: #121417; --muted: #59606A; --line: #D9DCE1;
+      --tag: #FFD21F; --tag-ink: #121417; --link: #2350C8;
+      --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+      --f-body: "Rethink Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+      color-scheme: light;
     }
+    @media (prefers-color-scheme: dark) {
+      :root { --paper: #0F1114; --card: #181B20; --ink: #ECEEF1; --muted: #9BA2AC; --line: #2B3038; --link: #8EB2FF; color-scheme: dark; }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--f-body);
+      font-size: 17px;
+      line-height: 1.6;
+      display: grid;
+      place-items: center;
+      padding-block: 32px;
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
     }
     .card {
-      max-width: 480px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 48px 32px;
-      text-align: center;
+      max-width: 30rem;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 40px 32px;
+      display: grid;
+      gap: 18px;
+      justify-items: start;
     }
-    .check-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 24px;
-      background: rgba(16, 185, 129, 0.12);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent);
-    }
-    h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    p {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
+    .card svg { width: 44px; height: 44px; }
+    h1 { font-family: var(--f-display); font-weight: 800; font-stretch: 72%; font-size: 2.6rem; line-height: 1; margin: 0; }
+    p { margin: 0; color: var(--muted); }
     .btn {
-      display: inline-block;
-      background: var(--grad-accent);
-      color: #000;
-      padding: 12px 24px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
+      display: inline-flex; align-items: center;
+      background: var(--tag); color: var(--tag-ink);
+      border: 2px solid var(--tag-ink); border-radius: 6px;
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 11px 18px; font-weight: 600; text-decoration: none;
     }
-    .btn:hover { opacity: 0.9; }
-    .redirect {
-      margin-top: 20px;
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .btn:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+    .redirect { font-family: var(--f-mono); font-size: 0.75rem; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="check-icon">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    </div>
-    <h1>Teşekkürler!</h1>
-    <p>Başvurunuzu aldık. <strong>24 saat içinde</strong> size demo için dönüş yapacağız — genelde çok daha hızlı oluyor.</p>
-    <a href="index.html" class="btn">Ana Sayfaya Dön</a>
-    <p class="redirect">6 saniye içinde otomatik yönlendirileceksiniz.</p>
-  </div>
+  <main class="card">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 7h17l9 9-9 9H3z" fill="#FFD21F" stroke="#121417" stroke-width="2.5" stroke-linejoin="round"/><circle cx="20" cy="16" r="2.6" fill="#121417"/></svg>
+    <h1>Talebinizi aldık.</h1>
+    <p>24 saat içinde size dönüyoruz, çoğu zaman daha erken. Acil bir şey varsa WhatsApp'tan yazabilirsiniz: +90 537 658 84 70</p>
+    <a href="index.html" class="btn">Ana sayfaya dön</a>
+    <p class="redirect">6 saniye içinde ana sayfaya yönlendirileceksiniz.</p>
+  </main>
 </body>
 </html>
