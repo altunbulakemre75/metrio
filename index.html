@@ -882,22 +882,6 @@ details.faq[open] .faq-arrow { transform: rotate(180deg); color: var(--cyan); }
   pointer-events: none;
 }
 
-.contact-actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 36px;
-  flex-wrap: wrap;
-}
-
-.contact-email {
-  margin-top: 22px;
-  font-size: 12px;
-  color: var(--text-dim);
-  font-family: monospace;
-  letter-spacing: 0.05em;
-}
-
 /* Intake form */
 .intake-form {
   max-width: 560px;
@@ -923,7 +907,7 @@ details.faq[open] .faq-arrow { transform: rotate(180deg); color: var(--cyan); }
   color: var(--text);
   margin-bottom: 6px;
 }
-.form-label .required { color: var(--accent); }
+.form-label .required, .form-consent .required { color: var(--cyan); }
 .form-input, .form-textarea {
   width: 100%;
   background: var(--bg);
@@ -937,9 +921,10 @@ details.faq[open] .faq-arrow { transform: rotate(180deg); color: var(--cyan); }
 }
 .form-input:focus, .form-textarea:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--cyan);
 }
 .form-textarea { resize: vertical; min-height: 80px; }
+.form-fieldset { border: none; }
 .form-checks {
   display: flex;
   flex-wrap: wrap;
@@ -950,21 +935,34 @@ details.faq[open] .faq-arrow { transform: rotate(180deg); color: var(--cyan); }
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--text-dim);
+  color: var(--text-muted);
   cursor: pointer;
 }
-.form-check input { accent-color: var(--accent); }
+.form-check input { accent-color: var(--emerald); }
+.form-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.form-consent input { margin-top: 3px; accent-color: var(--emerald); }
+.form-link { color: var(--cyan); }
 .form-submit {
   width: 100%;
+  justify-content: center;
   margin-top: 8px;
   padding: 13px 20px;
   font-size: 14px;
+  font-family: inherit;
   cursor: pointer;
   border: none;
 }
 .form-hint {
   font-size: 12px;
-  color: var(--text-dim);
+  color: var(--text-muted);
   margin-top: 12px;
   text-align: center;
 }
@@ -1063,7 +1061,7 @@ footer {
       <span class="line-2">siz uyurken takip edilir.</span>
     </h1>
 
-    <p>Her gece Trendyol, Hepsiburada ve Amazon'daki rakip ürünleri otomatik tarar. %20+ fiyat hareketi Telegram'a alarm olarak düşer. Haftalık PDF raporu Pazartesi sabahı mail kutunuzda.</p>
+    <p>Her gece Trendyol'daki rakip ürünleri otomatik tarar (Hepsiburada yakında). %20+ fiyat hareketi Telegram'a alarm olarak düşer. Haftalık PDF raporu Pazartesi sabahı mail kutunuzda.</p>
 
     <div class="hero-actions">
       <a href="#iletisim" class="btn-primary">
@@ -1075,7 +1073,7 @@ footer {
 
     <div class="trust-row">
       <span><span class="trust-check">✓</span>24 saatte kurulum</span>
-      <span><span class="trust-check">✓</span>İlk 3 müşteriye özel fiyat</span>
+      <span><span class="trust-check">✓</span>İlk ay ₺750</span>
       <span><span class="trust-check">✓</span>Taahhütsüz iptal</span>
     </div>
 
@@ -1219,7 +1217,7 @@ footer {
   <div class="container">
     <div class="section-eyebrow">Özellikler</div>
     <h2 class="section-title">Pazarlama değil, <span class="muted">mühendislik.</span></h2>
-    <p class="section-desc">TDD ile yazıldı, 150 test geçiyor. İlk müşterilerle beraber evrilecek.</p>
+    <p class="section-desc">TDD ile yazıldı, 167 test geçiyor. İlk müşterilerle beraber evrilecek.</p>
 
     <div class="features-grid">
       <div class="feature">
@@ -1297,7 +1295,7 @@ footer {
     <div style="text-align:center; max-width:560px; margin:0 auto;">
       <div class="section-eyebrow" style="justify-content:center;">Fiyatlandırma</div>
       <h2 class="section-title">Basit, adil, <span class="muted">taahhütsüz.</span></h2>
-      <p class="section-desc">İlk 3 müşteriye özel indirimli fiyat. Kurulum bize ait, siz sadece kullanın.</p>
+      <p class="section-desc">İlk 3 müşteriye ilk ay ₺750. Kurulum bize ait, siz sadece kullanın.</p>
     </div>
 
     <div class="pricing-grid">
@@ -1347,6 +1345,7 @@ footer {
         <a href="#iletisim" class="plan-btn plan-btn-outline">Görüşelim</a>
       </div>
     </div>
+    <p class="section-desc" style="text-align:center; max-width:560px; margin:32px auto 0;">Önce denemek mi istiyorsunuz? <strong>Tek seferlik rakip fiyat raporu: ₺750.</strong> Kategorinizde 20–50 rakip ürünün fiyat ve indirim hareketleri, 48 saatte PDF olarak. <a href="#iletisim" class="form-link">Rapor isteyin</a></p>
   </div>
 </section>
 
@@ -1364,7 +1363,7 @@ footer {
           Rakip siteler scraping'i engellemez mi?
           <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <div class="faq-body">Trendyol için Playwright + rotasyonlu fingerprint kullanıyoruz — gerçek tarayıcı davranışı taklit ediliyor. Hepsiburada ve Amazon için residential proxy altyapımız hazır, Pro+ paketlerde otomatik devreye giriyor. Bugüne kadar engellenmediği test edildi.</div>
+        <div class="faq-body">Trendyol için Playwright + rotasyonlu fingerprint kullanıyoruz — gerçek tarayıcı davranışı taklit ediliyor. Tarama yavaş ve aralıklı yapılır, yalnızca herkese açık fiyat ve stok bilgisi toplanır. Hepsiburada ve Amazon talebe göre eklenir.</div>
       </details>
 
       <details class="faq">
@@ -1372,7 +1371,7 @@ footer {
           Verilerim nerede tutuluyor, güvende mi?
           <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <div class="faq-body">Her müşteriye izole bir SQLite veritabanı atanıyor (Kurumsal pakette PostgreSQL). Şifreli yedekleme günlük, dashboard erişimi yalnızca size özel URL + şifreyle. Toplanan veriler sadece sizin için, 3. taraflarla paylaşılmaz.</div>
+        <div class="faq-body">Her müşteri için ayrı bir veritabanı tutulur. Raporlar e-postayla, alarmlar Telegram'dan yalnızca size gelir. Toplanan veriler 3. taraflarla paylaşılmaz.</div>
       </details>
 
       <details class="faq">
@@ -1380,7 +1379,7 @@ footer {
           İptal edersem ne olur, veri kaybolur mu?
           <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
-        <div class="faq-body">İstediğiniz an taahhütsüz iptal. İptal sonrası 30 gün veri arşivi tutulur, CSV olarak tek tıkla indirebilirsiniz. 30 gün sonra kalıcı silinir. İptal için uzun form yok — bir e-posta yeterli.</div>
+        <div class="faq-body">İstediğiniz an taahhütsüz iptal. İptal sonrası 30 gün veri arşivi tutulur, isterseniz CSV olarak gönderilir. 30 gün sonra kalıcı silinir. İptal için uzun form yok — bir e-posta yeterli.</div>
       </details>
 
       <details class="faq">
@@ -1415,66 +1414,73 @@ footer {
   <div class="container--narrow" style="position:relative;z-index:1;text-align:center;">
     <div class="section-eyebrow" style="justify-content:center;">Demo Başvurusu</div>
     <h2 class="section-title">15 dakikalık <span class="muted">demo.</span></h2>
-    <p class="section-desc">Formu doldurun, 24 saat içinde size dönelim. Tercih ederseniz <a href="https://wa.me/905376588470?text=Metrio%20demo%20talebi" style="color:var(--accent);">WhatsApp</a> veya <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" style="color:var(--accent);">mail</a> de kullanabilirsiniz.</p>
+    <p class="section-desc">Formu doldurun, 24 saat içinde size dönelim. Tercih ederseniz <a href="https://wa.me/905376588470?text=Metrio%20demo%20talebi" class="form-link">WhatsApp</a> veya <a href="mailto:ealtunbulak8@gmail.com?subject=Metrio%20Demo%20Talebi" class="form-link">mail</a> de kullanabilirsiniz.</p>
 
     <form class="intake-form" action="https://formsubmit.co/ealtunbulak8@gmail.com" method="POST">
       <!-- Formsubmit config -->
       <input type="hidden" name="_subject" value="Metrio — Yeni Demo Başvurusu">
       <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_captcha" value="true">
-      <input type="hidden" name="_next" value="https://metrio.com.tr/tesekkurler.html">
-      <input type="text" name="_honey" style="display:none">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://altunbulakemre75.github.io/metrio/tesekkurler.html">
+      <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
       <div class="form-row form-row-split">
         <div>
-          <label class="form-label">Şirket / Marka <span class="required">*</span></label>
-          <input class="form-input" type="text" name="sirket" required placeholder="Örn. Acme Kozmetik">
+          <label class="form-label" for="f-sirket">Şirket / Marka <span class="required">*</span></label>
+          <input class="form-input" id="f-sirket" type="text" name="sirket" required autocomplete="organization" placeholder="Örn. Acme Kozmetik">
         </div>
         <div>
-          <label class="form-label">Sektör</label>
-          <input class="form-input" type="text" name="sektor" placeholder="Kozmetik, Parfüm, …">
+          <label class="form-label" for="f-sektor">Sektör</label>
+          <input class="form-input" id="f-sektor" type="text" name="sektor" placeholder="Kozmetik, Parfüm, …">
         </div>
       </div>
 
       <div class="form-row form-row-split">
         <div>
-          <label class="form-label">Ad Soyad <span class="required">*</span></label>
-          <input class="form-input" type="text" name="ad_soyad" required placeholder="İsim Soyisim">
+          <label class="form-label" for="f-ad">Ad Soyad <span class="required">*</span></label>
+          <input class="form-input" id="f-ad" type="text" name="ad_soyad" required autocomplete="name" placeholder="İsim Soyisim">
         </div>
         <div>
-          <label class="form-label">E-posta <span class="required">*</span></label>
-          <input class="form-input" type="email" name="email" required placeholder="siz@sirket.com">
+          <label class="form-label" for="f-email">E-posta <span class="required">*</span></label>
+          <input class="form-input" id="f-email" type="email" name="email" required autocomplete="email" placeholder="siz@sirket.com">
         </div>
       </div>
 
       <div class="form-row">
-        <label class="form-label">WhatsApp / Telefon <span class="required">*</span></label>
-        <input class="form-input" type="tel" name="telefon" required placeholder="+90 5xx xxx xx xx">
+        <label class="form-label" for="f-tel">WhatsApp / Telefon <span class="required">*</span></label>
+        <input class="form-input" id="f-tel" type="tel" name="telefon" required autocomplete="tel" placeholder="+90 5xx xxx xx xx">
       </div>
 
       <div class="form-row">
-        <label class="form-label">İzlemek istediğiniz 3-5 rakip marka</label>
-        <textarea class="form-textarea" name="rakipler" placeholder="Her satıra bir marka&#10;veya URL"></textarea>
+        <label class="form-label" for="f-rakipler">İzlemek istediğiniz 3-5 rakip marka</label>
+        <textarea class="form-textarea" id="f-rakipler" name="rakipler" placeholder="Her satıra bir marka&#10;veya URL"></textarea>
       </div>
 
-      <div class="form-row">
-        <label class="form-label">Platformlar</label>
+      <fieldset class="form-row form-fieldset">
+        <legend class="form-label">Platformlar</legend>
         <div class="form-checks">
-          <label class="form-check"><input type="checkbox" name="platformlar" value="Trendyol"> Trendyol</label>
-          <label class="form-check"><input type="checkbox" name="platformlar" value="Akakçe"> Akakçe</label>
-          <label class="form-check"><input type="checkbox" name="platformlar" value="Hepsiburada"> Hepsiburada</label>
-          <label class="form-check"><input type="checkbox" name="platformlar" value="Amazon TR"> Amazon TR</label>
-          <label class="form-check"><input type="checkbox" name="platformlar" value="Diğer"> Diğer</label>
+          <label class="form-check"><input type="checkbox" name="platform_trendyol" value="Trendyol"> Trendyol</label>
+          <label class="form-check"><input type="checkbox" name="platform_akakce" value="Akakçe"> Akakçe</label>
+          <label class="form-check"><input type="checkbox" name="platform_hepsiburada" value="Hepsiburada"> Hepsiburada</label>
+          <label class="form-check"><input type="checkbox" name="platform_amazon" value="Amazon TR"> Amazon TR</label>
+          <label class="form-check"><input type="checkbox" name="platform_diger" value="Diğer"> Diğer</label>
         </div>
+      </fieldset>
+
+      <div class="form-row">
+        <label class="form-label" for="f-not">Notunuz</label>
+        <textarea class="form-textarea" id="f-not" name="not" placeholder="Özel istekler, müsait saatler, vb. (opsiyonel)"></textarea>
       </div>
 
       <div class="form-row">
-        <label class="form-label">Notunuz</label>
-        <textarea class="form-textarea" name="not" placeholder="Özel istekler, müsait saatler, vb. (opsiyonel)"></textarea>
+        <label class="form-consent">
+          <input type="checkbox" name="kvkk_onay" value="Onaylandı" required>
+          <span><a href="kvkk.html" class="form-link">KVKK Aydınlatma Metni</a>'ni okudum; bilgilerimin demo talebime dönüş amacıyla işlenmesine ve form altyapısı (FormSubmit, ABD) üzerinden yurt dışına aktarılmasına açık rıza veriyorum. <span class="required">*</span></span>
+        </label>
       </div>
 
       <button type="submit" class="btn-primary form-submit">Demo Talebi Gönder</button>
-      <p class="form-hint">Bilgileriniz yalnızca size dönüş için kullanılır · <a href="kvkk.html" style="color:var(--text-dim);">KVKK</a></p>
+      <p class="form-hint">Bilgileriniz yalnızca size dönüş için kullanılır.</p>
     </form>
   </div>
 </section>
@@ -1492,7 +1498,7 @@ footer {
         © 2026 Metrio · Emre Altunbulak
       </div>
       <div class="footer-right">
-        <a href="kvkk.html" style="color:var(--text-dim);text-decoration:none;margin-right:1rem;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-dim)'">KVKK</a>
+        <a href="kvkk.html" style="color:var(--text-dim);text-decoration:none;margin-right:1rem;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-dim)'">KVKK</a>
         Made in Türkiye 🇹🇷
       </div>
     </div>
