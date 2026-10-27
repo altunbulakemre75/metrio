@@ -7,7 +7,7 @@ import sys
 import time
 import traceback
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # --config argümanı varsa, import'tan ÖNCE METRIO_ENV_FILE'ı set et.
@@ -26,7 +26,9 @@ from scrapers.hepsiburada import HepsiburadaScraper
 from scrapers.akakce import AkakceScraper
 from scrapers.trendyol import TrendyolScraper
 from scrapers.n11 import N11Scraper
-from storage.database import connect, init_schema, save_snapshot, start_run, finish_run
+from storage.database import (
+    close_stale_runs, connect, finish_run, init_schema, save_snapshot, start_run,
+)
 from utils.logger import get_logger
 
 log = get_logger("pipeline")
@@ -137,6 +139,12 @@ def run_pipeline(
         status = "failed"
         error_message = str(e)
         log.error(f"Pipeline çöktü: {e}\n{traceback.format_exc()}")
+    except BaseException:
+        # Ctrl+C, konsol penceresinin kapanması ya da sistem kapanışı.
+        # Yakalanmazsa finally bloğu boş çalışmayı "success" olarak yazıyordu.
+        status = "failed"
+        error_message = "Çalışma yarıda kesildi"
+        raise
     finally:
         try:
             scraper.close()
@@ -214,6 +222,12 @@ def _load_categories() -> list[dict]:
 
 def main() -> int:
     """CLI giriş noktası. Default kategori listesini çalıştırır."""
+    conn = connect(settings.database_path)
+    init_schema(conn)
+    closed = close_stale_runs(conn, started_before=datetime.now() - timedelta(hours=6))
+    if closed:
+        log.warning(f"{closed} yarım kalmış çalışma 'failed' olarak kapatıldı")
+
     overall_status = 0
     all_stats = []
     for cat in _load_categories():

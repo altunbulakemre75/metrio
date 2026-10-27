@@ -1,5 +1,5 @@
 import logging
-from utils.logger import get_logger
+from utils.logger import RedactingFormatter, get_logger
 
 
 def test_logger_returns_named_logger():
@@ -20,3 +20,13 @@ def test_logger_reused_for_same_name():
     a = get_logger("same")
     b = get_logger("same")
     assert a is b
+
+
+def test_formatter_hides_telegram_bot_token():
+    record = logging.LogRecord(
+        "bot", logging.WARNING, __file__, 1,
+        "getUpdates başarısız: /bot123456:ABC-def_789/getUpdates", None, None,
+    )
+    out = RedactingFormatter("%(message)s").format(record)
+    assert "ABC-def_789" not in out
+    assert "/bot<gizli>/getUpdates" in out

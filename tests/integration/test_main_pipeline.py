@@ -100,6 +100,23 @@ def test_run_pipeline_handles_scraper_exception(in_memory_db):
     assert "Anti-bot" in row["error_message"]
 
 
+def test_run_pipeline_records_interrupted_run_as_failed(in_memory_db):
+    fake_scraper = MagicMock()
+    fake_scraper.fetch_category.side_effect = KeyboardInterrupt()
+
+    with pytest.raises(KeyboardInterrupt):
+        run_pipeline(
+            scraper=fake_scraper,
+            category_url="https://trendyol.com/kozmetik",
+            category_name="kozmetik",
+            max_products=500,
+        )
+
+    row = in_memory_db.execute("SELECT status, error_message FROM run_stats").fetchone()
+    assert row["status"] == "failed"
+    assert "yarıda" in row["error_message"]
+
+
 def test_run_pipeline_closes_scraper_even_on_error(in_memory_db):
     fake_scraper = MagicMock()
     fake_scraper.fetch_category.side_effect = RuntimeError("boom")

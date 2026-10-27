@@ -1,12 +1,22 @@
 import logging
 import os
+import re
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 _LOG_FORMAT = "[%(asctime)s] %(levelname)-5s | %(name)s | %(message)s"
 _DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+_TELEGRAM_TOKEN = re.compile(r"bot\d+:[A-Za-z0-9_-]+")
+
 _configured = False
+
+
+class RedactingFormatter(logging.Formatter):
+    """Telegram bot anahtarını satırdan siler. requests hataları URL'yi anahtarıyla birlikte yazıyor."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        return _TELEGRAM_TOKEN.sub("bot<gizli>", super().format(record))
 
 
 def _configure_root():
@@ -20,7 +30,7 @@ def _configure_root():
     root = logging.getLogger()
     root.setLevel(os.getenv("LOG_LEVEL", "INFO"))
 
-    formatter = logging.Formatter(_LOG_FORMAT, datefmt=_DATE_FORMAT)
+    formatter = RedactingFormatter(_LOG_FORMAT, datefmt=_DATE_FORMAT)
 
     console = logging.StreamHandler()
     console.setFormatter(formatter)

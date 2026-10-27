@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 import pytest
-from storage.database import init_schema, start_run, finish_run
+from storage.database import init_schema, start_run, finish_run, close_stale_runs
 
 
 @pytest.fixture
@@ -54,3 +54,19 @@ def test_finish_run_records_error_message(db):
     )
     row = db.execute("SELECT error_message FROM run_stats WHERE run_id = 'r3'").fetchone()
     assert row["error_message"] == "Anti-bot tetiklendi"
+
+
+def test_close_stale_runs_fails_only_old_running_rows(db):
+    start_run(db, run_id="old", platform="trendyol", category="kozmetik",
+              started_at=datetime(2026, 5, 13, 3, 0))
+    start_run(db, run_id="new", platform="trendyol", category="kozmetik",
+              started_at=datetime(2026, 10, 27, 3, 0))
+
+    closed = close_stale_runs(db, started_before=datetime(2026, 10, 27, 0, 0))
+
+    assert closed == 1
+    old = db.execute("SELECT status, error_message FROM run_stats WHERE run_id = 'old'").fetchone()
+    new = db.execute("SELECT status FROM run_stats WHERE run_id = 'new'").fetchone()
+    assert old["status"] == "failed"
+    assert old["error_message"] == "Süreç yarıda sonlandı"
+    assert new["status"] == "running"

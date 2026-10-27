@@ -133,3 +133,14 @@ def finish_run(
          finished_at, duration_seconds, error_message, run_id),
     )
     conn.commit()
+
+
+def close_stale_runs(conn: sqlite3.Connection, started_before: datetime) -> int:
+    """Süreç öldüğü için 'running' kalmış eski çalışmaları 'failed' olarak kapatır."""
+    cur = conn.execute(
+        "UPDATE run_stats SET status = 'failed', error_message = ? "
+        "WHERE status = 'running' AND started_at < ?",
+        ("Süreç yarıda sonlandı", started_before),
+    )
+    conn.commit()
+    return cur.rowcount
