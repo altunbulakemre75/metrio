@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from deals.images import trim_white_border
 from deals.selector import Deal
-from deals.text import PLATFORM_NAMES, format_tl, product_title, turkish_date
+from deals.text import PLATFORM_NAMES, card_name, format_tl, product_title, turkish_date
 
 CARD_SIZE = (1080, 1350)
 _MARGIN = 60
@@ -135,13 +135,13 @@ def render_deal_card(deal: Deal, photo: Image.Image | None, page_name: str,
         draw.text((_MARGIN, y), deal.brand.upper(), font=fonts.get("semibold", 30), fill=_MUTED)
         y += 48
     name_font = fonts.get("bold", 46)
-    for line in _wrap(draw, deal.name, name_font, inner, max_lines=2):
+    for line in _wrap(draw, card_name(deal), name_font, inner, max_lines=2):
         draw.text((_MARGIN, y), line, font=name_font, fill=_INK)
         y += 58
 
     price_font = fonts.get("black", 104)
     price_text = format_tl(deal.price)
-    price_y = 1100
+    price_y = y + 110  # 2 satırlık adda fiyat aşağı kayar
     draw.text((_MARGIN, price_y), price_text, font=price_font, fill=_INK, anchor="ls")
     old = deal.previous_price if deal.drop_rate else deal.original_price
     if old:
@@ -153,11 +153,12 @@ def render_deal_card(deal: Deal, photo: Image.Image | None, page_name: str,
         draw.line((x, strike_y, x + draw.textlength(old_text, font=old_font), strike_y),
                   fill=_MUTED, width=4)
 
+    pill_y = price_y + 40
     if deal.lowest_30d:
-        _pill(draw, (_MARGIN, 1150), "SON 30 GÜNÜN EN DÜŞÜK FİYATI",
+        _pill(draw, (_MARGIN, pill_y), "SON 30 GÜNÜN EN DÜŞÜK FİYATI",
               fonts.get("bold", 30), _GREEN, _WHITE)
     elif deal.drop_rate:
-        _pill(draw, (_MARGIN, 1150), f"ÖNCEKİ FİYATA GÖRE %{deal.drop_rate * 100:.0f} UCUZ",
+        _pill(draw, (_MARGIN, pill_y), f"ÖNCEKİ FİYATA GÖRE %{deal.drop_rate * 100:.0f} UCUZ",
               fonts.get("bold", 30), _GREEN, _WHITE)
 
     draw.text((_MARGIN, 1290), "Ürün linki Telegram kanalımızda · link bio'da",

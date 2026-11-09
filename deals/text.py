@@ -1,4 +1,5 @@
 """Paylaşım metinleri: TL biçimi, Instagram açıklaması, Telegram mesajı."""
+import re
 from datetime import datetime
 
 from deals.selector import Deal
@@ -9,6 +10,8 @@ PLATFORM_NAMES = {"trendyol": "Trendyol", "akakce": "Akakçe", "n11": "N11",
                   "hepsiburada": "Hepsiburada"}
 _INSTAGRAM_CAPTION_LIMIT = 2200
 _MAX_NAME_IN_CAPTION = 70
+# Trendyol satıcıları ada barkod (EAN, 8-14 hane) ekliyor; ml/renk kodları kısa kalır.
+_BARCODE = re.compile(r"(?<!\S)\d{8,14}(?!\S)")
 
 
 def format_tl(amount: float) -> str:
@@ -22,10 +25,24 @@ def turkish_date(when: datetime) -> str:
     return f"{when.day} {_MONTHS[when.month - 1]}"
 
 
+def clean_name(name: str) -> str:
+    return " ".join(_BARCODE.sub(" ", name).split())
+
+
 def product_title(deal: Deal) -> str:
-    if deal.brand and not deal.name.casefold().startswith(deal.brand.casefold()):
-        return f"{deal.brand} {deal.name}"
-    return deal.name
+    name = clean_name(deal.name)
+    if deal.brand and not name.casefold().startswith(deal.brand.casefold()):
+        return f"{deal.brand} {name}"
+    return name
+
+
+def card_name(deal: Deal) -> str:
+    """Kartta marka ayrı satırda yazdığı için addaki marka tekrarını atar."""
+    name = clean_name(deal.name)
+    if deal.brand and name.casefold().startswith(deal.brand.casefold()):
+        rest = name[len(deal.brand):].strip(" -–")
+        return rest or name
+    return name
 
 
 def _short(text: str, limit: int) -> str:

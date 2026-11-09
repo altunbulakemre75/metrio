@@ -74,3 +74,26 @@ def test_instagram_caption_stays_under_instagram_limit():
         when=datetime(2026, 11, 9), footer="", hashtags="",
     )
     assert len(caption) <= 2200
+
+
+@pytest.mark.parametrize("raw, clean", [
+    ("Power Of You EDP 30 ml Kadın Parfüm 3614274752038", "Power Of You EDP 30 ml Kadın Parfüm"),
+    ("Blush On -allık-peach Pop-913", "Blush On -allık-peach Pop-913"),
+    ("8690604521234 Nemlendirici Krem 50 ml", "Nemlendirici Krem 50 ml"),
+])
+def test_clean_name_drops_barcodes_but_keeps_sizes_and_shade_codes(raw, clean):
+    from deals.text import clean_name
+    assert clean_name(raw) == clean
+
+
+def test_captions_hide_barcode_in_product_name():
+    deal = _deal(name="Power Of You EDP 30 ml 3614274752038", brand="Emporio Armani")
+    assert "3614274752038" not in telegram_caption(deal)
+    assert "3614274752038" not in instagram_caption([deal], datetime(2026, 11, 9), "", "")
+
+
+def test_card_name_drops_repeated_brand_prefix():
+    from deals.text import card_name
+    deal = _deal(name="SAINT DE LUMIERE LUMIWHITE Serum 8681234567890", brand="Saint De Lumiere")
+    assert card_name(deal) == "LUMIWHITE Serum"
+    assert card_name(_deal(name="Lip Master Ruj", brand="Pierre Cardin")) == "Lip Master Ruj"
