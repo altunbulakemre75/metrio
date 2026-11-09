@@ -93,6 +93,31 @@ def test_container_error_stops_publishing():
     assert not any(u.endswith("/media_publish") for u, _ in graph.posts)
 
 
+FB_BASE = "https://graph.facebook.com/v27.0"
+
+
+def test_facebook_token_publishes_through_facebook_graph():
+    # Meta'nın "Unified login" yolu EAA… ile başlayan sistem anahtarı veriyor;
+    # bu anahtar graph.instagram.com'da "Cannot parse access token" hatası alır.
+    graph = FakeGraph()
+    with patch("deals.instagram.requests.post", graph.post), \
+         patch("deals.instagram.requests.get", graph.get):
+        InstagramClient("IGID", "EAAsys").publish_carousel(["https://h/0.jpg"], "x")
+
+    assert graph.posts[0][0] == f"{FB_BASE}/IGID/media"
+    assert graph.posts[1][0] == f"{FB_BASE}/IGID/media_publish"
+
+
+def test_account_with_facebook_token_reads_the_instagram_account_node():
+    with patch("deals.instagram.requests.get",
+               return_value=_resp({"id": "IGID", "username": "kozmetikavcisi.tr"})) as get:
+        account = InstagramClient("IGID", "EAAsys").account()
+
+    assert account == {"user_id": "IGID", "username": "kozmetikavcisi.tr"}
+    assert get.call_args.args[0] == f"{FB_BASE}/IGID"
+    assert get.call_args.kwargs["params"]["fields"] == "id,username"
+
+
 def test_api_error_message_is_raised():
     bad = _resp({"error": {"message": "Invalid OAuth access token", "code": 190}}, ok=False)
     with patch("deals.instagram.requests.post", return_value=bad):
@@ -148,6 +173,16 @@ def test_refresh_failure_falls_back_to_current_token(tmp_path):
         raise InstagramError("token 24 saatten yeni")
 
     assert current_token(store, env_token="SEED", now=NOW, refresher=broken) == "SEED"
+
+
+def test_facebook_system_token_is_used_as_is_without_refresh(tmp_path):
+    # Sistem kullanıcısı anahtarının süresi dolmuyor; ig_refresh_token onu tanımıyor.
+    store = tmp_path / "ig_token.json"
+    refresher = MagicMock()
+
+    assert current_token(store, env_token="EAAsys", now=NOW, refresher=refresher) == "EAAsys"
+    refresher.assert_not_called()
+    assert not store.exists()
 
 
 def test_missing_token_is_an_error(tmp_path):

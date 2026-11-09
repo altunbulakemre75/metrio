@@ -15,12 +15,22 @@ import requests
 log = logging.getLogger(__name__)
 
 GRAPH_HOST = "https://graph.instagram.com"
+FACEBOOK_GRAPH_HOST = "https://graph.facebook.com"
 DEFAULT_API_VERSION = "v27.0"
 _REFRESH_AFTER = timedelta(days=7)
 
 
 class InstagramError(RuntimeError):
     pass
+
+
+def is_facebook_token(token: str) -> bool:
+    """Meta'nın "Unified login" yolu süresiz sistem anahtarı (EAA…) verir.
+
+    Bu anahtar graph.facebook.com'da çalışır; Instagram ile Giriş anahtarı (IGAA…)
+    ise graph.instagram.com'da. Paylaşım uç noktaları ikisinde de aynı.
+    """
+    return token.startswith("EAA")
 
 
 def _check(resp: requests.Response) -> dict:
@@ -46,7 +56,9 @@ class InstagramClient:
     ):
         self.user_id = user_id
         self.access_token = access_token
-        self.base = f"{GRAPH_HOST}/{api_version}"
+        self.facebook = is_facebook_token(access_token)
+        host = FACEBOOK_GRAPH_HOST if self.facebook else GRAPH_HOST
+        self.base = f"{host}/{api_version}"
         self.poll_interval = poll_interval
         self.max_polls = max_polls
         self.sleep = sleep
@@ -68,6 +80,9 @@ class InstagramClient:
 
     def account(self) -> dict:
         """Kurulum kontrolü: hesap kimliği ve kullanıcı adı."""
+        if self.facebook:  # sistem anahtarında "me" sistem kullanıcısıdır, hesap değil
+            node = self._get(self.user_id, {"fields": "id,username"})
+            return {"user_id": node.get("id"), "username": node.get("username")}
         return self._get("me", {"fields": "user_id,username"})
 
     def publishing_limit(self) -> dict:
@@ -114,7 +129,10 @@ def current_token(
     """Kullanılacak anahtarı verir; haftada bir yeniler ve dosyaya yazar.
 
     .env'deki anahtar değişirse (yeni anahtar üretildiyse) dosyadakini bırakıp onu kullanır.
+    Süresiz sistem anahtarı (EAA…) olduğu gibi kullanılır.
     """
+    if is_facebook_token(env_token):
+        return env_token
     stored = {}
     if store_path.is_file():
         stored = json.loads(store_path.read_text(encoding="utf-8"))

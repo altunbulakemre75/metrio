@@ -53,25 +53,33 @@ Tüm ayarlar `.env` dosyasında, "Fırsat sayfası" bölümünde. Her adımdan s
 
 1. **Hesap:** Instagram hesabını aç → Ayarlar → Hesap türü ve araçlar →
    **Profesyonel hesaba geç** (İçerik üreticisi ya da İşletme). Facebook sayfası gerekmiyor.
-2. **Meta uygulaması:** developers.facebook.com → giriş yap → Uygulamalarım → **Uygulama oluştur**.
-   Kullanım alanı olarak Instagram'da içerik yönetimini seç
-   ("Manage messaging & content on Instagram" / "Instagram API").
-3. Uygulama panelinde **Instagram API with Instagram Login** (Instagram ile giriş) kurulumuna gir:
-   - "Erişim anahtarı oluştur" bölümünde **hesap ekle** → Instagram hesabınla giriş yap, izinleri onayla.
-   - Gerekli izinler: `instagram_business_basic`, `instagram_business_content_publish`.
-   - Panel sana **erişim anahtarını (token)** ve **Instagram hesap ID'sini** gösterir.
-4. `.env`'ye yaz (anahtarı kimseye, bana da gönderme; doğrudan dosyaya yapıştır):
+2. **Meta uygulaması:** developers.facebook.com → kişisel Facebook hesabınla giriş yap →
+   My Apps → **Create App**. Kullanım alanı: **Manage messaging & content on Instagram**.
+   (Uygulama adında "Instagram", "IG", "Facebook", "Meta" geçemez.)
+3. Use cases → Customize → **Permissions and features**: `instagram_business_basic` ve
+   `instagram_business_content_publish` → **Add**. (`instagram_basic` / `instagram_content_publish`
+   değil; doğrularında "business" geçer.)
+4. Soldan **API setup with Unified login** (2026-11 itibarıyla adı bu; eski adı "Instagram login"):
+   - **İşletme portföyü** ister → "+ İş portföyü" → yeni portföy oluştur ve bağla.
+   - **Create new configuration** → varsayılanlarla kaydet (System-user token, süresi yok).
+     Redirect URL / Login URL / Webhooks boş kalır.
+   - App roles → Roles → Add people → **Instagram Tester** → Instagram kullanıcı adı.
+     Daveti bilgisayardan kabul et: instagram.com/accounts/manage_access/ → Tester invites.
+   - **2. Generate access tokens** → Add account → Instagram ile giriş → hesap ID'si görünür →
+     **Generate token**.
+5. `.env`'ye yaz (anahtarı kimseye gönderme; doğrudan dosyaya yapıştır):
    ```
    INSTAGRAM_ENABLED=true
    INSTAGRAM_USER_ID=<hesap ID>
    INSTAGRAM_ACCESS_TOKEN=<anahtar>
    ```
-5. `--check` → `OK    Instagram hesabı: @kullaniciadi (id ...)`.
-   ID yanlışsa `UYARI` satırı doğru ID'yi söyler.
+6. `--check` → `OK    Instagram hesabı: @kullaniciadi (id ...)`.
 
-Kendi hesabın uygulamada yönetici olduğu için uygulama incelemesine (App Review)
-genelde gerek kalmaz. Anahtar 60 gün geçerli; sistem haftada bir kendisi yeniler ve
-`data/instagram_token.json`'a yazar. `.env`'ye yeni anahtar yazarsan onu kullanır.
+Bu yol `EAA…` ile başlayan, **süresi dolmayan** bir sistem anahtarı verir; sistem bunu
+graph.facebook.com üzerinden kullanır ve yenilemez. Eski "Instagram ile Giriş" anahtarı
+(`IGAA…`, 60 gün) da çalışır: o durumda graph.instagram.com kullanılır, haftada bir
+yenilenip `data/instagram_token.json`'a yazılır. Kendi hesabın uygulamada test kullanıcısı
+olduğu için uygulama incelemesine (App Review) gerek kalmaz.
 
 ### 4. İlk deneme
 
@@ -122,7 +130,7 @@ powershell -ExecutionPolicy Bypass -File scripts\install_deal_tasks.ps1
 - Log: `logs/scraper.log` (Instagram/Telegram anahtarları loglarda gizlenir).
 - "yalnızca N fırsat bulundu": gece taraması çalışmamış ya da indirimli ürün az.
   `run_stats` tablosuna ya da logda `pipeline` satırlarına bak.
-- "Instagram paylaşımı başarısız: Invalid OAuth access token": anahtar süresi dolmuş;
-  panelden yenisini al, `.env`'ye yaz.
+- "Instagram paylaşımı başarısız: Invalid OAuth access token": anahtar iptal olmuş ya da
+  (IGAA… ise) süresi dolmuş; panelde **Generate token** ile yenisini al, `.env`'ye yaz.
 - Bilgisayar 10:00 / 14:00 / 19:00'da kapalıysa o paylaşım atlanır (bilerek; açılınca
   üst üste gönderi düşmesin diye).
