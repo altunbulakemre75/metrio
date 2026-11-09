@@ -30,3 +30,14 @@ def test_formatter_hides_telegram_bot_token():
     out = RedactingFormatter("%(message)s").format(record)
     assert "ABC-def_789" not in out
     assert "/bot<gizli>/getUpdates" in out
+
+
+def test_formatter_hides_instagram_access_token():
+    record = logging.LogRecord(
+        "deals", logging.WARNING, __file__, 1,
+        "GET https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=IGAAx123-secret&x=1",
+        None, None,
+    )
+    out = RedactingFormatter("%(message)s").format(record)
+    assert "IGAAx123-secret" not in out
+    assert "access_token=<gizli>&x=1" in out

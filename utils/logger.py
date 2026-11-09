@@ -8,15 +8,17 @@ _LOG_FORMAT = "[%(asctime)s] %(levelname)-5s | %(name)s | %(message)s"
 _DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 _TELEGRAM_TOKEN = re.compile(r"bot\d+:[A-Za-z0-9_-]+")
+_ACCESS_TOKEN = re.compile(r"access_token=[^&\s\"']+")
 
 _configured = False
 
 
 class RedactingFormatter(logging.Formatter):
-    """Telegram bot anahtarını satırdan siler. requests hataları URL'yi anahtarıyla birlikte yazıyor."""
+    """Telegram bot ve Instagram anahtarlarını satırdan siler. requests hataları URL'yi anahtarıyla birlikte yazıyor."""
 
     def format(self, record: logging.LogRecord) -> str:
-        return _TELEGRAM_TOKEN.sub("bot<gizli>", super().format(record))
+        line = _TELEGRAM_TOKEN.sub("bot<gizli>", super().format(record))
+        return _ACCESS_TOKEN.sub("access_token=<gizli>", line)
 
 
 def _configure_root():

@@ -69,3 +69,49 @@ def test_notify_run_swallows_network_errors():
     notifier = TelegramNotifier(bot_token="TOK", chat_id="CHT", enabled=True)
     with patch("notifications.telegram.requests.post", side_effect=_rq.exceptions.ConnectionError("no net")):
         notifier.notify_run(_stats(), anomalies=[_fake_anomaly(1)])
+
+
+def test_send_photo_uploads_file_with_caption(tmp_path):
+    from notifications.telegram import send_photo
+    photo = tmp_path / "card.jpg"
+    photo.write_bytes(b"jpeg-bytes")
+
+    with patch("notifications.telegram.requests.post") as mock_post:
+        mock_post.return_value.ok = True
+        ok = send_photo("TOK", "@kanal", photo, "Fırsat 💰")
+
+    assert ok is True
+    kwargs = mock_post.call_args.kwargs
+    assert mock_post.call_args.args[0].endswith("/botTOK/sendPhoto")
+    assert kwargs["data"] == {"chat_id": "@kanal", "caption": "Fırsat 💰"}
+    assert kwargs["files"]["photo"][1] == b"jpeg-bytes"
+
+
+def test_send_photo_trims_caption_to_telegram_limit_and_reports_failure(tmp_path):
+    from notifications.telegram import send_photo
+    photo = tmp_path / "card.jpg"
+    photo.write_bytes(b"x")
+
+    with patch("notifications.telegram.requests.post") as mock_post:
+        mock_post.return_value.ok = False
+        mock_post.return_value.text = "Bad Request: chat not found"
+        ok = send_photo("TOK", "@kanal", photo, "a" * 2000)
+
+    assert ok is False
+    assert len(mock_post.call_args.kwargs["data"]["caption"]) == 1024
+
+
+def test_send_photo_returns_false_on_network_error(tmp_path):
+    from notifications.telegram import send_photo
+    photo = tmp_path / "card.jpg"
+    photo.write_bytes(b"x")
+
+    with patch("notifications.telegram.requests.post", side_effect=_rq.ConnectionError("down")):
+        assert send_photo("TOK", "@kanal", photo, "x") is False
+
+
+def test_send_text_reaches_admin_chat_when_enabled():
+    notifier = TelegramNotifier(bot_token="TOK", chat_id="CHT", enabled=True)
+    with patch("notifications.telegram.requests.post") as mock_post:
+        notifier.send_text("Instagram paylaşımı başarısız")
+    assert mock_post.call_args.kwargs["json"] == {"chat_id": "CHT", "text": "Instagram paylaşımı başarısız"}

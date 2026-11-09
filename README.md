@@ -170,6 +170,19 @@ Gmail için **App Password** gerekli (normal şifre SMTP'de çalışmaz):
 - Yandex: `SMTP_HOST=smtp.yandex.com`, `SMTP_PORT=587`.
 - Kendi sunucunuz varsa istediğiniz host/port.
 
+## Fırsat Sayfası: Instagram + Telegram Kanalı
+
+Kozmetik indirimlerini günde 3 kez (10:00, 14:00, 19:00) otomatik paylaşır:
+Instagram'a kapak + 5 ürünlük kaydırmalı gönderi, Telegram kanalına ürün başına kart + link.
+
+```bash
+python -m deals.run --dry-run   # sadece kartları üret (data/deals/)
+python -m deals.run --check     # Instagram / Telegram kanalı / görsel reposu ayarlarını dene
+python -m deals.run             # paylaş
+```
+
+Kurulum ve ayarlar: [docs/firsat-sayfasi-kurulum.md](docs/firsat-sayfasi-kurulum.md)
+
 ## Sonraki Adımlar (Hafta 6+)
 - Claude API ile gerçek AI yorumları
 - Multi-tenant (birden fazla müşteri)

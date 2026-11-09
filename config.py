@@ -39,5 +39,31 @@ class Settings(BaseSettings):
     email_recipients: str = ""
     email_enabled: bool = False
 
+    # Kozmetik indirim sayfası (deals/) — Instagram + Telegram kanalı
+    deals_page_name: str = "Fırsat Radarı"
+    deals_categories: str = "kozmetik,parfum,vitamin,cilt-bakimi"
+    deals_per_post: int = Field(default=5, ge=1, le=10)
+    deals_min_discount: float = Field(default=0.30, gt=0, lt=1)
+    deals_exclude_words: str = "deterjan,çamaşır,bulaşık,yumuşatıcı"
+    deals_repeat_after_days: int = Field(default=14, ge=1)
+    deals_caption_footer: str = "Ürün linkleri Telegram kanalımızda, link bio'da."
+    deals_hashtags: str = "#indirim #kozmetik #fırsat #makyaj #ciltbakımı #parfüm #trendyol"
+    deals_font_dir: str = ""
+    telegram_channel_id: str = ""
+    instagram_enabled: bool = False
+    instagram_user_id: str = ""
+    instagram_access_token: str = ""
+    instagram_api_version: str = "v27.0"
+    image_host_repo_dir: str = ""
+    image_host_base_url: str = ""
+
+    @property
+    def deals_category_list(self) -> list[str]:
+        return [c.strip() for c in self.deals_categories.split(",") if c.strip()]
+
+    @property
+    def deals_exclude_word_list(self) -> list[str]:
+        return [w.strip() for w in self.deals_exclude_words.split(",") if w.strip()]
+
 
 settings = Settings()

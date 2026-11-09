@@ -28,3 +28,16 @@ def test_settings_validates_log_level(monkeypatch):
     import pytest
     with pytest.raises(Exception):
         Settings()
+
+
+def test_deals_settings_have_safe_defaults(monkeypatch):
+    monkeypatch.setenv("SCRAPER_USER_AGENT", "test-agent")
+    monkeypatch.setenv("DEALS_CATEGORIES", "kozmetik, parfum")
+    monkeypatch.setenv("DEALS_EXCLUDE_WORDS", "deterjan,çamaşır")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.instagram_enabled is False
+    assert settings.deals_category_list == ["kozmetik", "parfum"]
+    assert settings.deals_exclude_word_list == ["deterjan", "çamaşır"]
+    assert settings.deals_per_post == 5

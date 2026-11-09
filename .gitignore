@@ -28,3 +28,6 @@ bot_state.json
 playwright-report/
 test-results/
 reports/*.pdf
+
+# Instagram anahtarı (otomatik yenilenir)
+data/*.json

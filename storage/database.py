@@ -144,3 +144,25 @@ def close_stale_runs(conn: sqlite3.Connection, started_before: datetime) -> int:
     )
     conn.commit()
     return cur.rowcount
+
+
+def record_posted_deals(
+    conn: sqlite3.Connection,
+    product_ids: list[int],
+    channel: str,
+    post_ref: str | None,
+    posted_at: datetime,
+) -> None:
+    """Sosyal medyada paylaşılan ürünleri kaydeder; aynı ürün kısa sürede tekrar paylaşılmasın."""
+    conn.executemany(
+        "INSERT INTO posted_deals (product_id, channel, post_ref, posted_at) VALUES (?, ?, ?, ?)",
+        [(pid, channel, post_ref, posted_at) for pid in product_ids],
+    )
+    conn.commit()
+
+
+def get_recently_posted_product_ids(conn: sqlite3.Connection, since: datetime) -> set[int]:
+    rows = conn.execute(
+        "SELECT DISTINCT product_id FROM posted_deals WHERE posted_at >= ?", (since,)
+    ).fetchall()
+    return {r[0] for r in rows}
