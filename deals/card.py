@@ -168,7 +168,7 @@ def render_deal_card(deal: Deal, photo: Image.Image | None, page_name: str,
 
 
 def render_cover(deals: list[Deal], when: datetime, page_name: str,
-                 out_path: Path, fonts: Fonts) -> Path:
+                 out_path: Path, fonts: Fonts, cta: str = "Kaydır →") -> Path:
     img = Image.new("RGB", CARD_SIZE, _BG)
     draw = ImageDraw.Draw(img)
     width, _ = CARD_SIZE
@@ -195,8 +195,8 @@ def render_cover(deals: list[Deal], when: datetime, page_name: str,
                   font=sub_font, fill=_MUTED, anchor="lm")
         y += 150
 
-    draw.text((width - _MARGIN, 1290), "Kaydır →", font=fonts.get("black", 40),
-              fill=_INK, anchor="rm")
+    if cta:
+        draw.text((width - _MARGIN, 1290), cta, font=fonts.get("black", 40), fill=_INK, anchor="rm")
     draw.text((_MARGIN, 1290), "Linkler Telegram kanalımızda", font=fonts.get("regular", 30),
               fill=_MUTED, anchor="lm")
     return _save(img, out_path)

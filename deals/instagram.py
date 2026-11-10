@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 
 GRAPH_HOST = "https://graph.instagram.com"
 FACEBOOK_GRAPH_HOST = "https://graph.facebook.com"
+_UPLOAD_HOST = "https://rupload.facebook.com/ig-api-upload"
 DEFAULT_API_VERSION = "v27.0"
 _REFRESH_AFTER = timedelta(days=7)
 
@@ -75,6 +76,26 @@ class InstagramClient:
             container = self._create_container(
                 {"media_type": "CAROUSEL", "children": ",".join(children), "caption": caption}
             )
+        self._wait_until_ready(container)
+        return self._post(f"{self.user_id}/media_publish", {"creation_id": container})["id"]
+
+    def publish_reel(self, video: Path, caption: str) -> str:
+        """Videoyu Reels olarak paylaşır (akışta da görünür). Medya ID'si döner.
+
+        Video herkese açık bir adrese konmadan doğrudan yüklenir (resumable upload):
+        GitHub ham adresi MP4'ü video türünde sunmuyor.
+        """
+        created = self._post(f"{self.user_id}/media", {
+            "media_type": "REELS", "upload_type": "resumable",
+            "caption": caption, "share_to_feed": "true",
+        })
+        container = created["id"]
+        upload_url = created.get("uri") or f"{_UPLOAD_HOST}/{self.base.rsplit('/', 1)[-1]}/{container}"
+        data = video.read_bytes()
+        _check(requests.post(upload_url, data=data, timeout=300, headers={
+            "Authorization": f"OAuth {self.access_token}",
+            "offset": "0", "file_size": str(len(data)),
+        }))
         self._wait_until_ready(container)
         return self._post(f"{self.user_id}/media_publish", {"creation_id": container})["id"]
 

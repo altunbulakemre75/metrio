@@ -118,6 +118,58 @@ def test_account_with_facebook_token_reads_the_instagram_account_node():
     assert get.call_args.kwargs["params"]["fields"] == "id,username"
 
 
+class FakeReelGraph(FakeGraph):
+    """Reels: konteyner yükleme adresi verir, video rupload'a ham bayt olarak gider."""
+
+    def __init__(self, statuses=None, upload_ok=True):
+        super().__init__(statuses)
+        self.uploads = []
+        self.upload_ok = upload_ok
+
+    def post(self, url, data=None, timeout=None, headers=None):
+        if url.startswith("https://rupload.facebook.com/"):
+            self.uploads.append((url, dict(headers or {}), data))
+            if not self.upload_ok:
+                return _resp({"debug_info": {"message": "Upload failed"}}, ok=False)
+            return _resp({"success": True})
+        resp = super().post(url, data, timeout)
+        if url.endswith("/media") and (data or {}).get("media_type") == "REELS":
+            cid = resp.json.return_value["id"]
+            resp.json.return_value["uri"] = f"https://rupload.facebook.com/ig-api-upload/v27.0/{cid}"
+        return resp
+
+
+def test_publish_reel_uploads_video_file_then_publishes(tmp_path):
+    video = tmp_path / "reel.mp4"
+    video.write_bytes(b"mp4-bytes")
+    graph = FakeReelGraph(statuses={"C1": ["IN_PROGRESS", "FINISHED"]})
+    with patch("deals.instagram.requests.post", graph.post), \
+         patch("deals.instagram.requests.get", graph.get):
+        media_id = InstagramClient("IGID", "EAAsys", sleep=lambda s: None).publish_reel(video, "Açıklama")
+
+    assert media_id == "MEDIA1"
+    (u1, d1), (u2, d2) = graph.posts
+    assert u1 == f"{FB_BASE}/IGID/media"
+    assert d1 == {"media_type": "REELS", "upload_type": "resumable", "caption": "Açıklama",
+                  "share_to_feed": "true", "access_token": "EAAsys"}
+    url, headers, body = graph.uploads[0]
+    assert url == "https://rupload.facebook.com/ig-api-upload/v27.0/C1"
+    assert headers == {"Authorization": "OAuth EAAsys", "offset": "0", "file_size": "9"}
+    assert body == b"mp4-bytes"
+    assert u2 == f"{FB_BASE}/IGID/media_publish" and d2["creation_id"] == "C1"
+
+
+def test_failed_video_upload_does_not_publish(tmp_path):
+    video = tmp_path / "reel.mp4"
+    video.write_bytes(b"x")
+    graph = FakeReelGraph(upload_ok=False)
+    with patch("deals.instagram.requests.post", graph.post), \
+         patch("deals.instagram.requests.get", graph.get):
+        with pytest.raises(InstagramError, match="Upload failed"):
+            InstagramClient("IGID", "EAAsys").publish_reel(video, "x")
+    assert not any(u.endswith("/media_publish") for u, _ in graph.posts)
+
+
 def test_api_error_message_is_raised():
     bad = _resp({"error": {"message": "Invalid OAuth access token", "code": 190}}, ok=False)
     with patch("deals.instagram.requests.post", return_value=bad):

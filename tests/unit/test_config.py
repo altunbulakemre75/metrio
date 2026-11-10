@@ -48,3 +48,16 @@ def test_deals_category_caps_parse_name_and_limit(monkeypatch):
     monkeypatch.setenv("DEALS_CATEGORY_CAPS", "canta:2, parfum:1")
 
     assert Settings(_env_file=None).deals_category_cap_map == {"canta": 2, "parfum": 1}
+
+
+def test_instagram_reel_hours_parse_to_integers(monkeypatch):
+    monkeypatch.setenv("SCRAPER_USER_AGENT", "test-agent")
+    monkeypatch.setenv("INSTAGRAM_REEL_HOURS", "19, 21")
+
+    assert Settings(_env_file=None).instagram_reel_hour_set == {19, 21}
+
+
+def test_instagram_reel_hours_default_to_none(monkeypatch):
+    monkeypatch.setenv("SCRAPER_USER_AGENT", "test-agent")
+
+    assert Settings(_env_file=None).instagram_reel_hour_set == set()

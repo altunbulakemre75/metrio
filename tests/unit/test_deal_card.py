@@ -48,6 +48,18 @@ def test_cover_lists_deals_as_portrait_jpeg(tmp_path):
     _assert_instagram_jpeg(out)
 
 
+def test_cover_without_swipe_hint_for_video(tmp_path):
+    # Reels'te kapak kendiliğinden geçiyor; "Kaydır →" yazısı yanıltıcı olur.
+    deals, when, fonts = [_deal(product_id=i) for i in range(5)], datetime(2026, 11, 9), load_fonts("")
+    swipe = render_cover(deals, when, "Fırsat Radarı", tmp_path / "a.jpg", fonts)
+    plain = render_cover(deals, when, "Fırsat Radarı", tmp_path / "b.jpg", fonts, cta="")
+
+    corner = (700, 1240, 1080, 1340)
+    with Image.open(swipe) as a, Image.open(plain) as b:
+        assert a.crop(corner).getextrema() != b.crop(corner).getextrema()
+        assert all(lo > 200 for lo, _ in b.crop(corner).getextrema())  # köşe boş
+
+
 def test_full_size_url_drops_trendyol_thumbnail_resize():
     thumb = "https://cdn.dsmcdn.com/mnresize/400/-/ty1891/prod/a/1_org_zoom.jpg"
     assert full_size_url(thumb) == "https://cdn.dsmcdn.com/ty1891/prod/a/1_org_zoom.jpg"

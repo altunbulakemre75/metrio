@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     instagram_user_id: str = ""
     instagram_access_token: str = ""
     instagram_api_version: str = "v27.0"
+    instagram_reel_hours: str = ""  # "19" → 19:00 paylaşımı kaydırmalı yerine Reels videosu
     image_host_repo_dir: str = ""
     image_host_base_url: str = ""
 
@@ -65,6 +66,10 @@ class Settings(BaseSettings):
     @property
     def deals_exclude_word_list(self) -> list[str]:
         return [w.strip() for w in self.deals_exclude_words.split(",") if w.strip()]
+
+    @property
+    def instagram_reel_hour_set(self) -> set[int]:
+        return {int(h) for h in self.instagram_reel_hours.split(",") if h.strip()}
 
     @property
     def deals_category_cap_map(self) -> dict[str, int]:

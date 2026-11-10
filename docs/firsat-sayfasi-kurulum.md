@@ -22,6 +22,10 @@ Her paylaşımda:
 3. **Telegram kanalı:** Her ürün için kart + fiyat + link.
 4. **Instagram:** Kartlar `github.com/altunbulakemre75/firsat-gorselleri` reposuna push edilir
    (Instagram görseli internetten kendisi indiriyor), sonra tek kaydırmalı gönderi atılır.
+   `INSTAGRAM_REEL_HOURS` saatlerinde (şu an 19:00) kaydırmalı yerine **Reels** gider:
+   kartlar ffmpeg ile 15 saniyelik 1080x1920 videoya çevrilir (`deals/video.py`) ve
+   doğrudan Instagram'a yüklenir; GitHub reposu kullanılmaz. Video üretilemezse
+   (ffmpeg yoksa) o paylaşım kaydırmalı olarak gider ve yöneticiye uyarı gelir.
 5. Bir şey ters giderse yönetici Telegram sohbetine (`TELEGRAM_CHAT_ID`) uyarı gelir.
 
 Fırsat 3'ten azsa paylaşım yapılmaz (genelde gece taraması çalışmamıştır).
@@ -93,6 +97,10 @@ Sadece kartları üretir (`data/deals/` altında), hiçbir yere göndermez. Beğ
 ```
 Gerçek paylaşım. Sonrası otomatik (10:00 / 14:00 / 19:00).
 
+Reels videosunu önizlemek için: `.venv\Scripts\python.exe -m deals.run --dry-run --reel`
+(video `data/deals/<tarih-saat>/reel.mp4`). Videoda müzik yok; API Instagram'ın müzik
+kütüphanesini kullanamıyor.
+
 ---
 
 ## Ayarlar
@@ -103,6 +111,7 @@ Gerçek paylaşım. Sonrası otomatik (10:00 / 14:00 / 19:00).
 | `DEALS_CATEGORIES` | kozmetik,parfum,vitamin,cilt-bakimi | Taranan kategori adları (`.env`'de `canta` da var) |
 | `DEALS_CATEGORY_CAPS` | (boş) | Paylaşım başına kategori sınırı, örn. `canta:2` |
 | `DEALS_PER_POST` | 5 | Paylaşım başına ürün |
+| `INSTAGRAM_REEL_HOURS` | (boş) | Bu saatlerdeki paylaşım Reels videosu olur, örn. `19` (ffmpeg gerekir) |
 | `DEALS_MIN_DISCOUNT` | 0.30 | En düşük indirim oranı |
 | `DEALS_EXCLUDE_WORDS` | deterjan,çamaşır,bulaşık,yumuşatıcı | Ada göre elenen ürünler |
 | `DEALS_REPEAT_AFTER_DAYS` | 14 | Aynı ürün en erken kaç gün sonra tekrar |

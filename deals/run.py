@@ -3,6 +3,7 @@
 Kullanım:
     python -m deals.run              # günün fırsatlarını paylaş
     python -m deals.run --dry-run    # sadece kartları üret (data/deals/)
+    python -m deals.run --reel       # kaydırmalı gönderi yerine Reels videosu (--dry-run ile önizleme)
     python -m deals.run --check      # Instagram / görsel reposu / Telegram kanalı ayarlarını dene
 """
 import argparse
@@ -23,6 +24,7 @@ from deals.images import fetch_product_image
 from deals.instagram import InstagramClient, InstagramError, current_token
 from deals.selector import Deal, select_deals
 from deals.text import instagram_caption, telegram_caption
+from deals.video import VideoError, render_reel
 from storage.database import get_recently_posted_product_ids, record_posted_deals
 
 _MIN_DEALS = 3
@@ -50,6 +52,7 @@ class RunResult:
     deals: list[Deal] = field(default_factory=list)
     files: list[Path] = field(default_factory=list)
     media_id: str | None = None
+    video: Path | None = None
 
 
 def run_once(
@@ -65,6 +68,8 @@ def run_once(
     image_fetcher: Callable[[str], Image.Image | None] = fetch_product_image,
     wait_live: Callable[[list[str]], bool] = wait_until_live,
     max_age: timedelta = timedelta(hours=36),
+    reel: bool = False,
+    video_maker: Callable[[list[Path], Path], Path] = render_reel,
 ) -> RunResult:
     def alert(text: str) -> None:
         if notify_admin:
@@ -82,12 +87,18 @@ def run_once(
 
     fonts = load_fonts(cfg.font_dir)
     batch = out_root / now.strftime("%Y%m%d-%H%M")
-    cover = render_cover(deals, now, cfg.page_name, batch / "cover.jpg", fonts)
+    cover = render_cover(deals, now, cfg.page_name, batch / "cover.jpg", fonts,
+                         cta="" if reel else "Kaydır →")
     cards = [
         render_deal_card(d, image_fetcher(d.image_url), cfg.page_name, batch / f"{i}.jpg", fonts)
         for i, d in enumerate(deals, start=1)
     ]
     result = RunResult("rendered", deals, [cover, *cards])
+    if reel:
+        try:
+            result.video = video_maker(result.files, batch / "reel.mp4")
+        except VideoError as e:
+            alert(f"Reels videosu üretilemedi, kaydırmalı gönderi atılıyor: {e}")
     if telegram_send is None and instagram is None:
         return result
 
@@ -114,13 +125,16 @@ def run_once(
 
 
 def _post_instagram(conn, cfg, now, deals, result, host, instagram, wait_live, alert) -> bool:
+    caption = instagram_caption(deals, now, cfg.caption_footer, cfg.hashtags)
     try:
-        urls = host.publish(result.files, now)
-        if not wait_live(urls):
-            alert("görseller herkese açık adreste görünmedi, Instagram paylaşımı atlandı.")
-            return False
-        caption = instagram_caption(deals, now, cfg.caption_footer, cfg.hashtags)
-        result.media_id = instagram.publish_carousel(urls, caption)
+        if result.video is not None:
+            result.media_id = instagram.publish_reel(result.video, caption)
+        else:
+            urls = host.publish(result.files, now)
+            if not wait_live(urls):
+                alert("görseller herkese açık adreste görünmedi, Instagram paylaşımı atlandı.")
+                return False
+            result.media_id = instagram.publish_carousel(urls, caption)
     except (HostingError, InstagramError) as e:
         alert(f"Instagram paylaşımı başarısız: {e}")
         return False
@@ -211,6 +225,8 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Kozmetik fırsatlarını paylaş")
     parser.add_argument("--dry-run", action="store_true", help="Sadece kartları üret")
     parser.add_argument("--check", action="store_true", help="Kurulumu dene, paylaşım yapma")
+    parser.add_argument("--reel", action="store_true",
+                        help="Kaydırmalı gönderi yerine Reels videosu (INSTAGRAM_REEL_HOURS saatlerinde kendiliğinden)")
     parser.add_argument("--max-age-hours", type=int, default=36,
                         help="Bu kadar saatten eski fiyatları kullanma (varsayılan 36)")
     args = parser.parse_args(argv)
@@ -246,9 +262,11 @@ def main(argv: list[str] | None = None) -> int:
         host=host, instagram=instagram, telegram_send=telegram_send,
         notify_admin=admin.send_text if has_channel else None,
         max_age=timedelta(hours=args.max_age_hours),
+        reel=args.reel or now.hour in settings.instagram_reel_hour_set,
     )
     log.info(f"Fırsat paylaşımı: {result.status}, {len(result.deals)} fırsat, "
-             f"kartlar: {result.files[0].parent if result.files else '-'}")
+             f"kartlar: {result.files[0].parent if result.files else '-'}"
+             f"{', video: ' + str(result.video) if result.video else ''}")
     return 0 if result.status in ("posted", "rendered", "no_deals") else 1
 
 

@@ -7,6 +7,7 @@ from PIL import Image
 from deals.hosting import HostingError
 from deals.instagram import InstagramError
 from deals.run import DealsConfig, run_once
+from deals.video import VideoError
 from storage.database import init_schema, save_snapshot
 from storage.models import ProductSnapshot
 
@@ -46,7 +47,13 @@ class FakeHost:
 
 class FakeInstagram:
     def __init__(self, fail=False):
-        self.calls, self.fail = [], fail
+        self.calls, self.reels, self.fail = [], [], fail
+
+    def publish_reel(self, video, caption):
+        if self.fail:
+            raise InstagramError("Invalid OAuth access token")
+        self.reels.append((video, caption))
+        return "REEL1"
 
     def publish_carousel(self, urls, caption):
         if self.fail:
@@ -162,6 +169,53 @@ def test_without_channels_only_renders_cards(db, tmp_path):
     assert len(result.files) == 5
     assert all(f.exists() for f in result.files)
     assert db.execute("SELECT COUNT(*) FROM posted_deals").fetchone()[0] == 0
+
+
+def _fake_video(cards, out):
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(b"mp4")
+    return out
+
+
+def test_reel_run_posts_video_instead_of_carousel_without_image_hosting(db, tmp_path):
+    _add_deals(db, 4)
+    ig, tg = FakeInstagram(), Recorder()
+
+    result = _run(db, tmp_path, host=FakeHost(fail=True), instagram=ig, telegram_send=tg,
+                  reel=True, video_maker=_fake_video)
+
+    assert result.status == "posted"
+    assert ig.calls == []
+    video, caption = ig.reels[0]
+    assert video.name == "reel.mp4" and video.exists()
+    assert "Ruj 0" in caption
+    assert len(tg.calls) == 4
+    refs = db.execute("SELECT DISTINCT post_ref FROM posted_deals WHERE channel='instagram'").fetchall()
+    assert [r[0] for r in refs] == ["REEL1"]
+
+
+def test_reel_run_without_channels_still_renders_the_video_for_preview(db, tmp_path):
+    _add_deals(db, 4)
+
+    result = _run(db, tmp_path, reel=True, video_maker=_fake_video)
+
+    assert result.status == "rendered"
+    assert result.video is not None and result.video.exists()
+
+
+def test_video_failure_falls_back_to_carousel_and_tells_admin(db, tmp_path):
+    _add_deals(db, 4)
+    ig, admin = FakeInstagram(), Recorder()
+
+    def broken(cards, out):
+        raise VideoError("ffmpeg bulunamadı")
+
+    result = _run(db, tmp_path, host=FakeHost(), instagram=ig, notify_admin=admin,
+                  reel=True, video_maker=broken)
+
+    assert result.status == "posted"
+    assert ig.reels == [] and len(ig.calls) == 1
+    assert "ffmpeg bulunamadı" in admin.calls[0][0]
 
 
 def test_check_setup_reports_missing_channels():
