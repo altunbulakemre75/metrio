@@ -3,8 +3,8 @@ from datetime import datetime
 import pytest
 
 from deals.selector import Deal
-from deals.text import (format_tl, instagram_caption, telegram_caption, turkish_date,
-                        video_caption)
+from deals.text import (format_tl, instagram_caption, telegram_caption, tiktok_mentions,
+                        turkish_date, video_caption)
 
 
 def _deal(**kw) -> Deal:
@@ -133,3 +133,29 @@ def test_special_day_label_replaces_daily_headline():
         "11.11 kozmetik fırsatları · 11 Kasım")
     assert video_caption(deals, when, "@k", "", label="11.11").startswith(
         "11.11 kozmetik fırsatları · 11 Kasım")
+
+
+def test_tiktok_mentions_tag_known_brands_once_then_trendyol():
+    deals = [_deal(product_id=1, brand="Erbatab"), _deal(product_id=2, brand="Bilinmeyen"),
+             _deal(product_id=3, brand="DR. ÜMİT AKTAŞ"), _deal(product_id=4, brand="Erbatab")]
+
+    assert tiktok_mentions(deals) == "@erbatab @umitaktasofficial @trendyolcom"
+
+
+def test_tiktok_mentions_stay_at_four_tags():
+    # Fazla etiket spam gibi durur: en fazla 3 marka + Trendyol.
+    brands = ["Erbatab", "Wella", "The Ceel", "INO Beauty", "DeFacto"]
+    deals = [_deal(product_id=i, brand=b) for i, b in enumerate(brands)]
+
+    assert tiktok_mentions(deals) == "@erbatab @wellaturkiye @theceelcom @trendyolcom"
+
+
+def test_tiktok_mentions_skip_trendyol_for_other_platforms():
+    assert tiktok_mentions([_deal(brand="Bilinmeyen", platform="akakce")]) == ""
+
+
+def test_video_caption_puts_mentions_before_hashtags():
+    text = video_caption([_deal()], datetime(2026, 11, 10), "@k", "#indirim",
+                         mentions="@erbatab @trendyolcom")
+
+    assert text.endswith("@erbatab @trendyolcom\n\n#indirim")

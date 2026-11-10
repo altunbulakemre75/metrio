@@ -24,7 +24,7 @@ from deals.hosting import GitImageHost, HostingError, wait_until_live
 from deals.images import fetch_product_image
 from deals.instagram import InstagramClient, InstagramError, current_token
 from deals.selector import Deal, select_deals
-from deals.text import instagram_caption, telegram_caption, video_caption
+from deals.text import instagram_caption, telegram_caption, tiktok_mentions, video_caption
 from deals.video import VideoError, render_reel
 from storage.database import get_recently_posted_product_ids, record_posted_deals
 
@@ -48,6 +48,10 @@ class DealsConfig:
     telegram_channel: str = ""
     special_days: dict[str, str] = field(default_factory=dict)  # "11-11" → "11.11"
     preferred_brands: tuple[str, ...] = ()
+    # Telifli müzik API ile eklenemiyor: Reels Instagram'a otomatik atılmaz, video ve
+    # açıklamalar yöneticiye gider, müzik uygulamadan eklenip elle paylaşılır.
+    reel_manual: bool = False
+    reel_music: str = ""
 
 
 @dataclass
@@ -75,6 +79,7 @@ def run_once(
     reel: bool = False,
     video_maker: Callable[[list[Path], Path], Path] = render_reel,
     share_video: Callable[[Path, str], bool] | None = None,
+    share_text: Callable[[str], None] | None = None,
 ) -> RunResult:
     def alert(text: str) -> None:
         if notify_admin:
@@ -118,14 +123,19 @@ def run_once(
             alert("Telegram kanalına hiçbir fırsat gönderilemedi.")
         outcomes.append(bool(sent))
 
-    if instagram is not None:
+    manual = cfg.reel_manual and result.video is not None
+    if instagram is not None and not manual:
         outcomes.append(_post_instagram(conn, cfg, now, deals, result, host, instagram,
                                         wait_live, alert))
 
-    # TikTok'a elle yüklemek (ya da müzikli paylaşmak) için videoyu yöneticiye de gönder.
+    # TikTok'a (elle modda Instagram'a da) müzikli yüklemek için videoyu yöneticiye gönder.
     if result.video is not None and share_video is not None:
+        if manual and share_text is not None:
+            share_text(_manual_note(cfg.reel_music))
         share_video(result.video, video_caption(deals, now, cfg.telegram_channel, cfg.hashtags,
-                                                label))
+                                                label, tiktok_mentions(deals)))
+        if manual and share_text is not None:
+            share_text(_instagram_caption(cfg, now, deals))
 
     if all(outcomes):
         result.status = "posted"
@@ -136,9 +146,21 @@ def run_once(
     return result
 
 
+def _instagram_caption(cfg: DealsConfig, now: datetime, deals: list[Deal]) -> str:
+    return instagram_caption(deals, now, cfg.caption_footer, cfg.hashtags,
+                             cfg.special_days.get(now.strftime("%m-%d"), ""))
+
+
+def _manual_note(music: str) -> str:
+    lines = ["🎬 Reels hazır, Instagram ve TikTok'a sen paylaşıyorsun."]
+    if music:
+        lines.append(f"🎵 Müzik: {music} (uygulamanın müzik kütüphanesinden ekle)")
+    lines.append("Videonun altındaki açıklama TikTok için, sonraki mesaj Instagram için.")
+    return "\n".join(lines)
+
+
 def _post_instagram(conn, cfg, now, deals, result, host, instagram, wait_live, alert) -> bool:
-    caption = instagram_caption(deals, now, cfg.caption_footer, cfg.hashtags,
-                                cfg.special_days.get(now.strftime("%m-%d"), ""))
+    caption = _instagram_caption(cfg, now, deals)
     try:
         if result.video is not None:
             result.media_id = instagram.publish_reel(result.video, caption)
@@ -170,6 +192,8 @@ def _config_from_settings(settings) -> DealsConfig:
         telegram_channel=settings.telegram_channel_id,
         special_days=settings.deals_special_day_map,
         preferred_brands=PREFERRED_BRANDS,
+        reel_manual=settings.instagram_reel_manual,
+        reel_music=settings.deals_reel_music,
     )
 
 
@@ -282,6 +306,7 @@ def main(argv: list[str] | None = None) -> int:
         max_age=timedelta(hours=args.max_age_hours),
         reel=args.reel or now.hour in settings.instagram_reel_hour_set,
         share_video=share_video,
+        share_text=admin.send_text if share_video is not None else None,
     )
     log.info(f"Fırsat paylaşımı: {result.status}, {len(result.deals)} fırsat, "
              f"kartlar: {result.files[0].parent if result.files else '-'}"

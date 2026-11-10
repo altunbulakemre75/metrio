@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     instagram_access_token: str = ""
     instagram_api_version: str = "v27.0"
     instagram_reel_hours: str = ""  # "19" → 19:00 paylaşımı kaydırmalı yerine Reels videosu
+    instagram_reel_manual: bool = False  # Reels'i otomatik atma, müzik eklenip elle paylaşılsın
+    deals_reel_music: str = ""  # elle paylaşımda eklenecek şarkı (hatırlatma mesajına yazılır)
     image_host_repo_dir: str = ""
     image_host_base_url: str = ""
 

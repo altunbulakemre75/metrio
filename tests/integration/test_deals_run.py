@@ -82,7 +82,8 @@ def _cfg(**kw):
 def _run(db, tmp_path, **kw):
     kw.setdefault("image_fetcher", lambda url: Image.new("RGB", (300, 300), "pink"))
     kw.setdefault("wait_live", lambda urls: True)
-    return run_once(db, _cfg(), NOW, tmp_path / "out", **kw)
+    cfg = kw.pop("cfg", _cfg())
+    return run_once(db, cfg, NOW, tmp_path / "out", **kw)
 
 
 def test_posts_carousel_to_instagram_and_each_deal_to_telegram(db, tmp_path):
@@ -290,3 +291,35 @@ def test_preferred_brands_reach_the_selection(db, tmp_path):
              wait_live=lambda urls: True)
 
     assert "Ruj 3" in ig.calls[0][1]
+
+
+def test_manual_reel_goes_to_admin_with_music_note_instead_of_instagram(db, tmp_path):
+    # Telifli şarkı API ile eklenemiyor: Emre uygulamadan müzik ekleyip kendisi paylaşıyor.
+    _add_deals(db, 4)
+    ig, tg, shared, texts = FakeInstagram(), Recorder(), Recorder(), Recorder()
+
+    result = _run(db, tmp_path, cfg=_cfg(reel_manual=True, reel_music="BbY WOW"),
+                  instagram=ig, telegram_send=tg, reel=True, video_maker=_fake_video,
+                  share_video=shared, share_text=texts)
+
+    assert result.status == "posted" and len(tg.calls) == 4
+    assert ig.reels == [] and ig.calls == []
+    assert db.execute("SELECT COUNT(*) FROM posted_deals WHERE channel='instagram'").fetchone()[0] == 0
+    note, instagram_text = texts.calls[0][0], texts.calls[1][0]
+    assert "BbY WOW" in note
+    assert shared.calls[0][0].name == "reel.mp4"
+    assert instagram_text.startswith("Günün kozmetik fırsatları") and "Ruj 0" in instagram_text
+    assert "Linkler Telegram'da." in instagram_text
+
+
+def test_manual_mode_still_posts_carousel_when_video_fails(db, tmp_path):
+    _add_deals(db, 4)
+    ig = FakeInstagram()
+
+    def broken(cards, out):
+        raise VideoError("ffmpeg bulunamadı")
+
+    _run(db, tmp_path, cfg=_cfg(reel_manual=True), host=FakeHost(), instagram=ig,
+         reel=True, video_maker=broken, share_text=Recorder())
+
+    assert len(ig.calls) == 1

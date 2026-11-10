@@ -2,6 +2,7 @@
 import re
 from datetime import datetime
 
+from deals.brands import TIKTOK_HANDLES, TRENDYOL_TIKTOK, brand_key
 from deals.selector import Deal
 
 _MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
@@ -15,6 +16,8 @@ _INSTAGRAM_CAPTION_LIMIT = 2200
 _MAX_NAME_IN_CAPTION = 70
 # Trendyol satıcıları ada barkod (EAN, 8-14 hane) ekliyor; ml/renk kodları kısa kalır.
 _BARCODE = re.compile(r"(?<!\S)\d{8,14}(?!\S)")
+_TIKTOK_KEYS = {brand_key(b): h for b, h in TIKTOK_HANDLES.items()}
+_MAX_BRAND_TAGS = 3
 
 
 def format_tl(amount: float) -> str:
@@ -83,13 +86,31 @@ def _headline(deals: list[Deal], when: datetime, label: str = "") -> str:
     return f"{label or 'Günün'} {topic} fırsatları · {turkish_date(when)}"
 
 
+def tiktok_mentions(deals: list[Deal]) -> str:
+    """Videodaki markaların TikTok hesapları (en fazla 3) ve Trendyol: "@erbatab @trendyolcom".
+
+    Etiket erişimi kendiliğinden artırmaz; marka bildirimi görüp beğenir ya da yeniden
+    paylaşırsa artar. Bu yüzden sadece videoda ürünü olan markalar etiketlenir.
+    """
+    handles: list[str] = []
+    for deal in deals:
+        handle = _TIKTOK_KEYS.get(brand_key(deal.brand or ""))
+        if handle and handle not in handles and len(handles) < _MAX_BRAND_TAGS:
+            handles.append(handle)
+    if any(d.platform == "trendyol" for d in deals):
+        handles.append(TRENDYOL_TIKTOK)
+    return " ".join(f"@{h}" for h in handles)
+
+
 def video_caption(deals: list[Deal], when: datetime, channel: str, hashtags: str,
-                  label: str = "") -> str:
+                  label: str = "", mentions: str = "") -> str:
     """TikTok gibi elle yüklenen video için kısa açıklama: ürün listesi yok, kanal adı var."""
     lines = [_headline(deals, when, label),
              f"Fiyatlar {turkish_date(when)} taramasına göredir, değişebilir."]
     if channel:
         lines.append(f"Ürün linkleri Telegram kanalımızda: {channel}")
+    if mentions:
+        lines += ["", mentions]
     if hashtags:
         lines += ["", hashtags]
     return "\n".join(lines)
