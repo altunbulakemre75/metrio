@@ -123,3 +123,13 @@ def test_video_caption_is_short_and_points_to_telegram_channel():
     assert "Telegram kanalımızda: @kozmetikavcisi" in text
     assert text.endswith("#indirim #kozmetik")
     assert "Omuz Çantası" not in text and "bio" not in text
+
+
+def test_special_day_label_replaces_daily_headline():
+    deals = [_deal(product_id=1)]
+    when = datetime(2026, 11, 11)
+
+    assert instagram_caption(deals, when, "", "", label="11.11").startswith(
+        "11.11 kozmetik fırsatları · 11 Kasım")
+    assert video_caption(deals, when, "@k", "", label="11.11").startswith(
+        "11.11 kozmetik fırsatları · 11 Kasım")

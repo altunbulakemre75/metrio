@@ -14,6 +14,8 @@ from pathlib import Path
 # Böylece config.py ilk yüklendiğinde doğru .env'i okur.
 _pre_parser = argparse.ArgumentParser(add_help=False)
 _pre_parser.add_argument("--config", help="Alternatif .env dosyası (müşteriye özel)")
+_pre_parser.add_argument("--deals-only", action="store_true",
+                         help="Sadece fırsat sayfası kategorilerini tara (DEALS_CATEGORIES)")
 _pre_args, _ = _pre_parser.parse_known_args()
 if _pre_args.config:
     os.environ["METRIO_ENV_FILE"] = _pre_args.config
@@ -225,8 +227,12 @@ def _load_categories() -> list[dict]:
     return _DEFAULT_CATEGORIES
 
 
+def _only_categories(categories: list[dict], names: list[str]) -> list[dict]:
+    return [c for c in categories if c["name"] in names]
+
+
 def main() -> int:
-    """CLI giriş noktası. Default kategori listesini çalıştırır."""
+    """CLI giriş noktası. Default kategori listesini (--deals-only ile fırsat kategorilerini) tarar."""
     conn = connect(settings.database_path)
     init_schema(conn)
     closed = close_stale_runs(conn, started_before=datetime.now() - timedelta(hours=6))
@@ -235,7 +241,10 @@ def main() -> int:
 
     overall_status = 0
     all_stats = []
-    for cat in _load_categories():
+    categories = _load_categories()
+    if _pre_args.deals_only:
+        categories = _only_categories(categories, settings.deals_category_list)
+    for cat in categories:
         scraper = _make_scraper(cat["platform"])
         stats = run_pipeline(
             scraper=scraper,

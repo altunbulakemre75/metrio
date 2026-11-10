@@ -5,7 +5,7 @@ from unittest.mock import patch
 import requests
 from PIL import Image
 
-from deals.card import CARD_SIZE, load_fonts, render_cover, render_deal_card
+from deals.card import CARD_SIZE, headline_rate, load_fonts, render_cover, render_deal_card
 from deals.images import fetch_product_image, full_size_url, trim_white_border
 from deals.selector import Deal
 
@@ -93,3 +93,23 @@ def test_trim_white_border_keeps_only_the_product():
 def test_trim_white_border_leaves_all_white_image_alone():
     img = Image.new("RGB", (100, 300), "white")
     assert trim_white_border(img).size == (100, 300)
+
+
+def test_long_cover_title_shrinks_to_stay_inside_the_card(tmp_path):
+    deals, fonts = [_deal(product_id=i) for i in range(5)], load_fonts("")
+    out = render_cover(deals, datetime(2026, 11, 27), "Fırsat Radarı", tmp_path / "c.jpg", fonts,
+                       title="EFSANE CUMA FIRSATLARI")
+
+    with Image.open(out) as img:
+        right_edge = img.crop((1030, 140, 1080, 260)).convert("RGB")
+        assert all(lo > 150 for lo, _ in right_edge.getextrema()[:2])  # sarı zemin, yazı taşmadı
+
+
+def test_small_real_drop_does_not_hide_a_big_discount_on_the_tag():
+    # %40 indirimli ürün dünden %7 ucuzladı diye kapakta "%7" yazmasın.
+    assert headline_rate(_deal(price=93.0, previous_price=100.0, discount_rate=0.4)) == (0.4, "İNDİRİM")
+
+
+def test_meaningful_real_drop_is_shown_on_the_tag():
+    rate, label = headline_rate(_deal(price=66.0, previous_price=100.0, discount_rate=0.5))
+    assert label == "DÜŞTÜ" and round(rate, 2) == 0.34

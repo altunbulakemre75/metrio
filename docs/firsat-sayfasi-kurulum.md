@@ -112,6 +112,7 @@ kütüphanesini kullanamıyor.
 | `DEALS_PAGE_NAME` | Fırsat Radarı | Kartlardaki sayfa adı |
 | `DEALS_CATEGORIES` | kozmetik,parfum,vitamin,cilt-bakimi | Taranan kategori adları (`.env`'de `canta` da var) |
 | `DEALS_CATEGORY_CAPS` | (boş) | Paylaşım başına kategori sınırı, örn. `canta:2` |
+| `DEALS_SPECIAL_DAYS` | (boş) | Özel günler `AA-GG=Ad`, örn. `11-11=11.11` → kapak "11.11 FIRSATLARI" |
 | `DEALS_PER_POST` | 5 | Paylaşım başına ürün |
 | `INSTAGRAM_REEL_HOURS` | (boş) | Bu saatlerdeki paylaşım Reels videosu olur, örn. `19` (ffmpeg gerekir) |
 | `DEALS_MIN_DISCOUNT` | 0.30 | En düşük indirim oranı |
@@ -130,6 +131,11 @@ Görsel reposunda son 7 günün klasörleri tutulur, eskiler her paylaşımda si
 gelince link biçimini söyle, `telegram_caption`'a eklenir.
 Affiliate linkleri kullanmaya başladığın gün `DEALS_HASHTAGS`'e `#reklam` ekle
 (Ticaret Bakanlığı sosyal medya reklam kuralları).
+
+## Özel günlerde ekstra tarama
+
+`python main.py --deals-only` sadece fırsat kategorilerini tarar (~20 dk). 11.11 için
+"Metrio 11.11 Scrape" görevi 11 Kasım 09:15, 13:15, 18:15'te bunu çalıştırır (tek seferlik).
 
 ## Zamanlanmış görevleri yeniden kurmak
 

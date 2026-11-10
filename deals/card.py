@@ -12,6 +12,7 @@ from deals.text import (PLATFORM_NAMES, card_name, category_summary, format_tl, 
 
 CARD_SIZE = (1080, 1350)
 _MARGIN = 60
+_TAG_MIN_DROP = 0.15  # selector'daki gerçek düşüş eşiğiyle aynı
 
 _BG = (246, 241, 234)
 _INK = (24, 22, 20)
@@ -51,9 +52,13 @@ def load_fonts(font_dir: str) -> Fonts:
 
 
 def headline_rate(deal: Deal) -> tuple[float, str] | None:
-    """Etikete yazılacak oran: gerçek düşüş varsa o, yoksa satıcının indirimi."""
-    if deal.drop_rate:
-        return deal.drop_rate, "DÜŞTÜ"
+    """Etikete yazılacak oran: anlamlı (%15+) gerçek düşüş varsa o, yoksa satıcının indirimi.
+
+    Küçük bir düşüş (%7) büyük indirimin (%40) yerine geçmez; kartın altında yine yazıyor.
+    """
+    drop = deal.drop_rate
+    if drop and (drop >= _TAG_MIN_DROP or not deal.discount_rate):
+        return drop, "DÜŞTÜ"
     if deal.discount_rate:
         return deal.discount_rate, "İNDİRİM"
     return None
@@ -168,15 +173,19 @@ def render_deal_card(deal: Deal, photo: Image.Image | None, page_name: str,
 
 
 def render_cover(deals: list[Deal], when: datetime, page_name: str,
-                 out_path: Path, fonts: Fonts, cta: str = "Kaydır →") -> Path:
+                 out_path: Path, fonts: Fonts, cta: str = "Kaydır →", title: str = "") -> Path:
+    """title: kapak başlığı; boşsa "GÜNÜN N FIRSATI". Sığmazsa yazı küçülür."""
     img = Image.new("RGB", CARD_SIZE, _BG)
     draw = ImageDraw.Draw(img)
     width, _ = CARD_SIZE
 
     draw.rectangle((0, 0, width, 360), fill=_TAG)
     draw.text((_MARGIN, 70), page_name, font=fonts.get("black", 40), fill=_INK, anchor="lm")
-    draw.text((_MARGIN, 200), f"GÜNÜN {len(deals)} FIRSATI", font=fonts.get("black", 92),
-              fill=_INK, anchor="lm")
+    heading = title or f"GÜNÜN {len(deals)} FIRSATI"
+    size = 92
+    while size > 40 and draw.textlength(heading, font=fonts.get("black", size)) > width - 2 * _MARGIN:
+        size -= 4
+    draw.text((_MARGIN, 200), heading, font=fonts.get("black", size), fill=_INK, anchor="lm")
     draw.text((_MARGIN, 300), f"{turkish_date(when)} · {category_summary(deals)}",
               font=fonts.get("semibold", 38), fill=_INK, anchor="lm")
 

@@ -129,3 +129,15 @@ def test_run_pipeline_closes_scraper_even_on_error(in_memory_db):
     )
 
     fake_scraper.close.assert_called_once()
+
+
+def test_deals_only_keeps_just_the_deal_page_categories():
+    # 11.11 gibi günlerde paylaşımdan önce sadece fırsat kategorileri hızlıca yeniden taranır.
+    from main import _only_categories
+    cats = [{"platform": "trendyol", "name": "kozmetik"}, {"platform": "trendyol", "name": "cep-telefonu"},
+            {"platform": "akakce", "name": "parfum"}, {"platform": "trendyol", "name": "canta"}]
+
+    kept = _only_categories(cats, ["kozmetik", "parfum", "canta"])
+
+    assert [(c["platform"], c["name"]) for c in kept] == [
+        ("trendyol", "kozmetik"), ("akakce", "parfum"), ("trendyol", "canta")]

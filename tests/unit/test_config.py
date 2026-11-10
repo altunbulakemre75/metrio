@@ -61,3 +61,10 @@ def test_instagram_reel_hours_default_to_none(monkeypatch):
     monkeypatch.setenv("SCRAPER_USER_AGENT", "test-agent")
 
     assert Settings(_env_file=None).instagram_reel_hour_set == set()
+
+
+def test_deals_special_days_parse_month_day_and_label(monkeypatch):
+    monkeypatch.setenv("SCRAPER_USER_AGENT", "test-agent")
+    monkeypatch.setenv("DEALS_SPECIAL_DAYS", "11-11=11.11, 11-27=Efsane Cuma")
+
+    assert Settings(_env_file=None).deals_special_day_map == {"11-11": "11.11", "11-27": "Efsane Cuma"}

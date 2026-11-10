@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     deals_min_discount: float = Field(default=0.30, gt=0, lt=1)
     deals_exclude_words: str = "deterjan,çamaşır,bulaşık,yumuşatıcı"
     deals_category_caps: str = ""  # "canta:2" → paylaşım başına en fazla 2 çanta
+    deals_special_days: str = ""  # "11-11=11.11" → o gün kapak "11.11 FIRSATLARI"
     deals_repeat_after_days: int = Field(default=14, ge=1)
     deals_caption_footer: str = "Ürün linkleri Telegram kanalımızda, link bio'da."
     deals_hashtags: str = "#indirim #kozmetik #fırsat #makyaj #ciltbakımı #parfüm #trendyol"
@@ -66,6 +67,15 @@ class Settings(BaseSettings):
     @property
     def deals_exclude_word_list(self) -> list[str]:
         return [w.strip() for w in self.deals_exclude_words.split(",") if w.strip()]
+
+    @property
+    def deals_special_day_map(self) -> dict[str, str]:
+        days = {}
+        for item in self.deals_special_days.split(","):
+            day, _, label = item.partition("=")
+            if day.strip() and label.strip():
+                days[day.strip()] = label.strip()
+        return days
 
     @property
     def instagram_reel_hour_set(self) -> set[int]:

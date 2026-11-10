@@ -262,3 +262,20 @@ def test_check_setup_names_missing_instagram_settings():
 
     assert lines[1].startswith("HATA")
     assert "INSTAGRAM_USER_ID" in lines[1] and "IMAGE_HOST_REPO_DIR" in lines[1]
+
+
+def test_special_day_posts_use_the_day_label(db, tmp_path):
+    when = datetime(2026, 11, 11, 10, 0)
+    for i in range(4):
+        save_snapshot(db, ProductSnapshot(
+            platform="trendyol", platform_product_id=str(i), name=f"Ruj {i}", brand=f"M{i}",
+            category="kozmetik", product_url=f"https://www.trendyol.com/x-p-{i}",
+            image_url="https://cdn/x.jpg", price=50, original_price=100, discount_rate=0.5,
+            seller_name=None, seller_rating=4.5, in_stock=True, captured_at=when - timedelta(hours=7)))
+    ig = FakeInstagram()
+
+    run_once(db, _cfg(special_days={"11-11": "11.11"}), when, tmp_path / "out", host=FakeHost(),
+             instagram=ig, image_fetcher=lambda url: Image.new("RGB", (300, 300), "pink"),
+             wait_live=lambda urls: True)
+
+    assert ig.calls[0][1].startswith("11.11 kozmetik fırsatları · 11 Kasım")

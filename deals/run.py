@@ -45,6 +45,7 @@ class DealsConfig:
     font_dir: str
     category_caps: dict[str, int] = field(default_factory=dict)
     telegram_channel: str = ""
+    special_days: dict[str, str] = field(default_factory=dict)  # "11-11" → "11.11"
 
 
 @dataclass
@@ -88,9 +89,11 @@ def run_once(
         return RunResult("no_deals", deals)
 
     fonts = load_fonts(cfg.font_dir)
+    label = cfg.special_days.get(now.strftime("%m-%d"), "")
     batch = out_root / now.strftime("%Y%m%d-%H%M")
     cover = render_cover(deals, now, cfg.page_name, batch / "cover.jpg", fonts,
-                         cta="" if reel else "Kaydır →")
+                         cta="" if reel else "Kaydır →",
+                         title=f"{label.upper()} FIRSATLARI" if label else "")
     cards = [
         render_deal_card(d, image_fetcher(d.image_url), cfg.page_name, batch / f"{i}.jpg", fonts)
         for i, d in enumerate(deals, start=1)
@@ -119,7 +122,8 @@ def run_once(
 
     # TikTok'a elle yüklemek (ya da müzikli paylaşmak) için videoyu yöneticiye de gönder.
     if result.video is not None and share_video is not None:
-        share_video(result.video, video_caption(deals, now, cfg.telegram_channel, cfg.hashtags))
+        share_video(result.video, video_caption(deals, now, cfg.telegram_channel, cfg.hashtags,
+                                                label))
 
     if all(outcomes):
         result.status = "posted"
@@ -131,7 +135,8 @@ def run_once(
 
 
 def _post_instagram(conn, cfg, now, deals, result, host, instagram, wait_live, alert) -> bool:
-    caption = instagram_caption(deals, now, cfg.caption_footer, cfg.hashtags)
+    caption = instagram_caption(deals, now, cfg.caption_footer, cfg.hashtags,
+                                cfg.special_days.get(now.strftime("%m-%d"), ""))
     try:
         if result.video is not None:
             result.media_id = instagram.publish_reel(result.video, caption)
@@ -161,6 +166,7 @@ def _config_from_settings(settings) -> DealsConfig:
         font_dir=settings.deals_font_dir,
         category_caps=settings.deals_category_cap_map,
         telegram_channel=settings.telegram_channel_id,
+        special_days=settings.deals_special_day_map,
     )
 
 
