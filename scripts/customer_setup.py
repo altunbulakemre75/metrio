@@ -16,7 +16,7 @@ JSON şeması (non-interactive):
         "smtp_password": "",
         "categories": [
             "https://www.trendyol.com/kozmetik-x-c89",
-            "https://www.trendyol.com/parfum-x-c105"
+            "https://www.trendyol.com/parfum-x-c86"
         ],
         "overwrite": false
     }

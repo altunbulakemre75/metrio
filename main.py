@@ -50,12 +50,12 @@ _DEFAULT_CATEGORIES = [
     {
         "platform": "trendyol",
         "name": "parfum",
-        "url": "https://www.trendyol.com/parfum-x-c105",
+        "url": "https://www.trendyol.com/parfum-x-c86",
     },
     {
         "platform": "trendyol",
         "name": "vitamin",
-        "url": "https://www.trendyol.com/vitamin-ve-takviye-gida-x-c108713",
+        "url": "https://www.trendyol.com/gida-takviyeleri-vitaminler-x-c105085",
     },
     {
         "platform": "trendyol",

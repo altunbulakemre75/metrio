@@ -48,7 +48,8 @@ class Settings(BaseSettings):
     deals_category_caps: str = ""  # "canta:2" → paylaşım başına en fazla 2 çanta
     deals_special_days: str = ""  # "11-11=11.11" → o gün kapak "11.11 FIRSATLARI"
     deals_repeat_after_days: int = Field(default=14, ge=1)
-    deals_caption_footer: str = "Ürün linkleri Telegram kanalımızda, link bio'da."
+    deals_caption_footer: str = ("Ürün linkleri Telegram kanalımızda, link bio'da. "
+                                 "Kaçırmasın, arkadaşına gönder 👭")
     deals_hashtags: str = "#indirim #kozmetik #fırsat #makyaj #ciltbakımı #parfüm #trendyol"
     deals_font_dir: str = ""
     telegram_channel_id: str = ""
