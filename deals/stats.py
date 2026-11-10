@@ -22,6 +22,7 @@ _LABELS = {"telegram": ("Telegram", "abone"), "instagram": ("Instagram", "takip�
 # Günde bir kez çalışıyor; elle ikinci kez çalıştırılırsa yine dünle karşılaştırsın.
 _DAY_AGO = timedelta(hours=12)
 _WEEK_AGO = timedelta(days=6, hours=12)
+_POST_TYPES = {"VIDEO": "Reels", "CAROUSEL_ALBUM": "kaydırmalı", "IMAGE": "tek görsel"}
 
 
 def collect(conn: sqlite3.Connection, now: datetime,
@@ -44,7 +45,17 @@ def _change(now_value: int, before: int | None, label: str) -> str | None:
     return f"{now_value - before:+d} {label}"
 
 
-def daily_summary(conn: sqlite3.Connection, now: datetime) -> str:
+def reach_line(posts: list[tuple[str, int]]) -> str | None:
+    """Gönderi türüne göre ortalama erişim: hangi biçimin yeni kişilere ulaştığını gösterir."""
+    parts = []
+    for media_type, name in _POST_TYPES.items():
+        reaches = [reach for kind, reach in posts if kind == media_type]
+        if reaches:
+            parts.append(f"{name} {round(sum(reaches) / len(reaches))} ({len(reaches)} gönderi)")
+    return f"Son 7 gün ortalama erişim: {', '.join(parts)}" if parts else None
+
+
+def daily_summary(conn: sqlite3.Connection, now: datetime, reach: str | None = None) -> str:
     lines = [f"📊 Günlük takip · {turkish_date(now)}"]
     for channel, (name, unit) in _LABELS.items():
         current = get_account_stat_at(conn, channel, now)
@@ -58,6 +69,8 @@ def daily_summary(conn: sqlite3.Connection, now: datetime) -> str:
         if changes:
             line += f" ({', '.join(changes)})"
         lines.append(line)
+    if reach:
+        lines.append(reach)
     lines.append("TikTok'u uygulamadan kontrol et; Trendyol hedefi 10.000 takipçi.")
     return "\n".join(lines)
 
@@ -81,15 +94,20 @@ def main() -> int:
     if settings.telegram_bot_token and settings.telegram_channel_id:
         fetchers["telegram"] = partial(chat_member_count, settings.telegram_bot_token,
                                        settings.telegram_channel_id)
+    instagram = None
     if settings.instagram_enabled and settings.instagram_user_id:
-        def instagram_followers() -> int:
-            token = current_token(_TOKEN_STORE, settings.instagram_access_token, now)
-            client = InstagramClient(settings.instagram_user_id, token, settings.instagram_api_version)
-            return client.followers_count()
-        fetchers["instagram"] = instagram_followers
+        token = current_token(_TOKEN_STORE, settings.instagram_access_token, now)
+        instagram = InstagramClient(settings.instagram_user_id, token, settings.instagram_api_version)
+        fetchers["instagram"] = instagram.followers_count
 
     collect(conn, now, fetchers)
-    text = daily_summary(conn, now)
+    reach = None
+    if instagram is not None:
+        try:
+            reach = reach_line(instagram.media_reach(now.astimezone() - timedelta(days=7)))
+        except Exception as e:  # istatistik izni yoksa özet yine gitsin
+            log.warning(f"Instagram erişim sayıları alınamadı: {e}")
+    text = daily_summary(conn, now, reach)
     TelegramNotifier(settings.telegram_bot_token, settings.telegram_chat_id,
                      settings.telegram_enabled).send_text(text)
     print(text)

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -240,6 +240,27 @@ def test_facebook_system_token_is_used_as_is_without_refresh(tmp_path):
 def test_missing_token_is_an_error(tmp_path):
     with pytest.raises(InstagramError):
         current_token(tmp_path / "none.json", env_token="", now=NOW, refresher=lambda t: t)
+
+
+def test_media_reach_lists_reach_of_posts_since_given_time():
+    since = datetime(2026, 11, 9, 0, 0, tzinfo=timezone.utc)
+    reach = {"M2": 69, "M1": 1}
+
+    def fake_get(url, params=None, timeout=None):
+        if url == f"{FB_BASE}/IGID/media":
+            return _resp({"data": [
+                {"id": "M2", "media_type": "VIDEO", "timestamp": "2026-11-10T06:10:00+0000"},
+                {"id": "M1", "media_type": "CAROUSEL_ALBUM", "timestamp": "2026-11-09T07:01:00+0000"},
+                {"id": "M0", "media_type": "IMAGE", "timestamp": "2026-11-08T23:59:00+0000"},
+            ]})
+        media_id = url.rsplit("/", 2)[-2]
+        assert url.endswith("/insights") and params["metric"] == "reach"
+        return _resp({"data": [{"name": "reach", "values": [{"value": reach[media_id]}]}]})
+
+    with patch("deals.instagram.requests.get", fake_get):
+        result = InstagramClient("IGID", "EAAsys").media_reach(since)
+
+    assert result == [("VIDEO", 69), ("CAROUSEL_ALBUM", 1)]
 
 
 def test_followers_count_reads_the_account_node():

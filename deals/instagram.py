@@ -109,6 +109,18 @@ class InstagramClient:
     def followers_count(self) -> int:
         return int(self._get(self.user_id, {"fields": "followers_count"})["followers_count"])
 
+    def media_reach(self, since: datetime) -> list[tuple[str, int]]:
+        """`since` (saat dilimli) sonrası paylaşılan gönderilerin türü ve erişimi, yeniden eskiye."""
+        media = self._get(f"{self.user_id}/media",
+                          {"fields": "id,media_type,timestamp", "limit": 50}).get("data", [])
+        result = []
+        for item in media:
+            if datetime.strptime(item["timestamp"], "%Y-%m-%dT%H:%M:%S%z") < since:
+                continue
+            insights = self._get(f"{item['id']}/insights", {"metric": "reach"})["data"]
+            result.append((item["media_type"], int(insights[0]["values"][0]["value"])))
+        return result
+
     def publishing_limit(self) -> dict:
         return self._get(f"{self.user_id}/content_publishing_limit", {"fields": "quota_usage,config"})
 
