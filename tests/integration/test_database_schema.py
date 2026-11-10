@@ -52,7 +52,8 @@ def test_init_schema_idempotent():
         "SELECT name FROM sqlite_master WHERE type='table'"
     ).fetchall()
     table_names = [r[0] for r in rows if not r[0].startswith("sqlite_")]
-    assert set(table_names) == {"products", "price_snapshots", "run_stats", "posted_deals"}
+    assert set(table_names) == {"products", "price_snapshots", "run_stats", "posted_deals",
+                                "account_stats"}
 
 
 def test_connect_returns_connection(tmp_path):

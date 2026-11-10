@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import pytest
 import requests as _rq
 
 from analysis.anomaly import Anomaly
@@ -132,3 +133,23 @@ def test_send_video_uploads_mp4_with_caption(tmp_path):
     assert kwargs["data"] == {"chat_id": "123", "caption": "TikTok açıklaması",
                               "supports_streaming": "true"}
     assert kwargs["files"]["video"] == ("reel.mp4", b"mp4-bytes", "video/mp4")
+
+
+def test_chat_member_count_reads_channel_subscribers():
+    from notifications.telegram import chat_member_count
+
+    with patch("notifications.telegram.requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {"ok": True, "result": 42}
+        assert chat_member_count("TOK", "@kanal") == 42
+
+    assert mock_get.call_args.args[0].endswith("/botTOK/getChatMemberCount")
+    assert mock_get.call_args.kwargs["params"] == {"chat_id": "@kanal"}
+
+
+def test_chat_member_count_raises_on_telegram_error():
+    from notifications.telegram import chat_member_count
+
+    with patch("notifications.telegram.requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {"ok": False, "description": "chat not found"}
+        with pytest.raises(RuntimeError, match="chat not found"):
+            chat_member_count("TOK", "@kanal")

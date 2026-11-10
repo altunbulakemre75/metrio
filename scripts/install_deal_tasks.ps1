@@ -1,6 +1,7 @@
 # Firsat sayfasi zamanlanmis gorevleri.
 #   - "Metrio Daily Scrape" (03:00 tarama) acilir; firsatlar taze fiyattan secilir.
 #   - "Metrio Deals Post" her gun 10:00, 14:00, 19:00'da python -m deals.run calistirir.
+#   - "Metrio Deals Stats" her gun 21:30'da takipci sayilarini kaydeder.
 # Calistirma:  powershell -ExecutionPolicy Bypass -File scripts\install_deal_tasks.ps1
 # Yol "Yeni klasor" icindeki o harfi yuzunden .bat kullanilmiyor; pythonw.exe dogrudan cagriliyor.
 
@@ -35,3 +36,14 @@ $settings = New-ScheduledTaskSettingsSet -Hidden -AllowStartIfOnBatteries -DontS
 Register-ScheduledTask -TaskName $name -Action $action -Trigger $triggers -Settings $settings `
     -Description 'Firsat sayfasi: Instagram + Telegram kanali paylasimi (deals/run.py)' | Out-Null
 Write-Output "${name}: 10:00, 14:00, 19:00 kuruldu"
+
+# Gunluk takip: Telegram abone + Instagram takipci sayisi, ozet yonetici sohbetine (deals/stats.py).
+$statsName = 'Metrio Deals Stats'
+if (Get-ScheduledTask -TaskName $statsName -ErrorAction SilentlyContinue) {
+    Unregister-ScheduledTask -TaskName $statsName -Confirm:$false
+}
+$statsAction = New-ScheduledTaskAction -Execute $pythonw -Argument '-m deals.stats' -WorkingDirectory $root
+Register-ScheduledTask -TaskName $statsName -Action $statsAction `
+    -Trigger (New-ScheduledTaskTrigger -Daily -At '21:30') -Settings $settings `
+    -Description 'Firsat sayfasi: gunluk takipci/abone takibi (deals/stats.py)' | Out-Null
+Write-Output "${statsName}: her gun 21:30 kuruldu"

@@ -240,3 +240,12 @@ def test_facebook_system_token_is_used_as_is_without_refresh(tmp_path):
 def test_missing_token_is_an_error(tmp_path):
     with pytest.raises(InstagramError):
         current_token(tmp_path / "none.json", env_token="", now=NOW, refresher=lambda t: t)
+
+
+def test_followers_count_reads_the_account_node():
+    with patch("deals.instagram.requests.get",
+               return_value=_resp({"followers_count": 7, "id": "IGID"})) as get:
+        assert InstagramClient("IGID", "EAAsys").followers_count() == 7
+
+    assert get.call_args.args[0] == f"{FB_BASE}/IGID"
+    assert get.call_args.kwargs["params"]["fields"] == "followers_count"

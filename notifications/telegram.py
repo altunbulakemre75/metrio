@@ -93,3 +93,13 @@ def send_video(bot_token: str, chat_id: str, video_path: Path, caption: str) -> 
     if not resp.ok:
         log.warning(f"Telegram sendVideo rejected: {resp.text[:200]}")
     return bool(resp.ok)
+
+
+def chat_member_count(bot_token: str, chat_id: str) -> int:
+    """Kanal/grup üye sayısı (bot kanalda yönetici olmalı). Hata olursa RuntimeError."""
+    resp = requests.get(f"{_API_BASE}/bot{bot_token}/getChatMemberCount",
+                        params={"chat_id": chat_id}, timeout=15)
+    body = resp.json()
+    if not body.get("ok"):
+        raise RuntimeError(f"Telegram getChatMemberCount: {body.get('description')}")
+    return int(body["result"])

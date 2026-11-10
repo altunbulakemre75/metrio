@@ -9,6 +9,7 @@ Telegram kanalına (ürün başına fotoğraf + link) paylaşan sistem. Kod: `de
 |---|---|---|
 | 03:00 | Metrio Daily Scrape | Trendyol / Akakçe kategorilerini tarar |
 | 10:00, 14:00, 19:00 | Metrio Deals Post | `python -m deals.run` |
+| 21:30 | Metrio Deals Stats | `python -m deals.stats`: Telegram abone + Instagram takipçi sayısını kaydeder, özeti yönetici sohbetine gönderir |
 
 Her paylaşımda:
 

@@ -166,3 +166,22 @@ def get_recently_posted_product_ids(conn: sqlite3.Connection, since: datetime) -
         "SELECT DISTINCT product_id FROM posted_deals WHERE posted_at >= ?", (since,)
     ).fetchall()
     return {r[0] for r in rows}
+
+
+def record_account_stat(conn: sqlite3.Connection, channel: str, followers: int,
+                        captured_at: datetime) -> None:
+    conn.execute(
+        "INSERT INTO account_stats (channel, followers, captured_at) VALUES (?, ?, ?)",
+        (channel, followers, captured_at),
+    )
+    conn.commit()
+
+
+def get_account_stat_at(conn: sqlite3.Connection, channel: str, at: datetime) -> int | None:
+    """Bu andan önceki (ya da tam o anki) son takipçi sayısı; kayıt yoksa None."""
+    row = conn.execute(
+        "SELECT followers FROM account_stats WHERE channel = ? AND captured_at <= ? "
+        "ORDER BY captured_at DESC LIMIT 1",
+        (channel, at),
+    ).fetchone()
+    return row[0] if row else None

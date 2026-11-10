@@ -106,6 +106,9 @@ class InstagramClient:
             return {"user_id": node.get("id"), "username": node.get("username")}
         return self._get("me", {"fields": "user_id,username"})
 
+    def followers_count(self) -> int:
+        return int(self._get(self.user_id, {"fields": "followers_count"})["followers_count"])
+
     def publishing_limit(self) -> dict:
         return self._get(f"{self.user_id}/content_publishing_limit", {"fields": "quota_usage,config"})
 
