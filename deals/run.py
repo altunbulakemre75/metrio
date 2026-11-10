@@ -23,7 +23,7 @@ from deals.hosting import GitImageHost, HostingError, wait_until_live
 from deals.images import fetch_product_image
 from deals.instagram import InstagramClient, InstagramError, current_token
 from deals.selector import Deal, select_deals
-from deals.text import instagram_caption, telegram_caption
+from deals.text import instagram_caption, telegram_caption, video_caption
 from deals.video import VideoError, render_reel
 from storage.database import get_recently_posted_product_ids, record_posted_deals
 
@@ -44,6 +44,7 @@ class DealsConfig:
     hashtags: str
     font_dir: str
     category_caps: dict[str, int] = field(default_factory=dict)
+    telegram_channel: str = ""
 
 
 @dataclass
@@ -70,6 +71,7 @@ def run_once(
     max_age: timedelta = timedelta(hours=36),
     reel: bool = False,
     video_maker: Callable[[list[Path], Path], Path] = render_reel,
+    share_video: Callable[[Path, str], bool] | None = None,
 ) -> RunResult:
     def alert(text: str) -> None:
         if notify_admin:
@@ -115,6 +117,10 @@ def run_once(
         outcomes.append(_post_instagram(conn, cfg, now, deals, result, host, instagram,
                                         wait_live, alert))
 
+    # TikTok'a elle yüklemek (ya da müzikli paylaşmak) için videoyu yöneticiye de gönder.
+    if result.video is not None and share_video is not None:
+        share_video(result.video, video_caption(deals, now, cfg.telegram_channel, cfg.hashtags))
+
     if all(outcomes):
         result.status = "posted"
     elif any(outcomes):
@@ -154,6 +160,7 @@ def _config_from_settings(settings) -> DealsConfig:
         hashtags=settings.deals_hashtags,
         font_dir=settings.deals_font_dir,
         category_caps=settings.deals_category_cap_map,
+        telegram_channel=settings.telegram_channel_id,
     )
 
 
@@ -214,7 +221,7 @@ def check_setup(settings, now: datetime) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     from config import settings
-    from notifications.telegram import TelegramNotifier, send_photo
+    from notifications.telegram import TelegramNotifier, send_photo, send_video
     from storage.database import connect, init_schema
     from utils.logger import get_logger
 
@@ -242,8 +249,10 @@ def main(argv: list[str] | None = None) -> int:
     conn = connect(settings.database_path)
     init_schema(conn)
 
-    telegram_send = instagram = host = None
+    telegram_send = instagram = host = share_video = None
     if not args.dry_run:
+        if settings.telegram_bot_token and settings.telegram_chat_id:
+            share_video = partial(send_video, settings.telegram_bot_token, settings.telegram_chat_id)
         if settings.telegram_bot_token and settings.telegram_channel_id:
             telegram_send = partial(send_photo, settings.telegram_bot_token,
                                     settings.telegram_channel_id)
@@ -263,6 +272,7 @@ def main(argv: list[str] | None = None) -> int:
         notify_admin=admin.send_text if has_channel else None,
         max_age=timedelta(hours=args.max_age_hours),
         reel=args.reel or now.hour in settings.instagram_reel_hour_set,
+        share_video=share_video,
     )
     log.info(f"Fırsat paylaşımı: {result.status}, {len(result.deals)} fırsat, "
              f"kartlar: {result.files[0].parent if result.files else '-'}"

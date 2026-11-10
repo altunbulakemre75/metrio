@@ -194,6 +194,27 @@ def test_reel_run_posts_video_instead_of_carousel_without_image_hosting(db, tmp_
     assert [r[0] for r in refs] == ["REEL1"]
 
 
+def test_reel_video_is_also_sent_to_admin_for_tiktok(db, tmp_path):
+    _add_deals(db, 4)
+    shared = Recorder()
+
+    _run(db, tmp_path, instagram=FakeInstagram(), reel=True, video_maker=_fake_video,
+         share_video=shared)
+
+    video, caption = shared.calls[0]
+    assert video.name == "reel.mp4"
+    assert "#indirim" in caption
+
+
+def test_carousel_run_sends_no_video(db, tmp_path):
+    _add_deals(db, 4)
+    shared = Recorder()
+
+    _run(db, tmp_path, host=FakeHost(), instagram=FakeInstagram(), share_video=shared)
+
+    assert shared.calls == []
+
+
 def test_reel_run_without_channels_still_renders_the_video_for_preview(db, tmp_path):
     _add_deals(db, 4)
 

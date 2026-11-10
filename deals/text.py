@@ -77,9 +77,24 @@ def category_summary(deals: list[Deal]) -> str:
     return ", ".join(label for cat, label in _CATEGORY_LABELS.items() if cat in present)
 
 
-def instagram_caption(deals: list[Deal], when: datetime, footer: str, hashtags: str) -> str:
+def _headline(deals: list[Deal], when: datetime) -> str:
     topic = "kozmetik ve çanta" if any(d.category == "canta" for d in deals) else "kozmetik"
-    head = f"Günün {topic} fırsatları · {turkish_date(when)}"
+    return f"Günün {topic} fırsatları · {turkish_date(when)}"
+
+
+def video_caption(deals: list[Deal], when: datetime, channel: str, hashtags: str) -> str:
+    """TikTok gibi elle yüklenen video için kısa açıklama: ürün listesi yok, kanal adı var."""
+    lines = [_headline(deals, when),
+             f"Fiyatlar {turkish_date(when)} taramasına göredir, değişebilir."]
+    if channel:
+        lines.append(f"Ürün linkleri Telegram kanalımızda: {channel}")
+    if hashtags:
+        lines += ["", hashtags]
+    return "\n".join(lines)
+
+
+def instagram_caption(deals: list[Deal], when: datetime, footer: str, hashtags: str) -> str:
+    head = _headline(deals, when)
     tail = [f"Fiyatlar {turkish_date(when)} taramasına göredir, değişebilir."]
     if footer:
         tail.append(footer)

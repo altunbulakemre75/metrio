@@ -115,3 +115,20 @@ def test_send_text_reaches_admin_chat_when_enabled():
     with patch("notifications.telegram.requests.post") as mock_post:
         notifier.send_text("Instagram paylaşımı başarısız")
     assert mock_post.call_args.kwargs["json"] == {"chat_id": "CHT", "text": "Instagram paylaşımı başarısız"}
+
+
+def test_send_video_uploads_mp4_with_caption(tmp_path):
+    from notifications.telegram import send_video
+    video = tmp_path / "reel.mp4"
+    video.write_bytes(b"mp4-bytes")
+
+    with patch("notifications.telegram.requests.post") as mock_post:
+        mock_post.return_value.ok = True
+        ok = send_video("TOK", "123", video, "TikTok açıklaması")
+
+    assert ok is True
+    assert mock_post.call_args.args[0].endswith("/botTOK/sendVideo")
+    kwargs = mock_post.call_args.kwargs
+    assert kwargs["data"] == {"chat_id": "123", "caption": "TikTok açıklaması",
+                              "supports_streaming": "true"}
+    assert kwargs["files"]["video"] == ("reel.mp4", b"mp4-bytes", "video/mp4")

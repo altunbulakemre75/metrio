@@ -3,7 +3,8 @@ from datetime import datetime
 import pytest
 
 from deals.selector import Deal
-from deals.text import format_tl, instagram_caption, telegram_caption, turkish_date
+from deals.text import (format_tl, instagram_caption, telegram_caption, turkish_date,
+                        video_caption)
 
 
 def _deal(**kw) -> Deal:
@@ -110,3 +111,15 @@ def test_card_name_drops_repeated_brand_prefix():
     deal = _deal(name="SAINT DE LUMIERE LUMIWHITE Serum 8681234567890", brand="Saint De Lumiere")
     assert card_name(deal) == "LUMIWHITE Serum"
     assert card_name(_deal(name="Lip Master Ruj", brand="Pierre Cardin")) == "Lip Master Ruj"
+
+
+def test_video_caption_is_short_and_points_to_telegram_channel():
+    # TikTok'ta bio linki 1.000 takipçiye kadar yok; ürün listesi yerine kanal adı yazılır.
+    deals = [_deal(product_id=1), _deal(product_id=2, category="canta", name="Omuz Çantası")]
+
+    text = video_caption(deals, datetime(2026, 11, 10), "@kozmetikavcisi", "#indirim #kozmetik")
+
+    assert text.startswith("Günün kozmetik ve çanta fırsatları · 10 Kasım")
+    assert "Telegram kanalımızda: @kozmetikavcisi" in text
+    assert text.endswith("#indirim #kozmetik")
+    assert "Omuz Çantası" not in text and "bio" not in text

@@ -74,3 +74,22 @@ def send_photo(bot_token: str, chat_id: str, photo_path: Path, caption: str) -> 
     if not resp.ok:
         log.warning(f"Telegram sendPhoto rejected: {resp.text[:200]}")
     return bool(resp.ok)
+
+
+def send_video(bot_token: str, chat_id: str, video_path: Path, caption: str) -> bool:
+    """Sohbete MP4 + açıklama gönderir (Telegram'ın bot dosya sınırı 50 MB). Başarılıysa True."""
+    url = f"{_API_BASE}/bot{bot_token}/sendVideo"
+    try:
+        resp = requests.post(
+            url,
+            data={"chat_id": chat_id, "caption": caption[:_CAPTION_LIMIT],
+                  "supports_streaming": "true"},
+            files={"video": (video_path.name, video_path.read_bytes(), "video/mp4")},
+            timeout=120,
+        )
+    except requests.exceptions.RequestException as e:
+        log.warning(f"Telegram sendVideo failed: {e}")
+        return False
+    if not resp.ok:
+        log.warning(f"Telegram sendVideo rejected: {resp.text[:200]}")
+    return bool(resp.ok)

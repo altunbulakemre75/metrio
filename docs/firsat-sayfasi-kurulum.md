@@ -26,6 +26,8 @@ Her paylaşımda:
    kartlar ffmpeg ile 15 saniyelik 1080x1920 videoya çevrilir (`deals/video.py`) ve
    doğrudan Instagram'a yüklenir; GitHub reposu kullanılmaz. Video üretilemezse
    (ffmpeg yoksa) o paylaşım kaydırmalı olarak gider ve yöneticiye uyarı gelir.
+   Video, TikTok'a elle yüklemek için kısa bir açıklamayla yönetici sohbetine
+   (`TELEGRAM_CHAT_ID`) de gönderilir.
 5. Bir şey ters giderse yönetici Telegram sohbetine (`TELEGRAM_CHAT_ID`) uyarı gelir.
 
 Fırsat 3'ten azsa paylaşım yapılmaz (genelde gece taraması çalışmamıştır).
