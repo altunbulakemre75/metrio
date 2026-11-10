@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     deals_per_post: int = Field(default=5, ge=1, le=10)
     deals_min_discount: float = Field(default=0.30, gt=0, lt=1)
     deals_exclude_words: str = "deterjan,çamaşır,bulaşık,yumuşatıcı"
+    deals_category_caps: str = ""  # "canta:2" → paylaşım başına en fazla 2 çanta
     deals_repeat_after_days: int = Field(default=14, ge=1)
     deals_caption_footer: str = "Ürün linkleri Telegram kanalımızda, link bio'da."
     deals_hashtags: str = "#indirim #kozmetik #fırsat #makyaj #ciltbakımı #parfüm #trendyol"
@@ -64,6 +65,15 @@ class Settings(BaseSettings):
     @property
     def deals_exclude_word_list(self) -> list[str]:
         return [w.strip() for w in self.deals_exclude_words.split(",") if w.strip()]
+
+    @property
+    def deals_category_cap_map(self) -> dict[str, int]:
+        caps = {}
+        for item in self.deals_category_caps.split(","):
+            name, _, limit = item.partition(":")
+            if name.strip() and limit.strip():
+                caps[name.strip()] = int(limit)
+        return caps
 
 
 settings = Settings()

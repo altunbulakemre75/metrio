@@ -1,5 +1,10 @@
 import pytest
-from scrapers.trendyol import parse_price_text, parse_discount_rate
+from scrapers.trendyol import TrendyolScraper, parse_price_text, parse_discount_rate
+
+
+def test_womens_bag_category_url_is_named_canta():
+    url = "https://www.trendyol.com/kadin-canta-x-g1-c117"
+    assert TrendyolScraper()._infer_category_from_url(url) == "canta"
 
 
 def test_parse_price_simple():

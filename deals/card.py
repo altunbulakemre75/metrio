@@ -7,7 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 from deals.images import trim_white_border
 from deals.selector import Deal
-from deals.text import PLATFORM_NAMES, card_name, format_tl, product_title, turkish_date
+from deals.text import (PLATFORM_NAMES, card_name, category_summary, format_tl, product_title,
+                        turkish_date)
 
 CARD_SIZE = (1080, 1350)
 _MARGIN = 60
@@ -176,7 +177,7 @@ def render_cover(deals: list[Deal], when: datetime, page_name: str,
     draw.text((_MARGIN, 70), page_name, font=fonts.get("black", 40), fill=_INK, anchor="lm")
     draw.text((_MARGIN, 200), f"GÜNÜN {len(deals)} FIRSATI", font=fonts.get("black", 92),
               fill=_INK, anchor="lm")
-    draw.text((_MARGIN, 300), f"{turkish_date(when)} · kozmetik, parfüm, bakım",
+    draw.text((_MARGIN, 300), f"{turkish_date(when)} · {category_summary(deals)}",
               font=fonts.get("semibold", 38), fill=_INK, anchor="lm")
 
     y = 420

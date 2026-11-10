@@ -41,3 +41,10 @@ def test_deals_settings_have_safe_defaults(monkeypatch):
     assert settings.deals_category_list == ["kozmetik", "parfum"]
     assert settings.deals_exclude_word_list == ["deterjan", "çamaşır"]
     assert settings.deals_per_post == 5
+
+
+def test_deals_category_caps_parse_name_and_limit(monkeypatch):
+    monkeypatch.setenv("SCRAPER_USER_AGENT", "test-agent")
+    monkeypatch.setenv("DEALS_CATEGORY_CAPS", "canta:2, parfum:1")
+
+    assert Settings(_env_file=None).deals_category_cap_map == {"canta": 2, "parfum": 1}

@@ -67,6 +67,19 @@ def test_instagram_caption_numbers_deals_and_appends_footer_and_hashtags():
     assert caption.rstrip().endswith("#indirim #kozmetik")
 
 
+def test_instagram_caption_mentions_bags_when_a_bag_is_included():
+    caption = instagram_caption([_deal(), _deal(product_id=2, category="canta", name="Omuz Çantası")],
+                                when=datetime(2026, 11, 9), footer="", hashtags="")
+    assert caption.startswith("Günün kozmetik ve çanta fırsatları · 9 Kasım")
+
+
+def test_category_summary_lists_present_categories_in_fixed_order():
+    from deals.text import category_summary
+    deals = [_deal(category="canta"), _deal(category="kozmetik"), _deal(category="parfum"),
+             _deal(category="kozmetik")]
+    assert category_summary(deals) == "kozmetik, parfüm, çanta"
+
+
 def test_instagram_caption_stays_under_instagram_limit():
     long_name = "Çok Uzun Ürün Adı " * 40
     caption = instagram_caption(

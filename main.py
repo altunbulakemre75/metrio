@@ -56,6 +56,11 @@ _DEFAULT_CATEGORIES = [
         "url": "https://www.trendyol.com/vitamin-ve-takviye-gida-x-c108713",
     },
     {
+        "platform": "trendyol",
+        "name": "canta",
+        "url": "https://www.trendyol.com/kadin-canta-x-g1-c117",
+    },
+    {
         "platform": "akakce",
         "name": "parfum",
         "url": "https://www.akakce.com/parfum.html",

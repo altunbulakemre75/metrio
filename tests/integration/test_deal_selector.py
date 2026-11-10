@@ -56,6 +56,18 @@ def test_skips_stale_out_of_stock_and_other_category(db):
     assert _select(db) == []
 
 
+def test_category_cap_keeps_bags_from_crowding_out_cosmetics(db):
+    # Çantaların üstü çizili indirimi yüksek; sınır olmasa paylaşımın tamamı çanta olurdu.
+    for i in range(4):
+        _save(db, f"c{i}", 30, original=100, discount=0.70, category="canta")
+    for i in range(3):
+        _save(db, f"k{i}", 60, original=100, discount=0.40)
+
+    deals = _select(db, categories=["kozmetik", "canta"], category_caps={"canta": 2})
+
+    assert sorted(d.category for d in deals) == ["canta", "canta", "kozmetik", "kozmetik", "kozmetik"]
+
+
 def test_excludes_recently_posted_products(db):
     _save(db, "1", 50, original=100, discount=0.5)
     pid = db.execute("SELECT id FROM products").fetchone()["id"]

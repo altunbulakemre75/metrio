@@ -268,7 +268,7 @@ class TrendyolScraper(BaseScraper):
         url_lower = url.lower()
         known = [
             "kozmetik", "elektronik", "giyim", "ev-yasam", "kitap",
-            "cep-telefonu", "parfum", "makyaj", "cilt-bakimi", "vitamin",
+            "cep-telefonu", "parfum", "makyaj", "cilt-bakimi", "vitamin", "canta",
         ]
         for k in known:
             if k in url_lower:

@@ -8,6 +8,9 @@ _MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
            "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
 PLATFORM_NAMES = {"trendyol": "Trendyol", "akakce": "Akakçe", "n11": "N11",
                   "hepsiburada": "Hepsiburada"}
+# Kapakta ve açıklamada görünen sıra.
+_CATEGORY_LABELS = {"kozmetik": "kozmetik", "cilt-bakimi": "bakım", "parfum": "parfüm",
+                    "vitamin": "vitamin", "canta": "çanta"}
 _INSTAGRAM_CAPTION_LIMIT = 2200
 _MAX_NAME_IN_CAPTION = 70
 # Trendyol satıcıları ada barkod (EAN, 8-14 hane) ekliyor; ml/renk kodları kısa kalır.
@@ -68,8 +71,15 @@ def telegram_caption(deal: Deal) -> str:
     return "\n".join(lines)
 
 
+def category_summary(deals: list[Deal]) -> str:
+    """Paylaşımdaki kategoriler, sabit sırada: 'kozmetik, parfüm, çanta'."""
+    present = {d.category for d in deals}
+    return ", ".join(label for cat, label in _CATEGORY_LABELS.items() if cat in present)
+
+
 def instagram_caption(deals: list[Deal], when: datetime, footer: str, hashtags: str) -> str:
-    head = f"Günün kozmetik fırsatları · {turkish_date(when)}"
+    topic = "kozmetik ve çanta" if any(d.category == "canta" for d in deals) else "kozmetik"
+    head = f"Günün {topic} fırsatları · {turkish_date(when)}"
     tail = [f"Fiyatlar {turkish_date(when)} taramasına göredir, değişebilir."]
     if footer:
         tail.append(footer)

@@ -49,6 +49,7 @@ def select_deals(
     max_age: timedelta = timedelta(hours=36),
     max_per_brand: int = 2,
     exclude_words: list[str] | tuple[str, ...] = (),
+    category_caps: dict[str, int] | None = None,
 ) -> list[Deal]:
     placeholders = ",".join("?" * len(categories))
     rows = conn.execute(
@@ -99,13 +100,18 @@ def select_deals(
 
     candidates.sort(key=lambda d: (d.score, d.rating or 0), reverse=True)
 
+    caps = category_caps or {}
     picked: list[Deal] = []
     per_brand: dict[str, int] = {}
+    per_category: dict[str, int] = {}
     for deal in candidates:
         key = (deal.brand or f"#{deal.product_id}").casefold()
         if per_brand.get(key, 0) >= max_per_brand:
             continue
+        if deal.category in caps and per_category.get(deal.category, 0) >= caps[deal.category]:
+            continue
         per_brand[key] = per_brand.get(key, 0) + 1
+        per_category[deal.category] = per_category.get(deal.category, 0) + 1
         picked.append(deal)
         if len(picked) == limit:
             break

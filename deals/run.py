@@ -41,6 +41,7 @@ class DealsConfig:
     caption_footer: str
     hashtags: str
     font_dir: str
+    category_caps: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -73,6 +74,7 @@ def run_once(
         conn, cfg.categories, now, limit=cfg.per_post,
         exclude_ids=get_recently_posted_product_ids(conn, since=now - cfg.repeat_after),
         min_discount=cfg.min_discount, exclude_words=cfg.exclude_words, max_age=max_age,
+        category_caps=cfg.category_caps,
     )
     if len(deals) < _MIN_DEALS:
         alert(f"yalnızca {len(deals)} fırsat bulundu, paylaşım yapılmadı. Gece taraması çalışıyor mu?")
@@ -137,6 +139,7 @@ def _config_from_settings(settings) -> DealsConfig:
         caption_footer=settings.deals_caption_footer,
         hashtags=settings.deals_hashtags,
         font_dir=settings.deals_font_dir,
+        category_caps=settings.deals_category_cap_map,
     )
 
 

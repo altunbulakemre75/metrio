@@ -100,7 +100,8 @@ Gerçek paylaşım. Sonrası otomatik (10:00 / 14:00 / 19:00).
 | Ayar | Varsayılan | Anlamı |
 |---|---|---|
 | `DEALS_PAGE_NAME` | Fırsat Radarı | Kartlardaki sayfa adı |
-| `DEALS_CATEGORIES` | kozmetik,parfum,vitamin,cilt-bakimi | Taranan kategori adları |
+| `DEALS_CATEGORIES` | kozmetik,parfum,vitamin,cilt-bakimi | Taranan kategori adları (`.env`'de `canta` da var) |
+| `DEALS_CATEGORY_CAPS` | (boş) | Paylaşım başına kategori sınırı, örn. `canta:2` |
 | `DEALS_PER_POST` | 5 | Paylaşım başına ürün |
 | `DEALS_MIN_DISCOUNT` | 0.30 | En düşük indirim oranı |
 | `DEALS_EXCLUDE_WORDS` | deterjan,çamaşır,bulaşık,yumuşatıcı | Ada göre elenen ürünler |
