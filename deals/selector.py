@@ -1,11 +1,14 @@
 """Günün paylaşılacak fırsatlarını seçer."""
 import sqlite3
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 # "Son 30 günün en düşük fiyatı" demek için en az bu kadar eski kayıt gerekli.
 _MIN_HISTORY_FOR_LOW = 5
 _LOW_BONUS = 0.25
+# Tanınan marka (La Roche-Posay, Guess…) adı bilinmeyen markanın biraz daha büyük indiriminin önüne geçer.
+_BRAND_BONUS = 0.2
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,7 @@ def select_deals(
     max_per_brand: int = 2,
     exclude_words: list[str] | tuple[str, ...] = (),
     category_caps: dict[str, int] | None = None,
+    preferred_brands: list[str] | tuple[str, ...] = (),
 ) -> list[Deal]:
     placeholders = ",".join("?" * len(categories))
     rows = conn.execute(
@@ -98,7 +102,13 @@ def select_deals(
         if (deal.discount_rate or 0) >= min_discount or (deal.drop_rate or 0) >= min_drop:
             candidates.append(deal)
 
-    candidates.sort(key=lambda d: (d.score, d.rating or 0), reverse=True)
+    known = {_brand_key(b) for b in preferred_brands}
+
+    def rank(d: Deal) -> tuple[float, float]:
+        bonus = _BRAND_BONUS if d.brand and _brand_key(d.brand) in known else 0.0
+        return d.score + bonus, d.rating or 0
+
+    candidates.sort(key=rank, reverse=True)
 
     caps = category_caps or {}
     picked: list[Deal] = []
@@ -116,3 +126,9 @@ def select_deals(
         if len(picked) == limit:
             break
     return picked
+
+
+def _brand_key(brand: str) -> str:
+    """"L'ORÉAL PARIS", "L'Oreal Paris" ve "CALLİEL"/"Calliel" aynı anahtara iner."""
+    decomposed = unicodedata.normalize("NFKD", brand.casefold())
+    return "".join(ch for ch in decomposed if not unicodedata.combining(ch)).strip()

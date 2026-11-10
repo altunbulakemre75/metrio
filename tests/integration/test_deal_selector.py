@@ -129,3 +129,21 @@ def test_skips_off_topic_products_by_name_keyword(db):
     ))
 
     assert _ids(_select(db, exclude_words=["deterjan"])) == ["Urun 1"]
+
+
+def test_known_brand_outranks_a_slightly_bigger_discount_from_an_unknown_brand(db):
+    _save(db, "1", 55, original=100, discount=0.45, brand="Bilinmeyen Kozmetik")
+    _save(db, "2", 65, original=100, discount=0.35, brand="LA ROCHE-POSAY")
+
+    plain = _select(db, limit=1)
+    preferred = _select(db, limit=1, preferred_brands=["La Roche-Posay"])
+
+    assert _ids(plain) == ["Urun 1"]
+    assert _ids(preferred) == ["Urun 2"]
+
+
+def test_known_brand_matching_ignores_accents_and_turkish_dots(db):
+    _save(db, "1", 55, original=100, discount=0.45, brand="Bilinmeyen")
+    _save(db, "2", 65, original=100, discount=0.35, brand="L'OREAL PARIS")
+
+    assert _ids(_select(db, limit=1, preferred_brands=["L'Oréal Paris"])) == ["Urun 2"]

@@ -279,3 +279,14 @@ def test_special_day_posts_use_the_day_label(db, tmp_path):
              wait_live=lambda urls: True)
 
     assert ig.calls[0][1].startswith("11.11 kozmetik fırsatları · 11 Kasım")
+
+
+def test_preferred_brands_reach_the_selection(db, tmp_path):
+    _add_deals(db, 4)  # hepsi %50; eşitlikte ilk üçü seçilirdi
+    ig = FakeInstagram()
+
+    run_once(db, _cfg(per_post=3, preferred_brands=["Marka3"]), NOW, tmp_path / "out",
+             host=FakeHost(), instagram=ig, image_fetcher=lambda url: Image.new("RGB", (300, 300)),
+             wait_live=lambda urls: True)
+
+    assert "Ruj 3" in ig.calls[0][1]

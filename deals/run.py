@@ -18,6 +18,7 @@ from pathlib import Path
 
 from PIL import Image
 
+from deals.brands import PREFERRED_BRANDS
 from deals.card import load_fonts, render_cover, render_deal_card
 from deals.hosting import GitImageHost, HostingError, wait_until_live
 from deals.images import fetch_product_image
@@ -46,6 +47,7 @@ class DealsConfig:
     category_caps: dict[str, int] = field(default_factory=dict)
     telegram_channel: str = ""
     special_days: dict[str, str] = field(default_factory=dict)  # "11-11" → "11.11"
+    preferred_brands: tuple[str, ...] = ()
 
 
 @dataclass
@@ -82,7 +84,7 @@ def run_once(
         conn, cfg.categories, now, limit=cfg.per_post,
         exclude_ids=get_recently_posted_product_ids(conn, since=now - cfg.repeat_after),
         min_discount=cfg.min_discount, exclude_words=cfg.exclude_words, max_age=max_age,
-        category_caps=cfg.category_caps,
+        category_caps=cfg.category_caps, preferred_brands=cfg.preferred_brands,
     )
     if len(deals) < _MIN_DEALS:
         alert(f"yalnızca {len(deals)} fırsat bulundu, paylaşım yapılmadı. Gece taraması çalışıyor mu?")
@@ -167,6 +169,7 @@ def _config_from_settings(settings) -> DealsConfig:
         category_caps=settings.deals_category_cap_map,
         telegram_channel=settings.telegram_channel_id,
         special_days=settings.deals_special_day_map,
+        preferred_brands=PREFERRED_BRANDS,
     )
 
 
