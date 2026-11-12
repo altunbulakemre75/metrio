@@ -5,7 +5,7 @@ import pytest
 from PIL import Image
 
 from deals.card import CARD_SIZE, load_fonts
-from deals.story import pick_story, render_story_cards, story_caption, verdict_lines
+from deals.story import chart_bars, pick_story, render_story_cards, story_caption, verdict_lines
 from storage.database import init_schema, save_snapshot
 from storage.models import ProductSnapshot
 
@@ -99,3 +99,16 @@ def test_story_renders_three_cards_and_a_caption(db, tmp_path):
     assert caption.startswith("Bu indirim gerçek mi? CeraVe Krem 1")
     assert "Nisan'da 657 TL'ydi, bugün 397 TL." in caption
     assert "@cerave" not in caption and caption.endswith("#indirim")
+
+
+def test_chart_compares_first_record_with_today(db):
+    _history(db, 1, [657, 640, 650, 397])
+
+    assert chart_bars(pick_story(db, NOW)) == [("Nisan 2026", 657, "then"), ("Bugün", 397, "now")]
+
+
+def test_chart_shows_label_price_when_the_discount_is_not_real(db):
+    _history(db, 1, [1139.81, 1150, 1187.21, 1175.93], original=1679.9)
+
+    assert [label for label, _, _ in chart_bars(pick_story(db, NOW))] == [
+        "Nisan 2026", "Etikette", "Bugün"]

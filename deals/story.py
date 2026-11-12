@@ -5,7 +5,7 @@ Kullanım:
     python -m deals.story --dry-run    # sadece kartları ve videoyu üret (data/deals/gercekmi-…)
 
 Video elle paylaşılır (müzik uygulamadan eklenir). Hüküm yalnızca kendi kayıtlarımıza
-dayanır; aradaki boşluklar grafikte kesik çizgiyle gösterilir.
+dayanır; grafik ilk kaydı, varsa etiket fiyatını ve bugünü yan yana çubukla gösterir.
 """
 import argparse
 import io
@@ -29,7 +29,6 @@ _MIN_SPAN = timedelta(days=60)
 _MIN_DAYS = 4
 _REAL_DROP = 0.15       # ilk kayda göre en az bu kadar ucuzsa "gerçek"
 _LABEL_DISCOUNT = 0.20  # etiket en az bu kadar indirim iddia ediyorsa incelenir
-_GAP = timedelta(days=30)
 # Tek ürünlük videoda tanınan marka, adı bilinmeyen markanın daha büyük farkından değerli.
 _BRAND_BONUS = 0.5
 _RED = (190, 50, 40)
@@ -155,15 +154,6 @@ def _header(draw, page_name: str, fonts: Fonts) -> None:
               font=fonts.get("semibold", 32), fill=_MUTED, anchor="rm")
 
 
-def _dashed(draw, a, b, fill, width: int, dash: int = 14) -> None:
-    (x1, y1), (x2, y2) = a, b
-    length = max(1.0, ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5)
-    for i in range(0, int(length), dash * 2):
-        s, e = i / length, min(1.0, (i + dash) / length)
-        draw.line((x1 + (x2 - x1) * s, y1 + (y2 - y1) * s, x1 + (x2 - x1) * e, y1 + (y2 - y1) * e),
-                  fill=fill, width=width)
-
-
 def _hook_card(story: PriceStory, photo, page_name: str, out: Path, fonts: Fonts) -> Path:
     img = Image.new("RGB", CARD_SIZE, _BG)
     draw = ImageDraw.Draw(img)
@@ -190,49 +180,49 @@ def _hook_card(story: PriceStory, photo, page_name: str, out: Path, fonts: Fonts
     return _save(img, out)
 
 
+def chart_bars(story: PriceStory) -> list[tuple[str, float, str]]:
+    """Grafikteki çubuklar (etiket, fiyat, rol): ilk kayıt, varsa etiket fiyatı, bugün."""
+    month = story.points[0][0]
+    bars = [(f"{_MONTHS[month.month - 1]} {month.year}", story.first_price, "then")]
+    if story.verdict == "not_real" and story.original_price:
+        bars.append(("Etikette", story.original_price, "label"))
+    bars.append(("Bugün", story.price, "now"))
+    return bars
+
+
 def _chart_card(story: PriceStory, page_name: str, out: Path, fonts: Fonts) -> Path:
     img = Image.new("RGB", CARD_SIZE, _BG)
     draw = ImageDraw.Draw(img)
     width = CARD_SIZE[0]
     _header(draw, page_name, fonts)
-    draw.text((_MARGIN, 190), "FİYAT GEÇMİŞİ", font=fonts.get("black", 76), fill=_INK, anchor="lm")
-    draw.text((_MARGIN, 270), "Kendi kayıtlarımız, Trendyol", font=fonts.get("regular", 34),
+    draw.text((_MARGIN, 190), "FİYAT KARŞILAŞTIRMASI", font=fonts.get("black", 68), fill=_INK,
+              anchor="lm")
+    draw.text((_MARGIN, 265), "Kendi kayıtlarımız, Trendyol", font=fonts.get("regular", 34),
               fill=_MUTED, anchor="lm")
+    draw.rounded_rectangle((_MARGIN, 330, width - _MARGIN, 1200), radius=36, fill=_WHITE)
 
-    left, top, right, bottom = _MARGIN + 30, 430, width - _MARGIN - 30, 1050
-    draw.rounded_rectangle((_MARGIN, 340, width - _MARGIN, 1160), radius=36, fill=_WHITE)
-    prices = [p for _, p in story.points]
-    low, high = min(prices), max(prices)
-    spread = (high - low) or 1.0
-    start, end = story.points[0][0], story.points[-1][0]
-    total = (end - start).total_seconds() or 1.0
-
-    def xy(when: datetime, price: float) -> tuple[float, float]:
-        return (left + (right - left) * (when - start).total_seconds() / total,
-                bottom - (bottom - top) * (price - low) / spread)
-
-    color = _GREEN if story.verdict == "real" else _RED
-    dots = [xy(w, p) for w, p in story.points]
-    for (a, b), ((wa, _), (wb, _)) in zip(zip(dots, dots[1:]), zip(story.points, story.points[1:])):
-        if wb - wa > _GAP:  # arada kayıt yok: düz çizgi veri varmış gibi göstermesin
-            _dashed(draw, a, b, _MUTED, 5)
-        else:
-            draw.line((*a, *b), fill=color, width=8)
-    for x, y in dots:
-        draw.ellipse((x - 9, y - 9, x + 9, y + 9), fill=color)
-    fx, fy = dots[0]
-    lx, ly = dots[-1]
-    draw.ellipse((lx - 18, ly - 18, lx + 18, ly + 18), fill=color, outline=_WHITE, width=5)
-    tag = fonts.get("bold", 40)
-    draw.text((fx, fy - 30), format_tl(story.first_price), font=tag, fill=_INK, anchor="lb")
-    draw.text((lx, ly - 34), format_tl(story.price), font=tag, fill=color, anchor="rb")
-    axis = fonts.get("semibold", 34)
-    draw.text((left, 1105), f"{_MONTHS[start.month - 1]} {start.year}", font=axis,
-              fill=_MUTED, anchor="lm")
-    draw.text((right, 1105), "Bugün", font=axis, fill=_MUTED, anchor="rm")
-    if any(wb - wa > _GAP for (wa, _), (wb, _) in zip(story.points, story.points[1:])):
-        draw.text((_MARGIN, 1215), "Kesik çizgi: o aralıkta kayıt yok.",
-                  font=fonts.get("regular", 30), fill=_MUTED, anchor="lm")
+    bars = chart_bars(story)
+    top, base = 470, 1080  # ölçek sıfırdan başlıyor: çubuk boyları fiyatla orantılı
+    highest = max(price for _, price, _ in bars)
+    slot = (width - 2 * _MARGIN - 80) / len(bars)
+    bar_width = min(220, slot * 0.62)
+    now_color = _GREEN if story.verdict == "real" else _RED
+    colors = {"then": _MUTED, "label": (200, 192, 184), "now": now_color}
+    value_font, label_font = fonts.get("black", 46), fonts.get("semibold", 36)
+    for i, (label, price, role) in enumerate(bars):
+        cx = _MARGIN + 40 + slot * (i + 0.5)
+        y = base - (base - top) * price / highest
+        draw.rounded_rectangle((cx - bar_width / 2, y, cx + bar_width / 2, base), radius=18,
+                               fill=colors[role])
+        draw.text((cx, y - 18), format_tl(price), font=value_font,
+                  fill=now_color if role == "now" else _INK, anchor="mb")
+        draw.text((cx, base + 50), label, font=label_font, fill=_INK, anchor="mm")
+    draw.line((_MARGIN + 40, base, width - _MARGIN - 40, base), fill=_MUTED, width=3)
+    if story.verdict == "real":
+        note = f"%{(1 - story.price / story.first_price) * 100:.0f} daha ucuz"
+    else:
+        note = "Etiketteki indirim, aylar önceki fiyata göre yok"
+    draw.text((width // 2, 1270), note, font=fonts.get("bold", 40), fill=now_color, anchor="mm")
     return _save(img, out)
 
 
