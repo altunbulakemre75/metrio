@@ -41,7 +41,7 @@ class Settings(BaseSettings):
 
     # Kozmetik indirim sayfası (deals/) — Instagram + Telegram kanalı
     deals_page_name: str = "Fırsat Radarı"
-    deals_categories: str = "kozmetik,parfum,vitamin,cilt-bakimi"
+    deals_categories: str = "kozmetik,makyaj,cilt-bakimi,sac-bakimi,parfum,vitamin"
     deals_per_post: int = Field(default=5, ge=1, le=10)
     deals_min_discount: float = Field(default=0.30, gt=0, lt=1)
     deals_exclude_words: str = "deterjan,çamaşır,bulaşık,yumuşatıcı"
@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     deals_repeat_after_days: int = Field(default=14, ge=1)
     deals_caption_footer: str = ("Ürün linkleri Telegram kanalımızda, link bio'da. "
                                  "Kaçırmasın, arkadaşına gönder 👭")
-    deals_hashtags: str = "#indirim #kozmetik #fırsat #makyaj #ciltbakımı #parfüm #trendyol"
+    deals_hashtags: str = "#indirim #kozmetik #makyaj #ciltbakımı #trendyol"  # Instagram ve TikTok en fazla 5 kabul ediyor
     deals_font_dir: str = ""
     telegram_channel_id: str = ""
     instagram_enabled: bool = False

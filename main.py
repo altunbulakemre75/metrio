@@ -59,6 +59,21 @@ _DEFAULT_CATEGORIES = [
     },
     {
         "platform": "trendyol",
+        "name": "makyaj",
+        "url": "https://www.trendyol.com/makyaj-x-c100",
+    },
+    {
+        "platform": "trendyol",
+        "name": "cilt-bakimi",
+        "url": "https://www.trendyol.com/cilt-bakimi-x-c85",
+    },
+    {
+        "platform": "trendyol",
+        "name": "sac-bakimi",
+        "url": "https://www.trendyol.com/sac-bakimi-x-c87",
+    },
+    {
+        "platform": "trendyol",
         "name": "canta",
         "url": "https://www.trendyol.com/kadin-canta-x-g1-c117",
     },
@@ -69,24 +84,11 @@ _DEFAULT_CATEGORIES = [
     },
     {
         "platform": "akakce",
-        "name": "cilt-bakimi",
-        "url": "https://www.akakce.com/cilt-bakim.html",
-    },
-    {
-        "platform": "akakce",
         "name": "cep-telefonu",
         "url": "https://www.akakce.com/cep-telefonu.html",
     },
-    {
-        "platform": "n11",
-        "name": "kozmetik",
-        "url": "https://www.n11.com/kozmetik",
-    },
-    {
-        "platform": "n11",
-        "name": "parfum",
-        "url": "https://www.n11.com/parfum",
-    },
+    # n11 ve Akakçe cilt bakımı taramaları haftalardır 0 ürün dönüyordu; fırsatların tamamı
+    # Trendyol'dan geldiği için kapatıldı (scraper kodu duruyor).
 ]
 
 

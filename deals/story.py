@@ -24,7 +24,7 @@ from deals.images import trim_white_border
 from deals.text import _MONTHS, clean_name, format_tl
 
 STORY_CHANNEL = "story"
-_CATEGORIES = ("kozmetik", "parfum", "cilt-bakimi")
+_CATEGORIES = ("kozmetik", "makyaj", "cilt-bakimi", "sac-bakimi", "parfum")
 _MIN_SPAN = timedelta(days=60)
 _MIN_DAYS = 4
 _REAL_DROP = 0.15       # ilk kayda göre en az bu kadar ucuzsa "gerçek"
@@ -118,7 +118,7 @@ def pick_story(conn: sqlite3.Connection, now: datetime, *, exclude_ids: set[int]
     products = conn.execute(
         """SELECT p.id, p.name, p.brand, p.product_url, p.image_url
             FROM products p JOIN price_snapshots s ON s.product_id = p.id
-            WHERE p.platform = 'trendyol' AND p.category IN (?, ?, ?)
+            WHERE p.platform = 'trendyol' AND p.category IN (?, ?, ?, ?, ?)
             GROUP BY p.id
             HAVING MIN(s.captured_at) <= ? AND MAX(s.captured_at) >= ?""",
         (*_CATEGORIES, now - _MIN_SPAN, now - max_age),

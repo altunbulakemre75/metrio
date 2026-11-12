@@ -10,8 +10,9 @@ _MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
 PLATFORM_NAMES = {"trendyol": "Trendyol", "akakce": "Akakçe", "n11": "N11",
                   "hepsiburada": "Hepsiburada"}
 # Kapakta ve açıklamada görünen sıra.
-_CATEGORY_LABELS = {"kozmetik": "kozmetik", "cilt-bakimi": "bakım", "parfum": "parfüm",
-                    "vitamin": "vitamin", "canta": "çanta"}
+_CATEGORY_LABELS = {"kozmetik": "kozmetik", "makyaj": "makyaj", "cilt-bakimi": "bakım",
+                    "sac-bakimi": "saç bakımı", "parfum": "parfüm", "vitamin": "vitamin",
+                    "canta": "çanta"}
 _INSTAGRAM_CAPTION_LIMIT = 2200
 _MAX_NAME_IN_CAPTION = 70
 # Trendyol satıcıları ada barkod (EAN, 8-14 hane) ekliyor; ml/renk kodları kısa kalır.
