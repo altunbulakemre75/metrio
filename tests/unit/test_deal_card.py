@@ -5,7 +5,8 @@ from unittest.mock import patch
 import requests
 from PIL import Image
 
-from deals.card import CARD_SIZE, headline_rate, load_fonts, render_cover, render_deal_card
+from deals.card import (CARD_SIZE, headline_rate, load_fonts, render_cover, render_deal_card,
+                        render_outro)
 from deals.images import fetch_product_image, full_size_url, trim_white_border
 from deals.selector import Deal
 
@@ -113,3 +114,20 @@ def test_small_real_drop_does_not_hide_a_big_discount_on_the_tag():
 def test_meaningful_real_drop_is_shown_on_the_tag():
     rate, label = headline_rate(_deal(price=66.0, previous_price=100.0, discount_rate=0.5))
     assert label == "DÜŞTÜ" and round(rate, 2) == 0.34
+
+
+def test_numbered_card_shows_its_number_for_comment_replies(tmp_path):
+    # Açıklama "Hangisini alırdın? 1'den 5'e yaz" diyor; kartta numara görünmeli.
+    photo = Image.new("RGB", (300, 300), "pink")
+    numbered = render_deal_card(_deal(), photo, "Kozmetik Avcısı", tmp_path / "n.jpg",
+                                load_fonts(""), index=3)
+    plain = render_deal_card(_deal(), photo, "Kozmetik Avcısı", tmp_path / "p.jpg", load_fonts(""))
+
+    assert sum(Image.open(numbered).getpixel((908, 190))) < 150
+    assert sum(Image.open(plain).getpixel((908, 190))) > 600
+
+
+def test_outro_card_asks_to_follow(tmp_path):
+    out = render_outro("Kozmetik Avcısı", "@kozmetikavcisi", tmp_path / "outro.jpg", load_fonts(""))
+
+    _assert_instagram_jpeg(out)

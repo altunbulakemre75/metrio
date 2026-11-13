@@ -9,8 +9,8 @@ import subprocess
 from pathlib import Path
 
 REEL_SIZE = (1080, 1920)
-CARD_SECONDS = 3.0
-FADE_SECONDS = 0.5
+CARD_SECONDS = 1.8  # TikTok'ta sonuna kadar izlenen kısa video öne çıkıyor
+FADE_SECONDS = 0.3
 _CARD_TOP = 160
 _BG = "0xF6F1EA"  # kartların zemin rengi
 _FPS = 30

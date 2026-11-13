@@ -19,7 +19,7 @@ from pathlib import Path
 from PIL import Image
 
 from deals.brands import PREFERRED_BRANDS
-from deals.card import load_fonts, render_cover, render_deal_card
+from deals.card import load_fonts, render_cover, render_deal_card, render_outro
 from deals.hosting import GitImageHost, HostingError, wait_until_live
 from deals.images import fetch_product_image
 from deals.instagram import InstagramClient, InstagramError, current_token
@@ -80,6 +80,7 @@ def run_once(
     video_maker: Callable[[list[Path], Path], Path] = render_reel,
     share_video: Callable[[Path, str], bool] | None = None,
     share_text: Callable[[str], None] | None = None,
+    share_album: Callable[[list[Path], str], bool] | None = None,
 ) -> RunResult:
     def alert(text: str) -> None:
         if notify_admin:
@@ -102,13 +103,19 @@ def run_once(
                          cta="" if reel else "Kaydır →",
                          title=f"{label.upper()} FIRSATLARI" if label else "")
     cards = [
-        render_deal_card(d, image_fetcher(d.image_url), cfg.page_name, batch / f"{i}.jpg", fonts)
+        render_deal_card(d, image_fetcher(d.image_url), cfg.page_name, batch / f"{i}.jpg", fonts,
+                         index=i if reel else None)
         for i, d in enumerate(deals, start=1)
     ]
     result = RunResult("rendered", deals, [cover, *cards])
+    frames: list[Path] = []
     if reel:
+        # Video en iyi fırsatla açılır (ilk saniyede kaydırılmasın), takip kartıyla biter.
+        # Kapak yalnızca kaydırmalı gönderide kalır.
+        frames = [*cards, render_outro(cfg.page_name, cfg.telegram_channel, batch / "outro.jpg",
+                                       fonts)]
         try:
-            result.video = video_maker(result.files, batch / "reel.mp4")
+            result.video = video_maker(frames, batch / "reel.mp4")
         except VideoError as e:
             alert(f"Reels videosu üretilemedi, kaydırmalı gönderi atılıyor: {e}")
     if telegram_send is None and instagram is None:
@@ -135,6 +142,9 @@ def run_once(
         if not share_video(result.video, video_caption(deals, now, cfg.telegram_channel,
                                                        cfg.hashtags, label, tiktok_mentions(deals))):
             alert("video yönetici sohbetine gönderilemedi; dosya: " + str(result.video))
+        if share_album is not None:
+            share_album(frames, "📸 TikTok fotoğraf modu: aynı kartlar. TikTok'ta 'Fotoğraf' "
+                                "seçip aynı şarkı ve videodaki açıklamayla yükle.")
         if manual and share_text is not None:
             share_text(_instagram_caption(cfg, now, deals))
 
@@ -257,7 +267,7 @@ def check_setup(settings, now: datetime) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     from config import settings
-    from notifications.telegram import TelegramNotifier, send_photo, send_video
+    from notifications.telegram import TelegramNotifier, send_media_group, send_photo, send_video
     from storage.database import connect, init_schema
     from utils.logger import get_logger
 
@@ -285,10 +295,12 @@ def main(argv: list[str] | None = None) -> int:
     conn = connect(settings.database_path)
     init_schema(conn)
 
-    telegram_send = instagram = host = share_video = None
+    telegram_send = instagram = host = share_video = share_album = None
     if not args.dry_run:
         if settings.telegram_bot_token and settings.telegram_chat_id:
             share_video = partial(send_video, settings.telegram_bot_token, settings.telegram_chat_id)
+            share_album = partial(send_media_group, settings.telegram_bot_token,
+                                  settings.telegram_chat_id)
         if settings.telegram_bot_token and settings.telegram_channel_id:
             telegram_send = partial(send_photo, settings.telegram_bot_token,
                                     settings.telegram_channel_id)
@@ -310,6 +322,7 @@ def main(argv: list[str] | None = None) -> int:
         reel=args.reel or now.hour in settings.instagram_reel_hour_set,
         share_video=share_video,
         share_text=admin.send_text if share_video is not None else None,
+        share_album=share_album,
     )
     log.info(f"Fırsat paylaşımı: {result.status}, {len(result.deals)} fırsat, "
              f"kartlar: {result.files[0].parent if result.files else '-'}"

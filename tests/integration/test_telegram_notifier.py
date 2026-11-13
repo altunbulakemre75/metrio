@@ -164,3 +164,24 @@ def test_rejected_admin_message_is_logged(caplog):
             notifier.send_text("deneme")
 
     assert "chat not found" in caplog.text
+
+
+def test_send_media_group_uploads_photos_as_one_album(tmp_path):
+    import json
+    from notifications.telegram import send_media_group
+    photos = []
+    for i in range(3):
+        p = tmp_path / f"{i}.jpg"
+        p.write_bytes(f"jpg{i}".encode())
+        photos.append(p)
+
+    with patch("notifications.telegram.requests.post") as post:
+        post.return_value.ok = True
+        ok = send_media_group("TOK", "123", photos, "Albüm")
+
+    assert ok is True
+    assert post.call_args.args[0].endswith("/botTOK/sendMediaGroup")
+    media = json.loads(post.call_args.kwargs["data"]["media"])
+    assert [m["media"] for m in media] == ["attach://p0", "attach://p1", "attach://p2"]
+    assert media[0]["caption"] == "Albüm" and "caption" not in media[1]
+    assert post.call_args.kwargs["files"]["p2"] == ("2.jpg", b"jpg2", "image/jpeg")

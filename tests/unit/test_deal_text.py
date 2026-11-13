@@ -119,7 +119,7 @@ def test_video_caption_is_short_and_points_to_telegram_channel():
 
     text = video_caption(deals, datetime(2026, 11, 10), "@kozmetikavcisi", "#indirim #kozmetik")
 
-    assert text.startswith("Günün kozmetik ve çanta fırsatları · 10 Kasım")
+    assert text.splitlines()[1] == "Günün kozmetik ve çanta fırsatları · 10 Kasım"
     assert "Telegram kanalımızda: @kozmetikavcisi" in text
     assert text.endswith("#indirim #kozmetik")
     assert "Omuz Çantası" not in text and "bio" not in text
@@ -131,7 +131,7 @@ def test_special_day_label_replaces_daily_headline():
 
     assert instagram_caption(deals, when, "", "", label="11.11").startswith(
         "11.11 kozmetik fırsatları · 11 Kasım")
-    assert video_caption(deals, when, "@k", "", label="11.11").startswith(
+    assert video_caption(deals, when, "@k", "", label="11.11").splitlines()[1].startswith(
         "11.11 kozmetik fırsatları · 11 Kasım")
 
 
@@ -159,3 +159,18 @@ def test_video_caption_puts_mentions_before_hashtags():
                          mentions="@erbatab @trendyolcom")
 
     assert text.endswith("@erbatab @trendyolcom\n\n#indirim")
+
+
+def test_video_caption_opens_with_a_question_that_invites_comments():
+    deals = [_deal(product_id=i) for i in range(1, 6)]
+
+    first = video_caption(deals, datetime(2026, 11, 13), "@k", "").splitlines()[0]
+
+    assert first == "Hangisini alırdın? 1'den 5'e yaz 👇"
+
+
+def test_question_suffix_follows_turkish_vowel_harmony():
+    two = [_deal(product_id=1), _deal(product_id=2)]
+
+    assert video_caption(two, datetime(2026, 11, 13), "@k", "").startswith(
+        "Hangisini alırdın? 1'den 2'ye yaz")

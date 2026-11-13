@@ -343,3 +343,28 @@ def test_admin_is_told_when_the_video_cannot_be_sent(db, tmp_path):
          notify_admin=admin)
 
     assert any("video" in call[0] for call in admin.calls)
+
+
+def test_reel_opens_with_the_best_deal_and_ends_with_a_follow_card(db, tmp_path):
+    _add_deals(db, 4)
+    frames = []
+
+    def video(cards, out):
+        frames.extend(c.name for c in cards)
+        return _fake_video(cards, out)
+
+    _run(db, tmp_path, reel=True, video_maker=video)
+
+    assert frames == ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "outro.jpg"]
+
+
+def test_reel_cards_also_go_to_admin_as_a_photo_album_for_tiktok(db, tmp_path):
+    _add_deals(db, 4)
+    album = Recorder()
+
+    _run(db, tmp_path, telegram_send=Recorder(), reel=True, video_maker=_fake_video,
+         share_video=Recorder(), share_album=album)
+
+    photos, caption = album.calls[0]
+    assert [p.name for p in photos] == ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "outro.jpg"]
+    assert "Fotoğraf" in caption

@@ -107,7 +107,8 @@ def _save(img: Image.Image, out_path: Path) -> Path:
 
 
 def render_deal_card(deal: Deal, photo: Image.Image | None, page_name: str,
-                     out_path: Path, fonts: Fonts) -> Path:
+                     out_path: Path, fonts: Fonts, index: int | None = None) -> Path:
+    """index: videodaki sıra; açıklamadaki "1'den 5'e yaz" sorusu için kartta görünür."""
     img = Image.new("RGB", CARD_SIZE, _BG)
     draw = ImageDraw.Draw(img)
     width, _ = CARD_SIZE
@@ -127,6 +128,11 @@ def render_deal_card(deal: Deal, photo: Image.Image | None, page_name: str,
     else:
         draw.text((width // 2, (box[1] + box[3]) // 2), "Görsel yok",
                   font=fonts.get("semibold", 40), fill=_MUTED, anchor="mm")
+
+    if index is not None:
+        cx, cy = width - _MARGIN - 70, 190
+        draw.ellipse((cx - 52, cy - 52, cx + 52, cy + 52), fill=_INK)
+        draw.text((cx, cy), str(index), font=fonts.get("black", 64), fill=_WHITE, anchor="mm")
 
     rate = headline_rate(deal)
     if rate:
@@ -169,6 +175,24 @@ def render_deal_card(deal: Deal, photo: Image.Image | None, page_name: str,
 
     draw.text((_MARGIN, 1290), "Ürün linki Telegram kanalımızda · link bio'da",
               font=fonts.get("regular", 30), fill=_MUTED, anchor="lm")
+    return _save(img, out_path)
+
+
+def render_outro(page_name: str, channel: str, out_path: Path, fonts: Fonts) -> Path:
+    """Videonun son kartı: takip çağrısı. Takipçi, videoyu sonuna kadar izleyenden gelir."""
+    img = Image.new("RGB", CARD_SIZE, _TAG)
+    draw = ImageDraw.Draw(img)
+    width, _ = CARD_SIZE
+    draw.text((_MARGIN, 70), page_name, font=fonts.get("black", 40), fill=_INK, anchor="lm")
+    draw.text((width // 2, 520), "TAKİP ET", font=fonts.get("black", 150), fill=_INK, anchor="mm")
+    draw.text((width // 2, 660), "yarınki indirimleri kaçırma", font=fonts.get("bold", 56),
+              fill=_INK, anchor="mm")
+    draw.text((width // 2, 760), "Her gün gerçek indirimler, fiyat geçmişiyle",
+              font=fonts.get("semibold", 38), fill=_INK, anchor="mm")
+    if channel:
+        draw.rounded_rectangle((_MARGIN, 1080, width - _MARGIN, 1220), radius=36, fill=_INK)
+        draw.text((width // 2, 1150), f"Ürün linkleri Telegram'da: {channel}",
+                  font=fonts.get("bold", 42), fill=_WHITE, anchor="mm")
     return _save(img, out_path)
 
 

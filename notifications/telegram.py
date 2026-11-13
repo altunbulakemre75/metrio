@@ -1,4 +1,5 @@
 """Telegram Bot API entegrasyonu."""
+import json
 import logging
 import time
 from datetime import datetime
@@ -95,6 +96,25 @@ def send_video(bot_token: str, chat_id: str, video_path: Path, caption: str) -> 
         return False
     if not resp.ok:
         log.warning(f"Telegram sendVideo rejected: {resp.text[:200]}")
+    return bool(resp.ok)
+
+
+def send_media_group(bot_token: str, chat_id: str, photos: list[Path], caption: str) -> bool:
+    """Fotoğrafları tek albüm olarak gönderir (en fazla 10); açıklama ilk fotoğrafta."""
+    photos = photos[:10]
+    media = [{"type": "photo", "media": f"attach://p{i}"} for i in range(len(photos))]
+    if media:
+        media[0]["caption"] = caption[:_CAPTION_LIMIT]
+    files = {f"p{i}": (p.name, p.read_bytes(), "image/jpeg") for i, p in enumerate(photos)}
+    try:
+        resp = requests.post(f"{_API_BASE}/bot{bot_token}/sendMediaGroup",
+                             data={"chat_id": chat_id, "media": json.dumps(media)},
+                             files=files, timeout=120)
+    except requests.exceptions.RequestException as e:
+        log.warning(f"Telegram sendMediaGroup failed: {e}")
+        return False
+    if not resp.ok:
+        log.warning(f"Telegram sendMediaGroup rejected: {resp.text[:200]}")
     return bool(resp.ok)
 
 

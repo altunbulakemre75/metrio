@@ -5,7 +5,8 @@ import subprocess
 import pytest
 from PIL import Image
 
-from deals.video import REEL_SIZE, VideoError, reel_duration, render_reel
+from deals.video import (CARD_SECONDS, FADE_SECONDS, REEL_SIZE, VideoError, reel_duration,
+                         render_reel)
 
 pytestmark = pytest.mark.skipif(shutil.which("ffmpeg") is None or shutil.which("ffprobe") is None,
                                 reason="ffmpeg kurulu değil")
@@ -38,8 +39,10 @@ def test_reel_is_vertical_h264_with_audio_track_and_expected_length(tmp_path):
     assert float(info["format"]["duration"]) == pytest.approx(reel_duration(3), abs=0.2)
 
 
-def test_each_card_stays_on_screen_long_enough_to_read():
-    assert reel_duration(6) >= 6 * 2.5
+def test_six_card_reel_is_short_but_each_card_is_still_readable():
+    # TikTok'ta sonuna kadar izlenen kısa video öne çıkıyor; kart yine de ~1,5 sn net görünmeli.
+    assert reel_duration(6) <= 10
+    assert CARD_SECONDS - FADE_SECONDS >= 1.4
 
 
 def test_missing_ffmpeg_raises_video_error(tmp_path):

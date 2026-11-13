@@ -103,10 +103,19 @@ def tiktok_mentions(deals: list[Deal]) -> str:
     return " ".join(f"@{h}" for h in handles)
 
 
+# Sayıya gelen yönelme eki: 2'ye, 3'e, 6'ya …
+_DATIVE = {1: "e", 2: "ye", 3: "e", 4: "e", 5: "e", 6: "ya", 7: "ye", 8: "e", 9: "a", 10: "a"}
+
+
+def _comment_question(count: int) -> str:
+    """İlk satır: yorum yazdıran soru. Kartlardaki numaralarla eşleşir."""
+    return f"Hangisini alırdın? 1'den {count}'{_DATIVE.get(count, 'e')} yaz 👇"
+
+
 def video_caption(deals: list[Deal], when: datetime, channel: str, hashtags: str,
                   label: str = "", mentions: str = "") -> str:
     """TikTok gibi elle yüklenen video için kısa açıklama: ürün listesi yok, kanal adı var."""
-    lines = [_headline(deals, when, label),
+    lines = [_comment_question(len(deals)), _headline(deals, when, label),
              f"Fiyatlar {turkish_date(when)} taramasına göredir, değişebilir."]
     if channel:
         lines.append(f"Ürün linkleri Telegram kanalımızda: {channel}")
