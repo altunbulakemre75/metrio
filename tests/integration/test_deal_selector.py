@@ -147,3 +147,22 @@ def test_known_brand_matching_ignores_accents_and_turkish_dots(db):
     _save(db, "2", 65, original=100, discount=0.35, brand="L'OREAL PARIS")
 
     assert _ids(_select(db, limit=1, preferred_brands=["L'Oréal Paris"])) == ["Urun 2"]
+
+
+def test_second_scan_minutes_later_does_not_hide_the_overnight_drop(db):
+    # Aynı ürün aynı gece iki kategoride (kozmetik + makyaj) taranıyor: "önceki fiyat"
+    # dakikalar önceki kayıt değil, bir önceki günün fiyatı olmalı.
+    _save(db, "1", 120, at=TODAY - timedelta(days=1))
+    _save(db, "1", 80, at=TODAY)
+    _save(db, "1", 80, at=TODAY + timedelta(minutes=10))
+
+    deals = _select(db)
+
+    assert [d.previous_price for d in deals] == [120]
+
+
+def test_brand_cap_treats_turkish_dotted_spellings_as_one_brand(db):
+    for i, brand in enumerate(["CALLİEL", "CALLİEL", "Calliel", "Calliel"]):
+        _save(db, f"c{i}", 50, original=100, discount=0.5, brand=brand)
+
+    assert len(_select(db)) == 2

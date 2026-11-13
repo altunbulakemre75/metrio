@@ -48,3 +48,15 @@ def test_parse_card_without_id_returns_none():
     html = '<a class="product-card"></a>'
     snap = parse_product_card(html, category="kozmetik", captured_at=datetime.now())
     assert snap is None
+
+
+def test_parse_discounted_card_with_sale_price_layout():
+    # Trendyol'un indirimli kart düzeni (Kasım 2026): fiyat "sale-price" içinde. Bu kartlar
+    # okunamayıp atlanıyordu; en büyük indirimler tam da bu düzende geliyor.
+    html = _load("trendyol_edge_cases/sale_price.html")
+    snap = parse_product_card(html, category="kozmetik", captured_at=datetime(2026, 11, 13))
+    assert snap is not None
+    assert snap.price == 199.90  # Trendyol Plus fiyatı (194,90) değil
+    assert snap.original_price == 419.90
+    assert abs(snap.discount_rate - 0.524) < 0.001
+    assert snap.brand == "WIWIFY"

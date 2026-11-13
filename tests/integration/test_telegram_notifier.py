@@ -153,3 +153,14 @@ def test_chat_member_count_raises_on_telegram_error():
         mock_get.return_value.json.return_value = {"ok": False, "description": "chat not found"}
         with pytest.raises(RuntimeError, match="chat not found"):
             chat_member_count("TOK", "@kanal")
+
+
+def test_rejected_admin_message_is_logged(caplog):
+    notifier = TelegramNotifier("123:abc", "42", enabled=True)
+    with patch("notifications.telegram.requests.post") as post:
+        post.return_value.ok = False
+        post.return_value.text = '{"ok":false,"description":"chat not found"}'
+        with caplog.at_level("WARNING"):
+            notifier.send_text("deneme")
+
+    assert "chat not found" in caplog.text

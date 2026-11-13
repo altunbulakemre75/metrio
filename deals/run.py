@@ -132,11 +132,14 @@ def run_once(
     if result.video is not None and share_video is not None:
         if manual and share_text is not None:
             share_text(_manual_note(cfg.reel_music))
-        share_video(result.video, video_caption(deals, now, cfg.telegram_channel, cfg.hashtags,
-                                                label, tiktok_mentions(deals)))
+        if not share_video(result.video, video_caption(deals, now, cfg.telegram_channel,
+                                                       cfg.hashtags, label, tiktok_mentions(deals))):
+            alert("video yönetici sohbetine gönderilemedi; dosya: " + str(result.video))
         if manual and share_text is not None:
             share_text(_instagram_caption(cfg, now, deals))
 
+    if not outcomes:  # elle Reels modunda Telegram kanalı da yoksa hiçbir yere paylaşılmadı
+        return result
     if all(outcomes):
         result.status = "posted"
     elif any(outcomes):

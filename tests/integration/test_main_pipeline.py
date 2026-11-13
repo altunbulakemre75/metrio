@@ -141,3 +141,16 @@ def test_deals_only_keeps_just_the_deal_page_categories():
 
     assert [(c["platform"], c["name"]) for c in kept] == [
         ("trendyol", "kozmetik"), ("akakce", "parfum"), ("trendyol", "canta")]
+
+
+def test_products_are_filed_under_the_pipeline_category_name(in_memory_db):
+    # Scraper kategoriyi adresten tahmin ediyor; tanımadığı adres "unknown" olmasın.
+    snap = _fake_snap("1", 100.0)
+    snap.category = "unknown"
+    fake_scraper = MagicMock()
+    fake_scraper.fetch_category.return_value = [snap]
+
+    run_pipeline(scraper=fake_scraper, category_url="https://www.trendyol.com/sac-bakimi-x-c87",
+                 category_name="sac-bakimi")
+
+    assert in_memory_db.execute("SELECT category FROM products").fetchone()[0] == "sac-bakimi"

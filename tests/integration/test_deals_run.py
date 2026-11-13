@@ -323,3 +323,23 @@ def test_manual_mode_still_posts_carousel_when_video_fails(db, tmp_path):
          reel=True, video_maker=broken, share_text=Recorder())
 
     assert len(ig.calls) == 1
+
+
+def test_manual_reel_without_any_channel_is_not_reported_as_posted(db, tmp_path):
+    _add_deals(db, 4)
+
+    result = _run(db, tmp_path, cfg=_cfg(reel_manual=True), instagram=FakeInstagram(),
+                  reel=True, video_maker=_fake_video)
+
+    assert result.status == "rendered"
+
+
+def test_admin_is_told_when_the_video_cannot_be_sent(db, tmp_path):
+    _add_deals(db, 4)
+    admin = Recorder()
+
+    _run(db, tmp_path, cfg=_cfg(reel_manual=True), telegram_send=Recorder(), reel=True,
+         video_maker=_fake_video, share_video=Recorder(result=False), share_text=Recorder(),
+         notify_admin=admin)
+
+    assert any("video" in call[0] for call in admin.calls)

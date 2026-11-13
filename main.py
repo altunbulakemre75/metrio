@@ -132,6 +132,9 @@ def run_pipeline(
 
         for snap in snapshots:
             try:
+                # Scraper kategoriyi adresten tahmin ediyor; tanımadığı adreste "unknown"
+                # yazıyordu. Kategori adı tek yerden, tarama listesinden gelir.
+                snap.category = category_name
                 save_snapshot(conn, snap)
                 products_saved += 1
             except Exception as e:

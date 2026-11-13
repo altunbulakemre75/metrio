@@ -10,6 +10,10 @@ _MIN_HISTORY_FOR_LOW = 5
 _LOW_BONUS = 0.25
 # Tanınan marka (La Roche-Posay, Guess…) adı bilinmeyen markanın biraz daha büyük indiriminin önüne geçer.
 _BRAND_BONUS = 0.2
+# Aynı ürün aynı gece birden çok kategoride (kozmetik + makyaj) ya da paylaşım öncesi ek
+# taramada yeniden kaydediliyor. "Önceki fiyat" bu kadar yakın kayıtlardan alınmaz; yoksa
+# dakikalar önceki aynı fiyat, dünden bugüne olan gerçek düşüşü gizler.
+_SAME_SCAN = "-12 hours"
 
 
 @dataclass(frozen=True)
@@ -62,14 +66,14 @@ def select_deals(
         SELECT p.id, p.platform, p.name, p.brand, p.category, p.product_url, p.image_url,
                s.price, s.original_price, s.discount_rate, s.seller_rating,
                (SELECT h.price FROM price_snapshots h
-                WHERE h.product_id = p.id AND h.captured_at < s.captured_at
+                WHERE h.product_id = p.id AND h.captured_at <= datetime(s.captured_at, '{_SAME_SCAN}')
                   AND h.captured_at >= datetime(s.captured_at, '-7 days')
                 ORDER BY h.captured_at DESC LIMIT 1) AS previous_price,
                (SELECT MIN(h.price) FROM price_snapshots h
-                WHERE h.product_id = p.id AND h.captured_at < s.captured_at
+                WHERE h.product_id = p.id AND h.captured_at <= datetime(s.captured_at, '{_SAME_SCAN}')
                   AND h.captured_at >= datetime(s.captured_at, '-30 days')) AS min_30d,
                (SELECT COUNT(*) FROM price_snapshots h
-                WHERE h.product_id = p.id AND h.captured_at < s.captured_at
+                WHERE h.product_id = p.id AND h.captured_at <= datetime(s.captured_at, '{_SAME_SCAN}')
                   AND h.captured_at >= datetime(s.captured_at, '-30 days')) AS history_30d
         FROM products p
         JOIN (
@@ -116,7 +120,7 @@ def select_deals(
     per_brand: dict[str, int] = {}
     per_category: dict[str, int] = {}
     for deal in candidates:
-        key = (deal.brand or f"#{deal.product_id}").casefold()
+        key = brand_key(deal.brand) if deal.brand else f"#{deal.product_id}"
         if per_brand.get(key, 0) >= max_per_brand:
             continue
         if deal.category in caps and per_category.get(deal.category, 0) >= caps[deal.category]:

@@ -53,9 +53,12 @@ class TelegramNotifier:
     def _send(self, text: str) -> None:
         url = f"{_API_BASE}/bot{self.bot_token}/sendMessage"
         try:
-            requests.post(url, json={"chat_id": self.chat_id, "text": text}, timeout=10)
+            resp = requests.post(url, json={"chat_id": self.chat_id, "text": text}, timeout=10)
         except requests.exceptions.RequestException as e:
             log.warning(f"Telegram send failed: {e}")
+            return
+        if not resp.ok:
+            log.warning(f"Telegram sendMessage rejected: {resp.text[:200]}")
 
 
 def send_photo(bot_token: str, chat_id: str, photo_path: Path, caption: str) -> bool:

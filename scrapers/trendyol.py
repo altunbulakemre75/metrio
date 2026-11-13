@@ -78,9 +78,12 @@ def parse_product_card(
     brand_el = card.select_one(".product-brand")
     img_el = card.select_one("img[data-testid='image-img']") or card.select_one("img.image")
 
-    # Fiyat: discounted (price-value) veya single (price-section)
+    # Fiyat: indirimli kart (sale-price ya da price-value) veya tek fiyat (price-section).
+    # Trendyol Plus fiyatı (ty-plus-strip-view-price) bilerek alınmaz; herkesin ödediği fiyat değil.
     price_el = (
-        card.select_one("[data-testid='price-value']")
+        card.select_one("[data-testid='sale-price']")
+        or card.select_one(".sale-price")
+        or card.select_one("[data-testid='price-value']")
         or card.select_one("[data-testid='price-section']")
         or card.select_one(".price-value")
         or card.select_one(".price-section")
