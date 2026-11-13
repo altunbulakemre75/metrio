@@ -172,7 +172,7 @@ Gmail için **App Password** gerekli (normal şifre SMTP'de çalışmaz):
 
 ## Fırsat Sayfası: Instagram + Telegram Kanalı
 
-Kozmetik indirimlerini günde 3 kez (10:00, 14:00, 19:00) otomatik paylaşır:
+Kozmetik indirimlerini günde 3 kez (12:30, 18:30, 21:00) otomatik paylaşır:
 Instagram'a kapak + 5 ürünlük kaydırmalı gönderi, Telegram kanalına ürün başına kart + link.
 
 ```bash

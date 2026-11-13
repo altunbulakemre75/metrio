@@ -8,8 +8,8 @@ Telegram kanalına (ürün başına fotoğraf + link) paylaşan sistem. Kod: `de
 | Saat | Görev | Ne yapar |
 |---|---|---|
 | 03:00 | Metrio Daily Scrape | Trendyol / Akakçe kategorilerini tarar |
-| 10:00, 14:00, 19:00 | Metrio Deals Post | `python -m deals.run` |
-| 21:30 | Metrio Deals Stats | `python -m deals.stats`: Telegram abone + Instagram takipçi sayısını kaydeder, özeti yönetici sohbetine gönderir |
+| 12:30, 18:30, 21:00 | Metrio Deals Post | `python -m deals.run` |
+| 23:30 | Metrio Deals Stats | `python -m deals.stats`: Telegram abone + Instagram takipçi sayısını kaydeder, özeti yönetici sohbetine gönderir |
 
 Her paylaşımda:
 
@@ -98,7 +98,7 @@ Sadece kartları üretir (`data/deals/` altında), hiçbir yere göndermez. Beğ
 ```
 .venv\Scripts\python.exe -m deals.run
 ```
-Gerçek paylaşım. Sonrası otomatik (10:00 / 14:00 / 19:00).
+Gerçek paylaşım. Sonrası otomatik (12:30 / 18:30 / 21:00).
 
 Reels videosunu önizlemek için: `.venv\Scripts\python.exe -m deals.run --dry-run --reel`
 (video `data/deals/<tarih-saat>/reel.mp4`). Videoda müzik yok; API Instagram'ın müzik
@@ -151,5 +151,5 @@ powershell -ExecutionPolicy Bypass -File scripts\install_deal_tasks.ps1
   `run_stats` tablosuna ya da logda `pipeline` satırlarına bak.
 - "Instagram paylaşımı başarısız: Invalid OAuth access token": anahtar iptal olmuş ya da
   (IGAA… ise) süresi dolmuş; panelde **Generate token** ile yenisini al, `.env`'ye yaz.
-- Bilgisayar 10:00 / 14:00 / 19:00'da kapalıysa o paylaşım atlanır (bilerek; açılınca
+- Bilgisayar 12:30 / 18:30 / 21:00'da kapalıysa o paylaşım atlanır (bilerek; açılınca
   üst üste gönderi düşmesin diye).
