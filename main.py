@@ -236,6 +236,15 @@ def _only_categories(categories: list[dict], names: list[str]) -> list[dict]:
     return [c for c in categories if c["name"] in names]
 
 
+def _notify_after_scrape(notifier, stats: dict, anomalies: list, summary_enabled: bool) -> None:
+    """Tarama özeti ve anomaliler varsayılan olarak gönderilmez (fırsat videolarının arasına
+    düşüyordu); tarama başarısızsa yönetici yine haber alır."""
+    if summary_enabled:
+        notifier.notify_run(stats, anomalies)
+    elif stats["status"] == "failed":
+        notifier.notify_run(stats, [])
+
+
 def main() -> int:
     """CLI giriş noktası. Default kategori listesini (--deals-only ile fırsat kategorilerini) tarar."""
     conn = connect(settings.database_path)
@@ -272,7 +281,8 @@ def main() -> int:
             chat_id=settings.telegram_chat_id,
             enabled=settings.telegram_enabled,
         )
-        notifier.notify_run(combined_stats, anomalies)
+        _notify_after_scrape(notifier, combined_stats, anomalies,
+                             settings.scrape_summary_enabled)
     except Exception as e:
         log.warning(f"Telegram bildirimi başarısız: {e}")
 

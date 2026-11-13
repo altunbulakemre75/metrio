@@ -96,11 +96,16 @@ def select_deals(
             continue
         if any(w in r["name"].casefold() for w in banned):
             continue
+        previous = r["previous_price"]
+        if previous and r["original_price"] and previous > r["original_price"]:
+            # Kampanyadan önce fiyatı şişiren satıcı: düşüş, satıcının kendi yazdığı üstü
+            # çizili fiyattan büyük gösterilmez.
+            previous = r["original_price"]
         deal = Deal(
             product_id=r["id"], platform=r["platform"], name=r["name"], brand=r["brand"],
             category=r["category"], product_url=r["product_url"], image_url=r["image_url"],
             price=r["price"], original_price=r["original_price"],
-            discount_rate=r["discount_rate"], previous_price=r["previous_price"],
+            discount_rate=r["discount_rate"], previous_price=previous,
             lowest_30d=(r["history_30d"] >= _MIN_HISTORY_FOR_LOW and r["price"] < r["min_30d"]),
             rating=r["seller_rating"],
         )

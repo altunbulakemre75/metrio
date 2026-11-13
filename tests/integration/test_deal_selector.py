@@ -166,3 +166,19 @@ def test_brand_cap_treats_turkish_dotted_spellings_as_one_brand(db):
         _save(db, f"c{i}", 50, original=100, discount=0.5, brand=brand)
 
     assert len(_select(db)) == 2
+
+
+def test_inflated_previous_price_is_capped_at_the_strikethrough_price(db):
+    # Satıcı kampanyadan önce fiyatı 990'a çekip sonra 409 yerine 349 yazıyor:
+    # gerçek indirim %15, "%65 düştü" değil.
+    _save(db, "1", 990, at=TODAY - timedelta(days=1))
+    _save(db, "1", 349, original=409.12, discount=0.147)
+
+    assert _select(db) == []
+
+
+def test_previous_price_below_strikethrough_is_kept(db):
+    _save(db, "1", 500, at=TODAY - timedelta(days=1))
+    _save(db, "1", 300, original=600, discount=0.5)
+
+    assert [d.previous_price for d in _select(db)] == [500]

@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     telegram_chat_id: str = ""
     telegram_threshold: float = Field(default=0.20, gt=0, lt=1)
     telegram_enabled: bool = False
+    scrape_summary_enabled: bool = False  # her taramadan sonra özet + anomali mesajı (B2B dönemi)
 
     smtp_host: str = "smtp.gmail.com"
     smtp_port: int = 587

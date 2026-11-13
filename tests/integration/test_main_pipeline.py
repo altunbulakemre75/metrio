@@ -154,3 +154,24 @@ def test_products_are_filed_under_the_pipeline_category_name(in_memory_db):
                  category_name="sac-bakimi")
 
     assert in_memory_db.execute("SELECT category FROM products").fetchone()[0] == "sac-bakimi"
+
+
+def test_scrape_summary_is_sent_only_on_failure_by_default():
+    # Fırsat sayfası çalışırken her gece "353 anomali" özeti videoların arasına düşüyordu.
+    from main import _notify_after_scrape
+    notifier = MagicMock()
+
+    _notify_after_scrape(notifier, {"status": "success"}, ["a"], summary_enabled=False)
+    notifier.notify_run.assert_not_called()
+
+    _notify_after_scrape(notifier, {"status": "failed"}, ["a"], summary_enabled=False)
+    notifier.notify_run.assert_called_once_with({"status": "failed"}, [])
+
+
+def test_scrape_summary_can_be_turned_back_on():
+    from main import _notify_after_scrape
+    notifier = MagicMock()
+
+    _notify_after_scrape(notifier, {"status": "success"}, ["a"], summary_enabled=True)
+
+    notifier.notify_run.assert_called_once_with({"status": "success"}, ["a"])
