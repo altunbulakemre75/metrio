@@ -11,13 +11,14 @@ import io
 import sqlite3
 import sys
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta
 from functools import partial
 from pathlib import Path
 
 from PIL import Image
 
+from deals.affiliate import AFFILIATE_REF, DISCLOSURE, LinkBudget, affiliate_links_used
 from deals.brands import PREFERRED_BRANDS
 from deals.card import load_fonts, render_cover, render_deal_card, render_outro
 from deals.hosting import GitImageHost, HostingError, wait_until_live
@@ -52,6 +53,8 @@ class DealsConfig:
     # açıklamalar yöneticiye gider, müzik uygulamadan eklenip elle paylaşılır.
     reel_manual: bool = False
     reel_music: str = ""
+    affiliate_template: str = ""  # AFFILIATE_URL_TEMPLATE; boşsa düz ürün linki
+    batch_suffix: str = ""  # kart klasörü adına eklenir ("-ekstra"): aynı dakikadaki çalışmalar çakışmasın
 
 
 @dataclass
@@ -98,7 +101,7 @@ def run_once(
 
     fonts = load_fonts(cfg.font_dir)
     label = cfg.special_days.get(now.strftime("%m-%d"), "")
-    batch = out_root / now.strftime("%Y%m%d-%H%M")
+    batch = out_root / (now.strftime("%Y%m%d-%H%M") + cfg.batch_suffix)
     cover = render_cover(deals, now, cfg.page_name, batch / "cover.jpg", fonts,
                          cta="" if reel else "Kaydır →",
                          title=f"{label.upper()} FIRSATLARI" if label else "")
@@ -123,10 +126,15 @@ def run_once(
 
     outcomes = []
     if telegram_send is not None:
-        sent = [d for d, card in zip(deals, cards) if telegram_send(card, telegram_caption(d))]
-        if sent:
-            record_posted_deals(conn, [d.product_id for d in sent], "telegram", None, now)
-        else:
+        budget = LinkBudget(cfg.affiliate_template, affiliate_links_used(conn, now))
+        sent = []
+        for d, card in zip(deals, cards):
+            url, is_affiliate = budget.link(d.product_url)
+            if telegram_send(card, telegram_caption(d, url, DISCLOSURE if is_affiliate else "")):
+                sent.append(d)
+                record_posted_deals(conn, [d.product_id], "telegram",
+                                    AFFILIATE_REF if is_affiliate else None, now)
+        if not sent:
             alert("Telegram kanalına hiçbir fırsat gönderilemedi.")
         outcomes.append(bool(sent))
 
@@ -190,6 +198,16 @@ def _post_instagram(conn, cfg, now, deals, result, host, instagram, wait_live, a
     return True
 
 
+_EXTRA_PER_CATEGORY = 2
+
+
+def extra_config(cfg: DealsConfig, categories: list[str]) -> DealsConfig:
+    """Kozmetik dışı türler için ayrı video: kendi kategorileri, tür başına en fazla 2 ürün."""
+    return replace(cfg, categories=list(categories),
+                   category_caps={c: _EXTRA_PER_CATEGORY for c in categories},
+                   batch_suffix="-ekstra")
+
+
 def _config_from_settings(settings) -> DealsConfig:
     return DealsConfig(
         page_name=settings.deals_page_name,
@@ -206,6 +224,7 @@ def _config_from_settings(settings) -> DealsConfig:
         special_days=settings.deals_special_day_map,
         preferred_brands=PREFERRED_BRANDS,
         reel_manual=settings.instagram_reel_manual,
+        affiliate_template=settings.affiliate_url_template,
         reel_music=settings.deals_reel_music,
     )
 
@@ -280,6 +299,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true", help="Kurulumu dene, paylaşım yapma")
     parser.add_argument("--reel", action="store_true",
                         help="Kaydırmalı gönderi yerine Reels videosu (INSTAGRAM_REEL_HOURS saatlerinde kendiliğinden)")
+    parser.add_argument("--extra", action="store_true",
+                        help="Kozmetik dışı türler (DEALS_EXTRA_CATEGORIES) için ayrı Reels videosu")
     parser.add_argument("--max-age-hours", type=int, default=36,
                         help="Bu kadar saatten eski fiyatları kullanma (varsayılan 36)")
     args = parser.parse_args(argv)
@@ -312,14 +333,21 @@ def main(argv: list[str] | None = None) -> int:
         if telegram_send is None and instagram is None:
             log.warning("Hiçbir kanal ayarlı değil; sadece kartlar üretilecek.")
 
+    cfg = _config_from_settings(settings)
+    if args.extra:
+        if not settings.deals_extra_category_list:
+            print("DEALS_EXTRA_CATEGORIES boş; ekstra video için kategori yok.")
+            return 1
+        cfg = extra_config(cfg, settings.deals_extra_category_list)
+
     # Kanal yokken (kurulum sürerken) yöneticiye günde 3 kez uyarı gitmesin.
     has_channel = telegram_send is not None or instagram is not None
     result = run_once(
-        conn, _config_from_settings(settings), now, _OUT_ROOT,
+        conn, cfg, now, _OUT_ROOT,
         host=host, instagram=instagram, telegram_send=telegram_send,
         notify_admin=admin.send_text if has_channel else None,
         max_age=timedelta(hours=args.max_age_hours),
-        reel=args.reel or now.hour in settings.instagram_reel_hour_set,
+        reel=args.reel or args.extra or now.hour in settings.instagram_reel_hour_set,
         share_video=share_video,
         share_text=admin.send_text if share_video is not None else None,
         share_album=share_album,

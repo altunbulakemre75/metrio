@@ -12,7 +12,9 @@ PLATFORM_NAMES = {"trendyol": "Trendyol", "akakce": "Akakçe", "n11": "N11",
 # Kapakta ve açıklamada görünen sıra.
 _CATEGORY_LABELS = {"kozmetik": "kozmetik", "makyaj": "makyaj", "cilt-bakimi": "bakım",
                     "sac-bakimi": "saç bakımı", "parfum": "parfüm", "vitamin": "vitamin",
-                    "canta": "çanta"}
+                    "canta": "çanta", "bakim-cihazi": "bakım cihazı", "taki": "takı",
+                    "kadin-giyim": "giyim", "kadin-ayakkabi": "ayakkabı",
+                    "anne-bebek": "anne-bebek"}
 _INSTAGRAM_CAPTION_LIMIT = 2200
 _MAX_NAME_IN_CAPTION = 70
 # Trendyol satıcıları ada barkod (EAN, 8-14 hane) ekliyor; ml/renk kodları kısa kalır.
@@ -65,13 +67,16 @@ def price_note(deal: Deal) -> str:
     return ""
 
 
-def telegram_caption(deal: Deal) -> str:
+def telegram_caption(deal: Deal, url: str | None = None, disclosure: str = "") -> str:
+    """url: affiliate linki (yoksa ürün linki); disclosure: affiliate paylaşımda "#işbirliği"."""
     lines = [product_title(deal)]
     note = price_note(deal)
     lines.append(f"💰 {format_tl(deal.price)}" + (f" ({note})" if note else ""))
     if deal.lowest_30d:
         lines.append("📉 Son 30 günün en düşük fiyatı")
-    lines.append(f"🛒 {PLATFORM_NAMES.get(deal.platform, deal.platform)}: {deal.product_url}")
+    lines.append(f"🛒 {PLATFORM_NAMES.get(deal.platform, deal.platform)}: {url or deal.product_url}")
+    if disclosure:
+        lines.append(disclosure)
     return "\n".join(lines)
 
 
@@ -81,9 +86,18 @@ def category_summary(deals: list[Deal]) -> str:
     return ", ".join(label for cat, label in _CATEGORY_LABELS.items() if cat in present)
 
 
+# Başlıkta geçen tür adları, sabit sırada. Listede olmayan (kozmetik, makyaj, parfüm,
+# vitamin…) kategoriler "kozmetik" sayılır.
+_TOPICS = {"canta": "çanta", "bakim-cihazi": "bakım cihazı", "kadin-giyim": "moda",
+           "kadin-ayakkabi": "ayakkabı", "taki": "takı", "anne-bebek": "anne-bebek"}
+
+
 def _headline(deals: list[Deal], when: datetime, label: str = "") -> str:
     """label: özel gün adı (örn. "11.11"); yoksa "Günün"."""
-    topic = "kozmetik ve çanta" if any(d.category == "canta" for d in deals) else "kozmetik"
+    present = {d.category for d in deals}
+    topics = ["kozmetik"] if present - set(_TOPICS) else []
+    topics += [name for cat, name in _TOPICS.items() if cat in present]
+    topic = topics[0] if len(topics) == 1 else f"{', '.join(topics[:-1])} ve {topics[-1]}"
     return f"{label or 'Günün'} {topic} fırsatları · {turkish_date(when)}"
 
 

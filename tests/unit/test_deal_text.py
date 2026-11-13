@@ -174,3 +174,19 @@ def test_question_suffix_follows_turkish_vowel_harmony():
 
     assert video_caption(two, datetime(2026, 11, 13), "@k", "").startswith(
         "Hangisini alırdın? 1'den 2'ye yaz")
+
+
+def test_headline_names_the_product_types_in_the_extra_video():
+    deals = [_deal(product_id=1, category="kadin-giyim"), _deal(product_id=2, category="taki"),
+             _deal(product_id=3, category="anne-bebek"), _deal(product_id=4, category="taki")]
+
+    assert instagram_caption(deals, datetime(2026, 11, 13), "", "").startswith(
+        "Günün moda, takı ve anne-bebek fırsatları · 13 Kasım")
+
+
+def test_all_beauty_categories_read_as_kozmetik_in_the_headline():
+    deals = [_deal(product_id=1, category="makyaj"), _deal(product_id=2, category="sac-bakimi"),
+             _deal(product_id=3, category="parfum")]
+
+    assert instagram_caption(deals, datetime(2026, 11, 13), "", "").startswith(
+        "Günün kozmetik fırsatları · 13 Kasım")

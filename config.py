@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     # Kozmetik indirim sayfası (deals/) — Instagram + Telegram kanalı
     deals_page_name: str = "Fırsat Radarı"
     deals_categories: str = "kozmetik,makyaj,cilt-bakimi,sac-bakimi,parfum,vitamin"
+    # Ayrı videoda paylaşılan kozmetik dışı türler (python -m deals.run --extra).
+    deals_extra_categories: str = ""
+    # Affiliate programı onaylanınca: "{url}" yerine kodlanmış ürün linki konur (deals/affiliate.py).
+    affiliate_url_template: str = ""
     deals_per_post: int = Field(default=5, ge=1, le=10)
     deals_min_discount: float = Field(default=0.30, gt=0, lt=1)
     deals_exclude_words: str = "deterjan,çamaşır,bulaşık,yumuşatıcı"
@@ -67,6 +71,10 @@ class Settings(BaseSettings):
     @property
     def deals_category_list(self) -> list[str]:
         return [c.strip() for c in self.deals_categories.split(",") if c.strip()]
+
+    @property
+    def deals_extra_category_list(self) -> list[str]:
+        return [c.strip() for c in self.deals_extra_categories.split(",") if c.strip()]
 
     @property
     def deals_exclude_word_list(self) -> list[str]:

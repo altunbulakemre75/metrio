@@ -368,3 +368,33 @@ def test_reel_cards_also_go_to_admin_as_a_photo_album_for_tiktok(db, tmp_path):
     photos, caption = album.calls[0]
     assert [p.name for p in photos] == ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "outro.jpg"]
     assert "Fotoğraf" in caption
+
+
+def test_extra_config_uses_its_own_categories_caps_and_folder():
+    from deals.run import extra_config
+
+    cfg = extra_config(_cfg(category_caps={"canta": 2}), ["taki", "anne-bebek"])
+
+    assert cfg.categories == ["taki", "anne-bebek"]
+    assert cfg.category_caps == {"taki": 2, "anne-bebek": 2}
+    assert cfg.batch_suffix == "-ekstra"
+
+
+def test_extra_run_writes_into_its_own_folder(db, tmp_path):
+    from deals.run import extra_config
+    for i in range(6):
+        category = "taki" if i % 2 else "anne-bebek"
+        save_snapshot(db, ProductSnapshot(
+            platform="trendyol", platform_product_id=f"t{i}", name=f"Ürün {i}",
+            brand=f"Marka{i}", category=category,
+            product_url=f"https://www.trendyol.com/x-p-t{i}", image_url=f"https://cdn/t{i}.jpg",
+            price=50, original_price=100, discount_rate=0.5,
+            seller_name=None, seller_rating=4.5, in_stock=True,
+            captured_at=NOW - timedelta(hours=7),
+        ))
+
+    result = _run(db, tmp_path, cfg=extra_config(_cfg(), ["taki", "anne-bebek"]))
+
+    assert result.files[0].parent.name == "20261109-1000-ekstra"
+    cats = [d.category for d in result.deals]
+    assert sorted(cats) == ["anne-bebek", "anne-bebek", "taki", "taki"]

@@ -77,6 +77,32 @@ _DEFAULT_CATEGORIES = [
         "name": "canta",
         "url": "https://www.trendyol.com/kadin-canta-x-g1-c117",
     },
+    # Ayrı "ekstra" videosunda paylaşılan kozmetik dışı türler (DEALS_EXTRA_CATEGORIES).
+    {
+        "platform": "trendyol",
+        "name": "bakim-cihazi",
+        "url": "https://www.trendyol.com/kisisel-bakim-aletleri-x-c103109",
+    },
+    {
+        "platform": "trendyol",
+        "name": "taki",
+        "url": "https://www.trendyol.com/kadin-taki-mucevher-x-g1-c28",
+    },
+    {
+        "platform": "trendyol",
+        "name": "kadin-giyim",
+        "url": "https://www.trendyol.com/kadin-giyim-x-g1-c82",
+    },
+    {
+        "platform": "trendyol",
+        "name": "kadin-ayakkabi",
+        "url": "https://www.trendyol.com/kadin-ayakkabi-x-g1-c114",
+    },
+    {
+        "platform": "trendyol",
+        "name": "anne-bebek",
+        "url": "https://www.trendyol.com/anne-bebek-bakim-x-c101414",
+    },
     {
         "platform": "akakce",
         "name": "parfum",
@@ -257,7 +283,8 @@ def main() -> int:
     all_stats = []
     categories = _load_categories()
     if _pre_args.deals_only:
-        categories = _only_categories(categories, settings.deals_category_list)
+        categories = _only_categories(
+            categories, settings.deals_category_list + settings.deals_extra_category_list)
     for cat in categories:
         scraper = _make_scraper(cat["platform"])
         stats = run_pipeline(

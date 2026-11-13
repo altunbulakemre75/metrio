@@ -68,3 +68,10 @@ def test_deals_special_days_parse_month_day_and_label(monkeypatch):
     monkeypatch.setenv("DEALS_SPECIAL_DAYS", "11-11=11.11, 11-27=Efsane Cuma")
 
     assert Settings(_env_file=None).deals_special_day_map == {"11-11": "11.11", "11-27": "Efsane Cuma"}
+
+
+def test_extra_deal_categories_parse_to_a_list(monkeypatch):
+    monkeypatch.setenv("SCRAPER_USER_AGENT", "test-agent")
+    monkeypatch.setenv("DEALS_EXTRA_CATEGORIES", "taki, anne-bebek")
+
+    assert Settings(_env_file=None).deals_extra_category_list == ["taki", "anne-bebek"]
