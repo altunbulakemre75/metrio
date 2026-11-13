@@ -65,3 +65,25 @@ def test_collect_records_counts_and_skips_failed_sources(db):
     assert counts == {"telegram": 12}
     rows = db.execute("SELECT channel, followers FROM account_stats").fetchall()
     assert [tuple(r) for r in rows] == [("telegram", 12)]
+
+
+def test_tiktok_line_shows_days_left_to_the_trendyol_goal(db):
+    record_account_stat(db, "tiktok", 28, NOW - timedelta(days=2))
+    record_account_stat(db, "tiktok", 48, NOW)
+
+    lines = daily_summary(db, NOW).splitlines()
+
+    assert "TikTok: 48 takipçi (+20 bugün)" in lines
+    assert lines[-1] == "TikTok hedefi 10.000: kalan 9.952, bu hızla yaklaşık 996 gün"
+
+
+def test_tiktok_goal_line_without_growth_data_only_shows_what_is_left(db):
+    record_account_stat(db, "tiktok", 28, NOW)
+
+    assert daily_summary(db, NOW).splitlines()[-1] == "TikTok hedefi 10.000: kalan 9.972"
+
+
+def test_without_tiktok_data_the_summary_reminds_to_record_it(db):
+    record_account_stat(db, "telegram", 12, NOW)
+
+    assert "python -m deals.stats --tiktok" in daily_summary(db, NOW).splitlines()[-1]

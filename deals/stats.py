@@ -1,10 +1,14 @@
 """Günlük hesap takibi: Telegram abone ve Instagram takipçi sayısını kaydeder, özet gönderir.
 
 Kullanım:
-    python -m deals.stats    # sayıları kaydet, yönetici sohbetine günlük özet gönder
+    python -m deals.stats              # sayıları kaydet, yönetici sohbetine günlük özet gönder
+    python -m deals.stats --tiktok 48  # TikTok takipçi sayısını elle kaydet (özet gönderilmez)
 
-TikTok'un açık bir API'si yok; onu Emre uygulamadan takip ediyor.
+TikTok'un açık bir API'si yok ve sayfası tarayıcısız/görünmez tarayıcıyla açılmıyor; sayıyı
+Emre uygulamadan bakıp kaydediyor.
 """
+import argparse
+import math
 import io
 import logging
 import sqlite3
@@ -18,7 +22,10 @@ from storage.database import get_account_stat_at, record_account_stat
 
 log = logging.getLogger(__name__)
 
-_LABELS = {"telegram": ("Telegram", "abone"), "instagram": ("Instagram", "takipçi")}
+_LABELS = {"telegram": ("Telegram", "abone"), "instagram": ("Instagram", "takipçi"),
+           "tiktok": ("TikTok", "takipçi")}
+# Trendyol Influencer programının TikTok şartı (organik takipçi).
+TIKTOK_GOAL = 10_000
 # Günde bir kez çalışıyor; elle ikinci kez çalıştırılırsa yine dünle karşılaştırsın.
 _DAY_AGO = timedelta(hours=12)
 _WEEK_AGO = timedelta(days=6, hours=12)
@@ -55,6 +62,32 @@ def reach_line(posts: list[tuple[str, int]]) -> str | None:
     return f"Son 7 gün ortalama erişim: {', '.join(parts)}" if parts else None
 
 
+def _thousands(n: int) -> str:
+    return f"{n:,}".replace(",", ".")
+
+
+def tiktok_goal_line(conn: sqlite3.Connection, now: datetime) -> str:
+    """Trendyol hedefine kalan takipçi; son 7 günün hızıyla tahmini gün sayısı."""
+    current = get_account_stat_at(conn, "tiktok", now)
+    if current is None:
+        return ("TikTok sayısını kaydet: python -m deals.stats --tiktok <sayı> "
+                f"(Trendyol hedefi {_thousands(TIKTOK_GOAL)})")
+    remaining = max(0, TIKTOK_GOAL - current)
+    line = f"TikTok hedefi {_thousands(TIKTOK_GOAL)}: kalan {_thousands(remaining)}"
+    first = conn.execute(
+        "SELECT followers, captured_at FROM account_stats WHERE channel = 'tiktok' "
+        "AND captured_at >= ? AND captured_at <= ? ORDER BY captured_at LIMIT 1",
+        (now - _WEEK_AGO, now),
+    ).fetchone()
+    if first:
+        start = first[1] if isinstance(first[1], datetime) else datetime.fromisoformat(first[1])
+        days = (now - start).total_seconds() / 86400
+        if days >= 1 and current > first[0] and remaining:
+            per_day = (current - first[0]) / days
+            line += f", bu hızla yaklaşık {_thousands(math.ceil(remaining / per_day))} gün"
+    return line
+
+
 def daily_summary(conn: sqlite3.Connection, now: datetime, reach: str | None = None) -> str:
     lines = [f"📊 Günlük takip · {turkish_date(now)}"]
     for channel, (name, unit) in _LABELS.items():
@@ -71,11 +104,11 @@ def daily_summary(conn: sqlite3.Connection, now: datetime, reach: str | None = N
         lines.append(line)
     if reach:
         lines.append(reach)
-    lines.append("TikTok'u uygulamadan kontrol et; Trendyol hedefi 10.000 takipçi.")
+    lines.append(tiktok_goal_line(conn, now))
     return "\n".join(lines)
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     from config import settings
     from deals.instagram import InstagramClient, current_token
     from deals.run import _TOKEN_STORE
@@ -86,9 +119,16 @@ def main() -> int:
     if isinstance(sys.stdout, io.TextIOWrapper):
         sys.stdout.reconfigure(encoding="utf-8")
     get_logger("deals")
+    parser = argparse.ArgumentParser(description="Günlük takipçi takibi")
+    parser.add_argument("--tiktok", type=int, help="TikTok takipçi sayısını kaydet ve çık")
+    args = parser.parse_args(argv)
     now = datetime.now()
     conn = connect(settings.database_path)
     init_schema(conn)
+    if args.tiktok is not None:
+        record_account_stat(conn, "tiktok", args.tiktok, now)
+        print(tiktok_goal_line(conn, now))
+        return 0
 
     fetchers: dict[str, Callable[[], int]] = {}
     if settings.telegram_bot_token and settings.telegram_channel_id:
